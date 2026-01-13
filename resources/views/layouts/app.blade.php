@@ -113,6 +113,17 @@
                             
                         </ul>
                     </li>
+                    
+                    <!-- Role Management -->
+                    @can('view roles')
+                    <li>
+                        <a href="{{ route('roles.index') }}"
+                           class="flex items-center px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('roles.*') ? 'bg-ebara-600 text-white' : 'text-slate-300 hover:bg-slate-800' }}">
+                            <i class="ph ph-shield text-xl"></i>
+                            <span x-show="sidebarOpen" class="ml-3">Manajemen Role</span>
+                        </a>
+                    </li>
+                    @endcan
                 </ul>
             </nav>
             
@@ -230,3 +241,4 @@
     @stack('scripts')
 </body>
 </html>
+

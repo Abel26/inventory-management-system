@@ -3,6 +3,7 @@
 use App\Http\Controllers\AssetManagementController;
 use App\Http\Controllers\AssetModelController;
 use App\Http\Controllers\AssetToolController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -15,14 +16,13 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+
 Route::middleware('auth')->group(function () {
     // Profile Routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    
-    // Product Routes
-    Route::get('/products', [ProductController::class, 'index'])->name('products.index');
     
     // Asset Management Routes
     Route::prefix('assets')->name('assets.')->group(function () {
@@ -55,6 +55,19 @@ Route::middleware('auth')->group(function () {
         Route::put('models/{id}', [AssetModelController::class, 'update'])->name('models.update');
         Route::delete('models/{id}', [AssetModelController::class, 'destroy'])->name('models.destroy');
         Route::get('models/{id}/qr-code', [AssetModelController::class, 'qrCode'])->name('models.qr-code');
+    });
+    
+    // Role Management Routes
+    Route::prefix('roles')->name('roles.')->group(function () {
+        // Custom routes must come before parameterized routes
+        Route::get('/export', [RoleController::class, 'export'])->name('export');
+        Route::get('/', [RoleController::class, 'index'])->name('index');
+        Route::post('/', [RoleController::class, 'store'])->name('store');
+        // Custom routes must come before parameterized routes
+        Route::get('/permissions/by-module', [RoleController::class, 'getPermissionsByModule'])->name('permissions.by-module');
+        Route::get('/{id}', [RoleController::class, 'show'])->name('show');
+        Route::put('/{id}', [RoleController::class, 'update'])->name('update');
+        Route::delete('/{id}', [RoleController::class, 'destroy'])->name('destroy');
     });
 });
 
