@@ -5,7 +5,12 @@
     'children' => [],
 ])
 
-<div x-data="{ open: {{ request()->routeIs(collect($children)->pluck('active')->toArray()) ? 'true' : 'false' }} }">
+@php
+    // Check if any child is active to auto-expand the section
+    $hasActiveChild = collect($children)->contains('active', true);
+@endphp
+
+<div x-data="{ open: {{ $hasActiveChild ? 'true' : 'false' }} }">
     
     <!-- Section Header (Clickable) -->
     <button 

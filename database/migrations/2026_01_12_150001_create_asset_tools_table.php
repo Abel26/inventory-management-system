@@ -13,16 +13,18 @@ return new class extends Migration
     {
         Schema::create('asset_tools', function (Blueprint $table) {
             $table->id();
+            $table->string('tool_code')->unique();
             $table->string('name');
             $table->string('category')->default('general');
             $table->string('brand')->nullable();
-            $table->string('model_type')->nullable();
+            $table->string('type')->nullable();
             $table->integer('purchase_year')->nullable();
             $table->integer('quantity')->default(0);
             $table->string('location')->nullable();
-            $table->enum('condition', ['baik', 'rusak', 'perbaikan'])->default('baik');
+            $table->enum('condition', ['Good', 'Repair', 'Damaged', 'Disposed'])->default('Good');
             $table->text('description')->nullable();
-            $table->string('image')->nullable();
+            $table->string('qr_code_path')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

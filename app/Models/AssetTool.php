@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AssetTool extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -15,18 +16,17 @@ class AssetTool extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'tool_code',
         'name',
         'category',
         'brand',
-        'model_type',
+        'type',
         'purchase_year',
         'quantity',
-        'unit',
-        'min_threshold',
         'location',
         'condition',
         'description',
-        'image',
+        'qr_code_path',
     ];
 
     /**
@@ -39,8 +39,35 @@ class AssetTool extends Model
         return [
             'purchase_year' => 'integer',
             'quantity' => 'integer',
-            'min_threshold' => 'integer',
             'condition' => 'string',
         ];
+    }
+
+    /**
+     * Get condition label.
+     */
+    public function getConditionLabelAttribute(): string
+    {
+        $labels = [
+            'Good' => 'Baik',
+            'Repair' => 'Perbaikan',
+            'Damaged' => 'Rusak',
+            'Disposed' => 'Dibuang',
+        ];
+        return $labels[$this->condition] ?? $this->condition;
+    }
+
+    /**
+     * Get condition color.
+     */
+    public function getConditionColorAttribute(): string
+    {
+        $colors = [
+            'Good' => 'green',
+            'Repair' => 'yellow',
+            'Damaged' => 'red',
+            'Disposed' => 'gray',
+        ];
+        return $colors[$this->condition] ?? 'gray';
     }
 }

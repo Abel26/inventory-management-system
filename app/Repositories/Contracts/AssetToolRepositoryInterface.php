@@ -51,4 +51,12 @@ interface AssetToolRepositoryInterface
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function search(string $query);
+
+    /**
+     * Find asset tool by code.
+     *
+     * @param string $code
+     * @return \App\Models\AssetTool|null
+     */
+    public function findByCode(string $code);
 }
