@@ -73,4 +73,12 @@ class AssetToolRepository implements AssetToolRepositoryInterface
             ->orderBy('name', 'asc')
             ->get();
     }
+
+    /**
+     * Find asset tool by code.
+     */
+    public function findByCode(string $code): ?AssetTool
+    {
+        return AssetTool::where('tool_code', $code)->first();
+    }
 }

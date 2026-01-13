@@ -66,49 +66,52 @@
                         </a>
                     </li>
                     
-                    <!-- Asset Materials -->
-                    <li>
-                        <a href="{{ route('assets.materials.index') }}" 
-                           class="flex items-center px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('assets.materials.*') ? 'bg-ebara-600 text-white' : 'text-slate-300 hover:bg-slate-800' }}">
-                            <i class="ph ph-package text-xl"></i>
-                            <span x-show="sidebarOpen" class="ml-3">Asset Materials</span>
-                        </a>
-                    </li>
-                    
-                    <!-- Stock In -->
-                    <li>
-                        <a href="#" 
-                           class="flex items-center px-3 py-2 rounded-lg transition-colors text-slate-300 hover:bg-slate-800">
-                            <i class="ph ph-arrow-down-left text-xl"></i>
-                            <span x-show="sidebarOpen" class="ml-3">Stock In</span>
-                        </a>
-                    </li>
-                    
-                    <!-- Stock Out -->
-                    <li>
-                        <a href="#" 
-                           class="flex items-center px-3 py-2 rounded-lg transition-colors text-slate-300 hover:bg-slate-800">
-                            <i class="ph ph-arrow-up-right text-xl"></i>
-                            <span x-show="sidebarOpen" class="ml-3">Stock Out</span>
-                        </a>
-                    </li>
-                    
-                    <!-- Reports -->
-                    <li>
-                        <a href="#" 
-                           class="flex items-center px-3 py-2 rounded-lg transition-colors text-slate-300 hover:bg-slate-800">
-                            <i class="ph ph-chart-bar text-xl"></i>
-                            <span x-show="sidebarOpen" class="ml-3">Laporan</span>
-                        </a>
-                    </li>
-                    
-                    <!-- Settings -->
-                    <li>
-                        <a href="#" 
-                           class="flex items-center px-3 py-2 rounded-lg transition-colors text-slate-300 hover:bg-slate-800">
-                            <i class="ph ph-gear text-xl"></i>
-                            <span x-show="sidebarOpen" class="ml-3">Pengaturan</span>
-                        </a>
+                    <!-- Assets Dropdown Group -->
+                    <li x-data="{ open: {{ request()->routeIs('assets.materials*') || request()->routeIs('assets.tools*') || request()->routeIs('assets.models*') ? 'true' : 'false' }} }">
+                        <button @click="open = !open"
+                                class="w-full flex items-center px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('assets.*') ? 'bg-ebara-600 text-white' : 'text-slate-300 hover:bg-slate-800' }}">
+                            <i class="ph ph-cube text-xl"></i>
+                            <span x-show="sidebarOpen" class="ml-3 flex-1 text-left">Assets</span>
+                            <i x-show="sidebarOpen" class="ph ph-caret-down transition-transform duration-200" :class="{ 'rotate-180': open }"></i>
+                        </button>
+                        
+                        <!-- Children Menu (Collapsible) -->
+                        <ul x-show="open" x-collapse x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0 -translate-y-2"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-150"
+                            x-transition:leave-start="opacity-100 translate-y-0"
+                            x-transition:leave-end="opacity-0 -translate-y-2"
+                            class="mt-1 space-y-1 pl-4">
+                            
+                            <!-- Materials -->
+                            <li>
+                                <a href="{{ route('assets.materials.index') }}"
+                                   class="flex items-center px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('assets.materials*') ? 'bg-ebara-600 text-white' : 'text-slate-300 hover:bg-slate-800' }}">
+                                    <i class="ph ph-package text-lg"></i>
+                                    <span x-show="sidebarOpen" class="ml-3">Materials</span>
+                                </a>
+                            </li>
+                            
+                            <!-- Tools -->
+                            <li>
+                                <a href="{{ route('assets.tools.index') }}"
+                                   class="flex items-center px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('assets.tools*') ? 'bg-ebara-600 text-white' : 'text-slate-300 hover:bg-slate-800' }}">
+                                    <i class="ph ph-wrench text-lg"></i>
+                                    <span x-show="sidebarOpen" class="ml-3">Tools</span>
+                                </a>
+                            </li>
+                            
+                            <!-- Models -->
+                            <li>
+                                <a href="{{ route('assets.models.index') }}"
+                                   class="flex items-center px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('assets.models*') ? 'bg-ebara-600 text-white' : 'text-slate-300 hover:bg-slate-800' }}">
+                                    <i class="ph ph-cube text-lg"></i>
+                                    <span x-show="sidebarOpen" class="ml-3">Models</span>
+                                </a>
+                            </li>
+                            
+                        </ul>
                     </li>
                 </ul>
             </nav>
