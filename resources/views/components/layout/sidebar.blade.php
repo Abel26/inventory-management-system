@@ -18,6 +18,27 @@
             'active' => request()->routeIs('products*'),
         ],
         [
+            'title' => 'Assets',
+            'icon' => 'ph-cube',
+            'children' => [
+                [
+                    'title' => 'Materials',
+                    'route' => 'assets.materials.index',
+                    'active' => request()->routeIs('assets.materials*'),
+                ],
+                [
+                    'title' => 'Tools',
+                    'route' => 'assets.tools.index',
+                    'active' => request()->routeIs('assets.tools*'),
+                ],
+                [
+                    'title' => 'Models',
+                    'route' => 'assets.models.index',
+                    'active' => request()->routeIs('assets.models*'),
+                ],
+            ],
+        ],
+        [
             'title' => 'Inventory',
             'icon' => 'ph-warehouse',
             'children' => [

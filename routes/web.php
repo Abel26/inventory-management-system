@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AssetManagementController;
+use App\Http\Controllers\AssetModelController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
@@ -39,6 +41,32 @@ Route::middleware('auth')->group(function () {
     
     // Settings Routes
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+    
+    // Asset Management Routes
+    Route::prefix('assets')->name('assets.')->group(function () {
+        // Materials
+        Route::get('materials', [AssetManagementController::class, 'index'])->name('materials.index');
+        Route::get('materials/data', [AssetManagementController::class, 'getData'])->name('materials.data');
+        Route::get('materials/{id}', [AssetManagementController::class, 'show'])->name('materials.show');
+        Route::post('materials', [AssetManagementController::class, 'store'])->name('materials.store');
+        Route::put('materials/{id}', [AssetManagementController::class, 'update'])->name('materials.update');
+        Route::delete('materials/{id}', [AssetManagementController::class, 'destroy'])->name('materials.destroy');
+        Route::get('materials/{id}/qr-code', [AssetManagementController::class, 'qrCode'])->name('materials.qr-code');
+        Route::get('materials/export', [AssetManagementController::class, 'export'])->name('materials.export');
+        
+        // Tools
+        Route::get('tools', [AssetManagementController::class, 'tools'])->name('tools.index');
+        
+        // Models
+        Route::get('models', [AssetModelController::class, 'index'])->name('models.index');
+        Route::get('models/data', [AssetModelController::class, 'getData'])->name('models.data');
+        Route::get('models/{id}', [AssetModelController::class, 'show'])->name('models.show');
+        Route::post('models', [AssetModelController::class, 'store'])->name('models.store');
+        Route::put('models/{id}', [AssetModelController::class, 'update'])->name('models.update');
+        Route::delete('models/{id}', [AssetModelController::class, 'destroy'])->name('models.destroy');
+        Route::get('models/{id}/qr-code', [AssetModelController::class, 'qrCode'])->name('models.qr-code');
+        Route::get('models/export', [AssetModelController::class, 'export'])->name('models.export');
+    });
 });
 
 require __DIR__.'/auth.php';
