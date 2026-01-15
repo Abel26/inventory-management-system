@@ -154,10 +154,24 @@
                 <p class="text-gray-600 mt-1">Kelola inventaris material dan persediaan</p>
             </div>
             <div class="flex gap-3">
-                <a href="{{ route('assets.materials.export') }}" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg inline-flex items-center gap-2 transition">
-                    <i class="ph ph-download-simple text-lg"></i>
-                    <span>Ekspor</span>
-                </a>
+                <!-- Export Dropdown -->
+                <div x-data="{ open: false }" class="relative">
+                    <button @click="open = !open" @click.outside="open = false" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg inline-flex items-center gap-2 transition">
+                        <i class="ph ph-download-simple text-lg"></i>
+                        <span>Ekspor</span>
+                        <i class="ph ph-caret-down text-sm" x-show="open" x-transition></i>
+                    </button>
+                    <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                        <a href="{{ route('assets.materials.export') }}" class="flex items-center gap-2 px-4 py-3 hover:bg-gray-100 transition">
+                            <i class="ph ph-microsoft-excel-logo text-lg text-green-600"></i>
+                            <span class="text-sm font-medium">Ekspor ke Excel</span>
+                        </a>
+                        <a href="{{ route('assets.materials.export-pdf') }}" class="flex items-center gap-2 px-4 py-3 hover:bg-gray-100 transition border-t border-gray-100">
+                            <i class="ph ph-file-pdf text-lg text-red-600"></i>
+                            <span class="text-sm font-medium">Ekspor ke PDF</span>
+                        </a>
+                    </div>
+                </div>
                 <button type="button" id="createNewMaterial" class="bg-ebara-600 hover:bg-ebara-700 text-white font-medium py-2 px-4 rounded-lg inline-flex items-center gap-2 transition">
                     <i class="ph ph-plus text-lg"></i>
                     <span>Tambah Data</span>

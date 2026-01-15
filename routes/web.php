@@ -31,6 +31,7 @@ Route::middleware('auth')->group(function () {
         Route::get('materials', [AssetManagementController::class, 'index'])->name('materials.index');
         Route::get('materials/data', [AssetManagementController::class, 'getData'])->name('materials.data');
         Route::get('materials/export', [AssetManagementController::class, 'export'])->name('materials.export');
+        Route::get('materials/export-pdf', [AssetManagementController::class, 'exportPdf'])->name('materials.export-pdf');
         Route::get('materials/{id}', [AssetManagementController::class, 'show'])->name('materials.show');
         Route::post('materials', [AssetManagementController::class, 'store'])->name('materials.store');
         Route::put('materials/{id}', [AssetManagementController::class, 'update'])->name('materials.update');
@@ -41,6 +42,7 @@ Route::middleware('auth')->group(function () {
         Route::get('tools', [AssetToolController::class, 'index'])->name('tools.index');
         Route::get('tools/data', [AssetToolController::class, 'getData'])->name('tools.data');
         Route::get('tools/export', [AssetToolController::class, 'export'])->name('tools.export');
+        Route::get('tools/export-pdf', [AssetToolController::class, 'exportPdf'])->name('tools.export-pdf');
         Route::get('tools/{id}', [AssetToolController::class, 'show'])->name('tools.show');
         Route::post('tools', [AssetToolController::class, 'store'])->name('tools.store');
         Route::put('tools/{id}', [AssetToolController::class, 'update'])->name('tools.update');
@@ -51,6 +53,7 @@ Route::middleware('auth')->group(function () {
         Route::get('models', [AssetModelController::class, 'index'])->name('models.index');
         Route::get('models/data', [AssetModelController::class, 'getData'])->name('models.data');
         Route::get('models/export', [AssetModelController::class, 'export'])->name('models.export');
+        Route::get('models/export-pdf', [AssetModelController::class, 'exportPdf'])->name('models.export-pdf');
         Route::get('models/{id}', [AssetModelController::class, 'show'])->name('models.show');
         Route::post('models', [AssetModelController::class, 'store'])->name('models.store');
         Route::put('models/{id}', [AssetModelController::class, 'update'])->name('models.update');
