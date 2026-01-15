@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\AssetToolsExport;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class AssetToolController extends Controller
 {
@@ -172,6 +174,23 @@ class AssetToolController extends Controller
     public function export()
     {
         return Excel::download(new AssetToolsExport(), 'tools-' . date('Y-m-d') . '.xlsx');
+    }
+
+    /**
+     * Export tools to PDF.
+     */
+    public function exportPdf()
+    {
+        $tools = $this->assetToolService->getAll();
+        $date = Carbon::now()->locale('id')->isoFormat('D MMMM Y');
+        $title = 'Laporan Data Alat';
+        
+        $pdf = PDF::loadView('asset_tools.pdf', compact('tools', 'date', 'title'))
+            ->setPaper('a4', 'portrait')
+            ->setOption('isHtml5ParserEnabled', true)
+            ->setOption('isRemoteEnabled', true);
+        
+        return $pdf->download("Laporan Alat {$date}.pdf");
     }
 
     /**

@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\AssetMaterialsExport;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class AssetManagementController extends Controller
 {
@@ -176,6 +178,23 @@ class AssetManagementController extends Controller
     public function export()
     {
         return Excel::download(new AssetMaterialsExport(), 'materials-' . date('Y-m-d') . '.xlsx');
+    }
+
+    /**
+     * Export materials to PDF.
+     */
+    public function exportPdf()
+    {
+        $materials = $this->assetMaterialService->getAll();
+        $date = Carbon::now()->locale('id')->isoFormat('D MMMM Y');
+        $title = 'Laporan Data Material';
+        
+        $pdf = PDF::loadView('asset_materials.pdf', compact('materials', 'date', 'title'))
+            ->setPaper('a4', 'portrait')
+            ->setOption('isHtml5ParserEnabled', true)
+            ->setOption('isRemoteEnabled', true);
+        
+        return $pdf->download("Laporan Material {$date}.pdf");
     }
 
     /**
