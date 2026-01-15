@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class AssetMaterial extends Model
 {
@@ -29,6 +30,7 @@ class AssetMaterial extends Model
         'location',
         'description',
         'unit_price',
+        'qr_code_path',
     ];
 
     /**
@@ -52,6 +54,14 @@ class AssetMaterial extends Model
         return $this->belongsToMany(AssetModel::class, 'asset_model_material', 'material_id', 'model_id')
             ->withPivot('quantity')
             ->withTimestamps();
+    }
+
+    /**
+     * Get all reports for this material.
+     */
+    public function reports(): MorphMany
+    {
+        return $this->morphMany(Report::class, 'reportable');
     }
 
     /**

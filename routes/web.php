@@ -6,6 +6,7 @@ use App\Http\Controllers\AssetToolController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -68,6 +69,19 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}', [RoleController::class, 'show'])->name('show');
         Route::put('/{id}', [RoleController::class, 'update'])->name('update');
         Route::delete('/{id}', [RoleController::class, 'destroy'])->name('destroy');
+    });
+
+    // Report Management Routes
+    Route::prefix('reports')->name('reports.')->group(function () {
+        // Custom routes must come before parameterized routes
+        Route::get('/scan', [ReportController::class, 'scan'])->name('scan');
+        Route::get('/by-status/{status}', [ReportController::class, 'getByStatus'])->name('by-status');
+
+        Route::get('/', [ReportController::class, 'index'])->name('index');
+        Route::get('/create', [ReportController::class, 'create'])->name('create');
+        Route::post('/', [ReportController::class, 'store'])->name('store');
+        Route::get('/{id}', [ReportController::class, 'show'])->name('show');
+        Route::put('/{id}/status', [ReportController::class, 'updateStatus'])->name('update-status');
     });
 });
 

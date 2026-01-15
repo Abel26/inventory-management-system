@@ -1,0 +1,230 @@
+<x-app-layout>
+    <x-slot name="title">Buat Laporan</x-slot>
+
+    <div class="space-y-6">
+
+        <!-- Header -->
+        <div class="flex items-center gap-4">
+            <a href="{{ route('reports.index') }}" class="text-gray-600 hover:text-gray-900 transition">
+                <i class="ph ph-arrow-left text-xl"></i>
+            </a>
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Buat Laporan</h1>
+                <p class="text-gray-600 mt-1">Laporkan masalah pada aset</p>
+            </div>
+        </div>
+
+        @if(session('asset'))
+            <!-- Asset Card from Session -->
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                <div class="flex items-start gap-6">
+                    <!-- Asset Photo -->
+                    <div class="w-32 h-32 bg-white rounded-lg border border-gray-200 flex items-center justify-center flex-shrink-0">
+                        <i class="ph ph-package text-5xl text-blue-600"></i>
+                    </div>
+
+                    <!-- Asset Details -->
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">
+                            {{ session('asset')['name'] }}
+                            <span class="ml-2 px-3 py-1 text-sm font-medium text-blue-600 bg-blue-100 rounded-full">
+                                {{ session('asset_type') ? ucfirst(session('asset_type')) : 'Asset' }}
+                            </span>
+                        </h3>
+
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                            <div>
+                                <p class="text-gray-500">Kode</p>
+                                <p class="font-medium text-gray-900">{{ session('asset')['code'] }}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500">Tipe</p>
+                                <p class="font-medium text-gray-900">{{ session('asset')['type'] }}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500">Kondisi</p>
+                                <p class="font-medium text-gray-900">{{ session('asset')['condition'] ?? '-' }}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500">Lokasi</p>
+                                <p class="font-medium text-gray-900">{{ session('asset')['location'] }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @elseif($assetInfo)
+            <!-- Asset Card from URL Parameter -->
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                <div class="flex items-start gap-6">
+                    <!-- Asset Photo -->
+                    <div class="w-32 h-32 bg-white rounded-lg border border-gray-200 flex items-center justify-center flex-shrink-0">
+                        <i class="ph ph-package text-5xl text-blue-600"></i>
+                    </div>
+
+                    <!-- Asset Details -->
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">
+                            {{ $assetInfo['name'] }}
+                            <span class="ml-2 px-3 py-1 text-sm font-medium text-blue-600 bg-blue-100 rounded-full">
+                                {{ $assetInfo['type'] }}
+                            </span>
+                        </h3>
+
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                            <div>
+                                <p class="text-gray-500">Kode</p>
+                                <p class="font-medium text-gray-900">{{ $assetInfo['code'] }}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500">Tipe</p>
+                                <p class="font-medium text-gray-900">{{ $assetInfo['type'] }}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500">Kondisi</p>
+                                <p class="font-medium text-gray-900">{{ $assetInfo['condition'] ?? '-' }}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500">Lokasi</p>
+                                <p class="font-medium text-gray-900">{{ $assetInfo['location'] }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @else
+            <!-- No Asset Selected Warning -->
+            <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0">
+                        <i class="ph ph-warning-circle text-3xl text-yellow-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-lg font-bold text-yellow-900">Tidak ada aset yang dipilih</h3>
+                        <p class="text-yellow-700 mt-1">Silakan scan QR code aset terlebih dahulu untuk membuat laporan.</p>
+                        <a href="{{ route('reports.scan') }}" class="inline-flex items-center gap-2 mt-3 bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-lg transition">
+                            <i class="ph ph-qr-code text-lg"></i>
+                            <span>Scan QR Code</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        <!-- Report Form -->
+        <div class="bg-white shadow-lg rounded-xl border border-gray-100 p-6">
+            <form action="{{ route('reports.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                @csrf
+
+                <input type="hidden" name="reportable_id" value="{{ session('asset')['id'] ?? $assetInfo['id'] ?? '' }}">
+                <input type="hidden" name="reportable_type" value="{{ session('asset')['model_class'] ?? $assetInfo['model_class'] ?? '' }}">
+
+                <!-- Issue Type -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3">Jenis Masalah</label>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <label class="flex items-center space-x-2 cursor-pointer bg-gray-50 hover:bg-gray-100 rounded-lg p-3 transition">
+                            <input type="radio" name="issue_type" value="Damage" class="w-4 h-4 text-red-600" required>
+                            <span class="text-sm text-gray-700">Kerusakan</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer bg-gray-50 hover:bg-gray-100 rounded-lg p-3 transition">
+                            <input type="radio" name="issue_type" value="Maintenance" class="w-4 h-4 text-yellow-600">
+                            <span class="text-sm text-gray-700">Perawatan</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer bg-gray-50 hover:bg-gray-100 rounded-lg p-3 transition">
+                            <input type="radio" name="issue_type" value="Lost" class="w-4 h-4 text-orange-600">
+                            <span class="text-sm text-gray-700">Hilang</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer bg-gray-50 hover:bg-gray-100 rounded-lg p-3 transition">
+                            <input type="radio" name="issue_type" value="Stock Discrepancy" class="w-4 h-4 text-purple-600">
+                            <span class="text-sm text-gray-700">Selisih Stok</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Priority -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3">Prioritas</label>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <label class="flex items-center space-x-2 cursor-pointer bg-gray-50 hover:bg-gray-100 rounded-lg p-3 transition">
+                            <input type="radio" name="priority" value="Low" class="w-4 h-4 text-gray-600">
+                            <span class="text-sm text-gray-700">Rendah</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer bg-gray-50 hover:bg-gray-100 rounded-lg p-3 transition">
+                            <input type="radio" name="priority" value="Medium" class="w-4 h-4 text-yellow-600">
+                            <span class="text-sm text-gray-700">Sedang</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer bg-gray-50 hover:bg-gray-100 rounded-lg p-3 transition">
+                            <input type="radio" name="priority" value="High" class="w-4 h-4 text-orange-600">
+                            <span class="text-sm text-gray-700">Tinggi</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer bg-gray-50 hover:bg-gray-100 rounded-lg p-3 transition">
+                            <input type="radio" name="priority" value="Critical" class="w-4 h-4 text-red-600">
+                            <span class="text-sm text-gray-700">Kritis</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
+                    <textarea
+                        id="description"
+                        name="description"
+                        rows="4"
+                        required
+                        class="w-full rounded-lg border-gray-300 shadow-sm border p-3 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition"
+                        placeholder="Jelaskan masalah yang terjadi..."></textarea>
+                </div>
+
+                <!-- Photo Upload -->
+                <div>
+                    <label for="photo" class="block text-sm font-medium text-gray-700 mb-2">Foto Bukti (Opsional)</label>
+                    <div class="flex items-center gap-4">
+                        <label class="flex-1 cursor-pointer">
+                            <input type="file" name="photo" accept="image/*" class="hidden" id="photoInput">
+                            <div class="w-24 h-24 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-200 transition cursor-pointer" onclick="document.getElementById('photoInput').click()">
+                                <div class="text-center">
+                                    <i class="ph ph-camera text-2xl text-gray-400"></i>
+                                    <p class="text-xs text-gray-500 mt-1">Upload</p>
+                                </div>
+                            </div>
+                        </label>
+                        <div id="photoPreview" class="w-24 h-24 bg-gray-100 rounded-lg border border-gray-200 hidden overflow-hidden">
+                            <img id="previewImage" src="" alt="Preview" class="w-full h-full object-cover">
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">Maksimal 5MB. Format: JPG, PNG, GIF.</p>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                    <a href="{{ route('reports.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition">
+                        Batal
+                    </a>
+                    <button type="submit" class="bg-ebara-600 hover:bg-ebara-700 text-white font-medium py-2 px-6 rounded-lg inline-flex items-center gap-2 transition">
+                        <i class="ph ph-paper-plane-right text-lg"></i>
+                        <span>Kirim Laporan</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+    @push('scripts')
+    <script>
+        document.getElementById('photoInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImage').src = e.target.result;
+                    document.getElementById('photoPreview').classList.remove('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+    @endpush
+</x-app-layout>

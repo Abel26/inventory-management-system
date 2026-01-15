@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class AssetTool extends Model
 {
@@ -41,6 +42,14 @@ class AssetTool extends Model
             'quantity' => 'integer',
             'condition' => 'string',
         ];
+    }
+
+    /**
+     * Get all reports for this tool.
+     */
+    public function reports(): MorphMany
+    {
+        return $this->morphMany(Report::class, 'reportable');
     }
 
     /**
