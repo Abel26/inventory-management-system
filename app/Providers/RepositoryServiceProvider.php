@@ -8,11 +8,13 @@ use App\Repositories\Contracts\AssetToolRepositoryInterface;
 use App\Repositories\Contracts\AssetModelRepositoryInterface;
 use App\Repositories\Contracts\AssetRepositoryInterface;
 use App\Repositories\Contracts\RoleRepositoryInterface;
+use App\Repositories\Contracts\ReportRepositoryInterface;
 use App\Repositories\AssetMaterialRepository;
 use App\Repositories\AssetToolRepository;
 use App\Repositories\AssetModelRepository;
 use App\Repositories\AssetRepository;
 use App\Repositories\RoleRepository;
+use App\Repositories\ReportRepository;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
@@ -35,6 +37,9 @@ class RepositoryServiceProvider extends ServiceProvider
         
         // Bind Role Repository
         $this->app->bind(RoleRepositoryInterface::class, RoleRepository::class);
+
+        // Bind Report Repository
+        $this->app->bind(ReportRepositoryInterface::class, ReportRepository::class);
     }
 
     /**

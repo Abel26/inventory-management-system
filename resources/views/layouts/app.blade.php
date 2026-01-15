@@ -124,6 +124,54 @@
                         </a>
                     </li>
                     @endcan
+
+                    <!-- Reports Dropdown Group -->
+                    <li x-data="{ open: {{ request()->routeIs('reports.index') || request()->routeIs('reports.create') || request()->routeIs('reports.scan') || request()->routeIs('reports.show') ? 'true' : 'false' }} }">
+                        <button @click="open = !open"
+                                class="w-full flex items-center px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('reports.*') ? 'bg-ebara-600 text-white' : 'text-slate-300 hover:bg-slate-800' }}">
+                            <i class="ph ph-clipboard-text text-xl"></i>
+                            <span x-show="sidebarOpen" class="ml-3 flex-1 text-left">Laporan</span>
+                            <i x-show="sidebarOpen" class="ph ph-caret-down transition-transform duration-200" :class="{ 'rotate-180': open }"></i>
+                        </button>
+
+                        <!-- Children Menu (Collapsible) -->
+                        <ul x-show="open" x-collapse x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0 -translate-y-2"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-150"
+                            x-transition:leave-start="opacity-100 translate-y-0"
+                            x-transition:leave-end="opacity-0 -translate-y-2"
+                            class="mt-1 space-y-1 pl-4">
+
+                            <!-- Scan QR Code -->
+                            <li>
+                                <a href="{{ route('reports.scan') }}"
+                                   class="flex items-center px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('reports.scan') ? 'bg-ebara-600 text-white' : 'text-slate-300 hover:bg-slate-800' }}">
+                                    <i class="ph ph-qr-code text-lg"></i>
+                                    <span x-show="sidebarOpen" class="ml-3">Scan QR Code</span>
+                                </a>
+                            </li>
+
+                            <!-- Dashboard -->
+                            <li>
+                                <a href="{{ route('reports.index') }}"
+                                   class="flex items-center px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('reports.index') ? 'bg-ebara-600 text-white' : 'text-slate-300 hover:bg-slate-800' }}">
+                                    <i class="ph ph-chart-bar text-lg"></i>
+                                    <span x-show="sidebarOpen" class="ml-3">Dashboard</span>
+                                </a>
+                            </li>
+
+                            <!-- Create Report -->
+                            <li>
+                                <a href="{{ route('reports.create') }}"
+                                   class="flex items-center px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('reports.create') ? 'bg-ebara-600 text-white' : 'text-slate-300 hover:bg-slate-800' }}">
+                                    <i class="ph ph-plus text-lg"></i>
+                                    <span x-show="sidebarOpen" class="ml-3">Buat Laporan</span>
+                                </a>
+                            </li>
+
+                        </ul>
+                    </li>
                 </ul>
             </nav>
             

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AssetModel extends Model
@@ -36,6 +37,14 @@ class AssetModel extends Model
     public function material(): BelongsTo
     {
         return $this->belongsTo(AssetMaterial::class, 'material_id');
+    }
+
+    /**
+     * Get all reports for this model.
+     */
+    public function reports(): MorphMany
+    {
+        return $this->morphMany(Report::class, 'reportable');
     }
 
     /**
