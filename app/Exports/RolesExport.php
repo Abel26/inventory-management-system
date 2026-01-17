@@ -75,14 +75,15 @@ class RolesExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
                 
-                // Get the highest row index
+                // Get the highest column and row
+                $highestColumn = $sheet->getHighestColumn();
                 $highestRow = $sheet->getHighestRow();
                 
                 // Apply styles to header row (row 1)
-                if ($highestRow) {
+                if ($highestRow > 0) {
                     $headerStyle = $this->getHeaderStyle();
                     
-                    foreach (range('A', $highestRow['columnLetter']) as $column) {
+                    foreach (range('A', $highestColumn) as $column) {
                         $sheet->getStyle($column . '1')->applyFromArray($headerStyle);
                     }
                 }

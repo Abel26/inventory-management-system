@@ -66,6 +66,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('roles')->name('roles.')->group(function () {
         // Custom routes must come before parameterized routes
         Route::get('/export', [RoleController::class, 'export'])->name('export');
+        Route::get('/export-pdf', [RoleController::class, 'exportPdf'])->name('export-pdf');
         Route::get('/', [RoleController::class, 'index'])->name('index');
         Route::post('/', [RoleController::class, 'store'])->name('store');
         // Custom routes must come before parameterized routes

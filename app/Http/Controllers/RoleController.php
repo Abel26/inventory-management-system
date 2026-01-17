@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exports\RolesExport;
 use App\Http\Controllers\Controller;
 use App\Services\RoleService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
@@ -55,7 +56,7 @@ class RoleController extends Controller
             $data = $request->validate([
                 'name' => 'required|string|max:255|unique:roles,name',
                 'permissions' => 'nullable|array',
-                'permissions.*' => 'exists:spatie_permission,name',
+                'permissions.*' => 'exists:permissions,id',
             ]);
             
             $this->roleService->create($data);
@@ -113,7 +114,7 @@ class RoleController extends Controller
             $data = $request->validate([
                 'name' => 'required|string|max:255|unique:roles,name,' . $id,
                 'permissions' => 'nullable|array',
-                'permissions.*' => 'exists:spatie_permission,name',
+                'permissions.*' => 'exists:permissions,id',
             ]);
             
             $this->roleService->update($id, $data);
@@ -186,5 +187,19 @@ class RoleController extends Controller
     public function export()
     {
         return Excel::download(new RolesExport, 'roles_export_' . date('Y-m-d_H-i') . '.xlsx');
+    }
+    
+    /**
+     * Export roles to PDF.
+     */
+    public function exportPdf()
+    {
+        $roles = Role::withCount('permissions')->orderBy('created_at', 'desc')->get();
+        
+        $pdf = Pdf::loadView('exports.roles-pdf', compact('roles'))
+            ->setPaper('a4', 'portrait')
+            ->setOption(['defaultFont' => 'Arial']);
+        
+        return $pdf->download('roles_export_' . date('Y-m-d_H-i') . '.pdf');
     }
 }

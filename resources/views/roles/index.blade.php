@@ -179,17 +179,36 @@
                 <p class="text-gray-600 mt-1">Kelola peran dan hak akses pengguna</p>
             </div>
             <div class="flex gap-3">
-                <a href="{{ route('roles.export') }}" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-4 rounded-lg inline-flex items-center gap-2 transition">
-                    <i class="ph ph-file-excel text-lg"></i>
-                    <span>Export Excel</span>
-                </a>
+                <!-- Export Dropdown -->
+                <div x-data="{ open: false }" class="relative">
+                    <button type="button" @click="open = !open" @click.away="open = false" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg inline-flex items-center gap-2 transition">
+                        <i class="ph ph-download-simple text-lg"></i>
+                        <span>Ekspor</span>
+                        <i class="ph ph-caret-down text-sm"></i>
+                    </button>
+                    
+                    <!-- Dropdown Menu -->
+                    <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute right-0 mt-2 w-48 bg-white shadow-xl rounded-lg border border-gray-100 z-50">
+                        <div class="py-1">
+                            <a href="{{ route('roles.export') }}" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                                <i class="ph ph-microsoft-excel-logo text-lg text-green-600"></i>
+                                <span>Export Excel</span>
+                            </a>
+                            <a href="{{ route('roles.export-pdf') }}" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                                <i class="ph ph-file-pdf text-lg text-red-600"></i>
+                                <span>Export PDF</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
                 <button type="button" id="createNewRole" class="bg-ebara-600 hover:bg-ebara-700 text-white font-medium py-2 px-4 rounded-lg inline-flex items-center gap-2 transition">
                     <i class="ph ph-plus text-lg"></i>
                     <span>Tambah Role</span>
                 </button>
             </div>
         </div>
-
+        
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
@@ -214,40 +233,28 @@
                     </div>
                 </div>
             </div>
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">Super Admin</p>
-                        <h5 class="text-2xl font-bold text-gray-900 mt-1" id="superAdminCount">0</h5>
-                    </div>
-                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <i class="ph ph-crown text-2xl text-purple-600"></i>
-                    </div>
-                </div>
-            </div>
         </div>
-
+        
         <!-- Table Card -->
         <div class="bg-white shadow-lg rounded-xl border border-gray-100 p-6 relative overflow-hidden">
             <div class="overflow-x-auto">
                 <table id="rolesTable" class="w-full">
-                <thead>
-                    <tr class="bg-gray-100 text-gray-600 uppercase text-sm">
-                        <th class="px-4 py-3 text-left font-semibold">Nama Role</th>
-                        <th class="px-4 py-3 text-left font-semibold">Guard</th>
-                        <th class="px-4 py-3 text-left font-semibold">Jumlah Permission</th>
-                        <th class="px-4 py-3 text-center font-semibold">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Data will be loaded by DataTables -->
-                </tbody>
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-600 uppercase text-sm">
+                            <th class="px-4 py-3 text-left font-semibold">Nama Role</th>
+                            <th class="px-4 py-3 text-left font-semibold">Guard</th>
+                            <th class="px-4 py-3 text-left font-semibold">Jumlah Permission</th>
+                            <th class="px-4 py-3 text-center font-semibold">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be loaded by DataTables -->
+                    </tbody>
                 </table>
             </div>
         </div>
-
     </div>
-
+    
     <!-- Add/Edit Modal -->
     <div id="roleModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden z-50 overflow-y-auto">
         <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-4">
@@ -258,7 +265,8 @@
                         <i class="ph ph-x text-2xl"></i>
                     </button>
                 </div>
-                <form id="roleForm" class="flex-1 flex flex-col overflow-hidden">
+                <form id="roleForm" action="{{ route('roles.store') }}" method="POST" class="flex-1 flex flex-col overflow-hidden">
+                    @csrf
                     <input type="hidden" id="roleId" name="id">
                     <div class="p-6 space-y-4 flex-shrink-0">
                         <div>
@@ -289,7 +297,7 @@
             </div>
         </div>
     </div>
-
+    
     @push('scripts')
     <script>
     var storeUrl = "{{ route('roles.store') }}";
@@ -298,7 +306,7 @@
     var destroyUrlTemplate = "{{ route('roles.destroy', ':id') }}";
     var getPermissionsByModuleUrl = "{{ route('roles.permissions.by-module') }}";
     var roles = @json($roles);
-
+    
     $(document).ready(function() {
         let table = $('#rolesTable').DataTable({
             processing: true,
@@ -351,41 +359,36 @@
             dom: '<"flex flex-col sm:flex-row justify-between items-center gap-4 mb-4"lf>rt<"flex flex-col sm:flex-row justify-between items-center gap-4 mt-4"ip>',
             lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]]
         });
-
+        
         // Update stats
         $('#totalRoles').text(table.rows().count());
         $('#totalPermissions').text({{ $permissions->count() }});
         $('#superAdminCount').text(roles.filter(r => r.name === 'Super Admin').length);
-
+        
         $('#createNewRole').on('click', function() {
-            $('#modalTitle').text('Tambah Role');
-            $('#roleForm')[0].reset();
-            $('#roleId').val('');
-            $('#permissionsContainer').empty();
-            
-            // Load permissions grouped by module
-            $.ajax({
-                url: getPermissionsByModuleUrl,
-                method: 'GET',
-                success: function(response) {
-                    if (response.success) {
-                        renderPermissionsByModule(response.data);
-                    }
-                }
-            });
-            
-            $('#roleModal').removeClass('hidden');
+            handleAjaxForm('#roleForm', '#rolesTable', '#roleModal');
         });
-
+        
         $('#closeModalBtn').on('click', function() {
             $('#roleModal').addClass('hidden');
         });
-
+        
         $('#cancelBtn').on('click', function() {
             $('#roleModal').addClass('hidden');
         });
+        
+        // Load permissions grouped by module
+        $.ajax({
+            url: getPermissionsByModuleUrl,
+            method: 'GET',
+            success: function(response) {
+                if (response.success) {
+                    renderPermissionsByModule(response.data);
+                }
+            }
+        });
     });
-
+    
     function renderPermissionsByModule(data) {
         var container = $('#permissionsContainer');
         container.empty();
@@ -432,7 +435,7 @@
             }
         });
     }
-
+    
     function toggleModulePermissions(module) {
         var checkbox = document.getElementById('selectAll_' + module);
         var moduleContainer = checkbox.closest('.module-card');
@@ -442,113 +445,16 @@
             cb.checked = checkbox.checked;
         });
     }
-
+    
     function updatePermissionCount() {
         var checkedCount = document.querySelectorAll('input[name="permissions[]"]:checked').length;
         $('#permissionsCount').text(checkedCount);
     }
-
+    
     function editRole(id) {
-        $.ajax({
-            url: showUrlTemplate.replace(':id', id),
-            method: 'GET',
-            success: function(response) {
-                if (response.success) {
-                    const data = response.data;
-                    $('#modalTitle').text('Edit Role');
-                    $('#roleId').val(data.id);
-                    $('#name').val(data.name);
-                    $('#guard_name').val(data.guard_name);
-                    
-                    // Load permissions
-                    $.ajax({
-                        url: getPermissionsByModuleUrl,
-                        method: 'GET',
-                        success: function(permResponse) {
-                            if (permResponse.success) {
-                                renderPermissionsByModule(permResponse.data);
-                                
-                                // Check existing permissions
-                                if (data.permissions) {
-                                    data.permissions.forEach(function(perm) {
-                                        var checkbox = document.querySelector(`input[name="permissions[]"][value="${perm.id}"]`);
-                                        if (checkbox) {
-                                            checkbox.checked = true;
-                                        }
-                                    });
-                                }
-                            }
-                        }
-                    });
-                    
-                    $('#roleModal').removeClass('hidden');
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: response.message,
-                        confirmButtonColor: '#dc2626'
-                    });
-                }
-            },
-            error: function(xhr) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Gagal mengambil data role',
-                    confirmButtonColor: '#dc2626'
-                });
-            }
-        });
+        handleAjaxForm('#roleForm', '#rolesTable', '#roleModal', 'Edit Role', 'Apakah Anda yakin ingin mengedit role ini?');
     }
-
-    $('#roleForm').on('submit', function(e) {
-        e.preventDefault();
-        var formData = $(this).serialize();
-        var id = $('#roleId').val();
-        var url = storeUrl;
-        var method = 'POST';
-        var successMessage = 'Role berhasil disimpan';
-
-        if (id) {
-            url = updateUrlTemplate.replace(':id', id);
-            method = 'PUT';
-            successMessage = 'Role berhasil diperbarui';
-        }
-
-        $.ajax({
-            url: url,
-            method: method,
-            data: formData,
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            success: function(response) {
-                $('#roleModal').addClass('hidden');
-                table.rows().invalidate().draw();
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil',
-                    text: successMessage,
-                    confirmButtonColor: '#009B77'
-                });
-            },
-            error: function(xhr) {
-                var errors = xhr.responseJSON.errors;
-                var errorMessage = '';
-                for (var key in errors) {
-                    errorMessage += errors[key][0] + '\n';
-                }
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: errorMessage,
-                    confirmButtonColor: '#dc2626'
-                });
-            }
-        });
-    });
-
+    
     function deleteRole(id) {
         Swal.fire({
             title: 'Apakah Anda yakin?',
@@ -557,8 +463,9 @@
             showCancelButton: true,
             confirmButtonColor: '#dc2626',
             cancelButtonColor: '#009B77',
-            confirmButtonText: 'Ya, hapus',
-            cancelButtonText: 'Batal'
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal',
+            reverseButtons: true
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
