@@ -114,8 +114,6 @@
                         </ul>
                     </li>
                     
-                    <!-- Role Management -->
-                    @can('view roles')
                     <li>
                         <a href="{{ route('roles.index') }}"
                            class="flex items-center px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('roles.*') ? 'bg-ebara-600 text-white' : 'text-slate-300 hover:bg-slate-800' }}">
@@ -123,7 +121,6 @@
                             <span x-show="sidebarOpen" class="ml-3">Manajemen Role</span>
                         </a>
                     </li>
-                    @endcan
 
                     <!-- Reports Dropdown Group -->
                     <li x-data="{ open: {{ request()->routeIs('reports.index') || request()->routeIs('reports.scan') || request()->routeIs('reports.show') ? 'true' : 'false' }} }">

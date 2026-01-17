@@ -33,7 +33,10 @@ class RoleRepository implements RoleRepositoryInterface
         $role = Role::create($data);
         
         if (isset($data['permissions'])) {
-            $role->syncPermissions($data['permissions']);
+            // Convert permission IDs to Permission objects before syncing
+            $permissionIds = array_map('intval', $data['permissions']);
+            $permissions = Permission::whereIn('id', $permissionIds)->get();
+            $role->syncPermissions($permissions);
         }
         
         return $role;
@@ -49,11 +52,14 @@ class RoleRepository implements RoleRepositoryInterface
         if (!$role) {
             return null;
         }
-
+        
         $role->update($data);
         
         if (isset($data['permissions'])) {
-            $role->syncPermissions($data['permissions']);
+            // Convert permission IDs to Permission objects before syncing
+            $permissionIds = array_map('intval', $data['permissions']);
+            $permissions = Permission::whereIn('id', $permissionIds)->get();
+            $role->syncPermissions($permissions);
         }
         
         return $role;

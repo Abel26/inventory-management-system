@@ -197,10 +197,10 @@
         </div>
 
         <!-- Settings Dropdown Group -->
-        <div x-data="{ open: {{ request()->routeIs('profile.edit') || request()->routeIs('settings*') ? 'true' : 'false' }} }">
+        <div x-data="{ open: {{ request()->routeIs('profile.edit') || request()->routeIs('settings*') || request()->routeIs('roles*') ? 'true' : 'false' }} }">
             
             <!-- Section Header (Clickable) -->
-            <button 
+            <button
                 @click="open = !open"
                 class="w-full flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-all duration-200 group"
             >
@@ -219,6 +219,13 @@
                         <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('profile.edit') ? 'bg-ebara-400' : 'bg-slate-600 group-hover:bg-slate-400' }}"></span>
                     </span>
                     <span class="truncate">Profile</span>
+                </a>
+                
+                <!-- Roles -->
+                <a href="{{ route('roles.index') }}" class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 group
+                    {{ request()->routeIs('roles*') ? 'bg-ebara-500/20 text-ebara-400' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
+                    <i class="ph ph-shield-check text-lg flex-shrink-0 mr-3"></i>
+                    <span class="truncate">Roles</span>
                 </a>
                 
                 <!-- System Settings -->
