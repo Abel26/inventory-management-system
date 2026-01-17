@@ -126,11 +126,11 @@
                     @endcan
 
                     <!-- Reports Dropdown Group -->
-                    <li x-data="{ open: {{ request()->routeIs('reports.index') || request()->routeIs('reports.create') || request()->routeIs('reports.scan') || request()->routeIs('reports.show') ? 'true' : 'false' }} }">
+                    <li x-data="{ open: {{ request()->routeIs('reports.index') || request()->routeIs('reports.scan') || request()->routeIs('reports.show') ? 'true' : 'false' }} }">
                         <button @click="open = !open"
                                 class="w-full flex items-center px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('reports.*') ? 'bg-ebara-600 text-white' : 'text-slate-300 hover:bg-slate-800' }}">
                             <i class="ph ph-clipboard-text text-xl"></i>
-                            <span x-show="sidebarOpen" class="ml-3 flex-1 text-left">Laporan</span>
+                            <span x-show="sidebarOpen" class="ml-3 flex-1 text-left">Laporan Masalah</span>
                             <i x-show="sidebarOpen" class="ph ph-caret-down transition-transform duration-200" :class="{ 'rotate-180': open }"></i>
                         </button>
 
@@ -143,30 +143,21 @@
                             x-transition:leave-end="opacity-0 -translate-y-2"
                             class="mt-1 space-y-1 pl-4">
 
+                            <!-- Daftar Laporan -->
+                            <li>
+                                <a href="{{ route('reports.index') }}"
+                                       class="flex items-center px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('reports.index') || request()->routeIs('reports.show') ? 'bg-ebara-600 text-white' : 'text-slate-300 hover:bg-slate-800' }}">
+                                    <i class="ph ph-list-dashes text-lg"></i>
+                                    <span x-show="sidebarOpen" class="ml-3">Daftar Laporan</span>
+                                </a>
+                            </li>
+
                             <!-- Scan QR Code -->
                             <li>
                                 <a href="{{ route('reports.scan') }}"
-                                   class="flex items-center px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('reports.scan') ? 'bg-ebara-600 text-white' : 'text-slate-300 hover:bg-slate-800' }}">
+                                       class="flex items-center px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('reports.scan') ? 'bg-ebara-600 text-white' : 'text-slate-300 hover:bg-slate-800' }}">
                                     <i class="ph ph-qr-code text-lg"></i>
                                     <span x-show="sidebarOpen" class="ml-3">Scan QR Code</span>
-                                </a>
-                            </li>
-
-                            <!-- Dashboard -->
-                            <li>
-                                <a href="{{ route('reports.index') }}"
-                                   class="flex items-center px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('reports.index') ? 'bg-ebara-600 text-white' : 'text-slate-300 hover:bg-slate-800' }}">
-                                    <i class="ph ph-chart-bar text-lg"></i>
-                                    <span x-show="sidebarOpen" class="ml-3">Dashboard</span>
-                                </a>
-                            </li>
-
-                            <!-- Create Report -->
-                            <li>
-                                <a href="{{ route('reports.create') }}"
-                                   class="flex items-center px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('reports.create') ? 'bg-ebara-600 text-white' : 'text-slate-300 hover:bg-slate-800' }}">
-                                    <i class="ph ph-plus text-lg"></i>
-                                    <span x-show="sidebarOpen" class="ml-3">Buat Laporan</span>
                                 </a>
                             </li>
 
@@ -231,10 +222,17 @@
                 <!-- Right Actions -->
                 <div class="flex items-center space-x-4">
                     <!-- Notifications -->
-                    <button class="relative p-2 rounded-lg hover:bg-gray-100 transition">
+                    <a href="{{ route('reports.index') }}" class="relative p-2 rounded-lg hover:bg-gray-100 transition">
                         <i class="ph ph-bell text-xl text-slate-600"></i>
-                        <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                    </button>
+                        @if(isset($pendingReportCount) && $pendingReportCount > 0)
+                            <span class="absolute top-1 right-1 flex h-4 w-4">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-4 w-4 bg-red-500 text-[10px] font-medium text-white items-center justify-center">
+                                    {{ $pendingReportCount > 9 ? '9+' : $pendingReportCount }}
+                                </span>
+                            </span>
+                        @endif
+                    </a>
                     
                     <!-- Profile Dropdown -->
                     <div class="relative" x-data="{ open: false }">

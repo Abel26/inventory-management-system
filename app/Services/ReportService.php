@@ -57,17 +57,21 @@ class ReportService
     /**
      * Update report status.
      */
-    public function updateStatus(int $id, string $status, ?int $resolvedBy = null)
+    public function updateStatus(int $id, string $status, ?string $adminNote = null, ?int $resolvedBy = null)
     {
         $data = [
             'status' => $status,
         ];
-        
+
+        if ($adminNote !== null) {
+            $data['admin_note'] = $adminNote;
+        }
+
         if ($status === 'Resolved') {
             $data['resolved_at'] = now();
             $data['resolved_by'] = $resolvedBy ?? auth()->id();
         }
-        
+
         return $this->reportRepository->update($id, $data);
     }
     

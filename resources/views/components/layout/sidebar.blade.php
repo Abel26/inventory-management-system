@@ -175,6 +175,15 @@
             <!-- Children Menu (Collapsible) -->
             <div x-show="open" x-collapse class="mt-1 space-y-1">
 
+                <!-- Laporan Masalah (Direct Link to Index) -->
+                <a href="{{ route('reports.index') }}" class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 group
+                    {{ request()->routeIs('reports.index') || request()->routeIs('reports.show') ? 'bg-ebara-500/20 text-ebara-400' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
+                    <span class="w-6 h-6 flex items-center justify-center mr-3">
+                        <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('reports.index') || request()->routeIs('reports.show') ? 'bg-ebara-400' : 'bg-slate-600 group-hover:bg-slate-400' }}"></span>
+                    </span>
+                    <span class="truncate">Laporan Masalah</span>
+                </a>
+
                 <!-- Scan QR Code -->
                 <a href="{{ route('reports.scan') }}" class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 group
                     {{ request()->routeIs('reports.scan') ? 'bg-ebara-500/20 text-ebara-400' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
@@ -182,24 +191,6 @@
                         <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('reports.scan') ? 'bg-ebara-400' : 'bg-slate-600 group-hover:bg-slate-400' }}"></span>
                     </span>
                     <span class="truncate">Scan QR Code</span>
-                </a>
-
-                <!-- Dashboard -->
-                <a href="{{ route('reports.index') }}" class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 group
-                    {{ request()->routeIs('reports.index') ? 'bg-ebara-500/20 text-ebara-400' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
-                    <span class="w-6 h-6 flex items-center justify-center mr-3">
-                        <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('reports.index') ? 'bg-ebara-400' : 'bg-slate-600 group-hover:bg-slate-400' }}"></span>
-                    </span>
-                    <span class="truncate">Dashboard</span>
-                </a>
-
-                <!-- Create Report -->
-                <a href="{{ route('reports.create') }}" class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 group
-                    {{ request()->routeIs('reports.create') ? 'bg-ebara-500/20 text-ebara-400' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
-                    <span class="w-6 h-6 flex items-center justify-center mr-3">
-                        <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('reports.create') ? 'bg-ebara-400' : 'bg-slate-600 group-hover:bg-slate-400' }}"></span>
-                    </span>
-                    <span class="truncate">Buat Laporan</span>
                 </a>
 
             </div>

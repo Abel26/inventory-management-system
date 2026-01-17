@@ -1,277 +1,117 @@
 <x-app-layout>
-    <x-slot name="title">Laporan</x-slot>
-    
-    @push('styles')
-    <style>
-        /* DataTables Custom Styling */
-        .dataTables_wrapper .dataTables_length select {
-            padding: 0.5rem 1rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.5rem;
-            background-color: white;
-            font-size: 0.875rem;
-            color: #374151;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        
-        .dataTables_wrapper .dataTables_length select:focus {
-            border-color: #009B77;
-            box-shadow: 0 0 0 3px rgba(0, 155, 119, 0.1);
-        }
-        
-        .dataTables_wrapper .dataTables_filter input {
-            padding: 0.5rem 1rem 0.5rem 2.5rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.5rem;
-            background-color: white;
-            font-size: 0.875rem;
-            color: #374151;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            width: 100%;
-            max-width: 300px;
-            margin-bottom: 1.5rem;
-        }
-        
-        .dataTables_wrapper .dataTables_filter input:focus {
-            border-color: #009B77;
-            box-shadow: 0 0 0 3px rgba(0, 155, 119, 0.1);
-        }
-        
-        .dataTables_wrapper .dataTables_info {
-            padding-top: 1rem;
-            padding-bottom: 0.5rem;
-            color: #6b7280;
-            font-size: 0.875rem;
-            margin-bottom: 0;
-        }
-        
-        .dataTables_wrapper .dataTables_paginate {
-            padding-top: 0.5rem;
-            padding-bottom: 0;
-            margin-bottom: 0;
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.25rem;
-        }
-        
-        .dataTables_wrapper .dataTables_paginate .paginate_button {
-            margin: 0 2px;
-            padding: 6px 12px;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            background-color: white;
-            color: #374151 !important;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-            background-color: #f3f4f6;
-            color: #111827 !important;
-            border-color: #d1d5db;
-        }
-        
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-            background-color: #4f46e5 !important;
-            color: white !important;
-            border-color: #4f46e5 !important;
-        }
-        
-        .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .dataTables_wrapper .dataTables_processing {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 200px;
-            margin-left: -100px;
-            margin-top: -25px;
-            border: 1px solid #ddd;
-            text-align: center;
-            color: #333;
-            font-size: 14px;
-            background-color: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        
-        /* Fix table wrapper overflow */
-        .dataTables_wrapper {
-            width: 100%;
-            margin-bottom: 0 !important;
-            padding-bottom: 0 !important;
-        }
-        
-        .dataTables_wrapper table {
-            width: 100% !important;
-            margin-bottom: 0 !important;
-        }
-        
-        /* Fix excessive spacing from DataTables */
-        .dataTables_wrapper .dataTables_length,
-        .dataTables_wrapper .dataTables_filter {
-            margin-bottom: 0.5rem !important;
-        }
-        
-        /* Fix alignment for length and filter */
-        .dataTables_wrapper .dataTables_length,
-        .dataTables_wrapper .dataTables_filter {
-            display: flex;
-            align-items: center;
-        }
-        
-        .dataTables_wrapper .dataTables_length label,
-        .dataTables_wrapper .dataTables_filter label {
-            font-weight: 500;
-            color: #6b7280;
-            font-size: 0.875rem;
-            white-space: nowrap;
-        }
-        
-        /* Clear floats for pagination */
-        .dataTables_wrapper:after {
-            content: "";
-            display: table;
-            clear: both;
-        }
-        
-        /* Mobile Responsiveness */
-        @media (max-width: 640px) {
-            .dataTables_wrapper .dataTables_length,
-            .dataTables_wrapper .dataTables_filter {
-                float: none;
-                text-align: left;
-                display: flex;
-                flex-direction: column;
-                width: 100%;
-                margin-bottom: 1rem;
-                align-items: stretch;
-            }
-            
-            .dataTables_wrapper .dataTables_length select,
-            .dataTables_wrapper .dataTables_filter input {
-                width: 100%;
-                max-width: 100%;
-            }
-        }
-    </style>
-    @endpush
-    
-    <div class="space-y-6">
-        
-        <!-- Header -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900">Laporan</h1>
-                <p class="text-gray-600 mt-1">Kelola dan pantau status laporan aset</p>
-            </div>
-            <div class="flex gap-3">
-                <a href="{{ route('reports.scan') }}" class="bg-ebara-600 hover:bg-ebara-700 text-white font-medium py-2 px-4 rounded-lg inline-flex items-center gap-2 transition">
-                    <i class="ph ph-qr-code text-lg"></i>
-                    <span>Scan QR Code</span>
-                </a>
-                <a href="{{ route('reports.create') }}" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-4 rounded-lg inline-flex items-center gap-2 transition">
-                    <i class="ph ph-plus text-lg"></i>
-                    <span>Buat Laporan</span>
-                </a>
-            </div>
-        </div>
+    <x-slot name="title">Laporan Masalah</x-slot>
 
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <!-- Total -->
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">Total Laporan</p>
-                        <h5 class="text-2xl font-bold text-gray-900 mt-1">{{ $stats['total'] }}</h5>
-                    </div>
-                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <i class="ph ph-file-text text-2xl text-blue-600"></i>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Pending -->
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">Pending</p>
-                        <h5 class="text-2xl font-bold text-yellow-600 mt-1">{{ $stats['pending'] }}</h5>
-                    </div>
-                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                        <i class="ph ph-clock text-2xl text-yellow-600"></i>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- In Progress -->
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">In Progress</p>
-                        <h5 class="text-2xl font-bold text-blue-600 mt-1">{{ $stats['in_progress'] }}</h5>
-                    </div>
-                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <i class="ph ph-spinner text-2xl text-blue-600"></i>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Resolved -->
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">Resolved</p>
-                        <h5 class="text-2xl font-bold text-green-600 mt-1">{{ $stats['resolved'] }}</h5>
-                    </div>
-                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                        <i class="ph ph-check-circle text-2xl text-green-600"></i>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Rejected -->
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">Rejected</p>
-                        <h5 class="text-2xl font-bold text-red-600 mt-1">{{ $stats['rejected'] }}</h5>
-                    </div>
-                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                        <i class="ph ph-x-circle text-2xl text-red-600"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Laporan Masalah') }}
+        </h2>
+    </x-slot>
 
-        <!-- Table Card -->
-        <div class="bg-white shadow-lg rounded-xl border border-gray-100 p-6 relative overflow-hidden">
-            <div class="overflow-x-auto">
-                <table id="reportsTable" class="w-full">
-                    <thead>
-                        <tr class="bg-gray-100 text-gray-600 uppercase text-sm">
-                            <th class="px-4 py-3 text-left font-semibold">Kode Laporan</th>
-                            <th class="px-4 py-3 text-left font-semibold">Jenis Masalah</th>
-                            <th class="px-4 py-3 text-left font-semibold">Prioritas</th>
-                            <th class="px-4 py-3 text-left font-semibold">Status</th>
-                            <th class="px-4 py-3 text-left font-semibold">Tanggal Dibuat</th>
-                            <th class="px-4 py-3 text-left font-semibold">Dilaporkan Oleh</th>
-                            <th class="px-4 py-3 text-left font-semibold">Diselesaikan Oleh</th>
-                            <th class="px-4 py-3 text-center font-semibold">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Data will be loaded by DataTables -->
-                    </tbody>
-                </table>
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            <!-- Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">Laporan Masalah</h2>
+                    <p class="text-gray-600 mt-1">Kelola dan pantau status laporan aset</p>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <!-- Total -->
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500">Total Laporan</p>
+                            <h5 class="text-2xl font-bold text-gray-900 mt-1">{{ $stats['total'] }}</h5>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="ph ph-file-text text-2xl text-blue-600"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pending -->
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500">Pending</p>
+                            <h5 class="text-2xl font-bold text-yellow-600 mt-1">{{ $stats['pending'] }}</h5>
+                        </div>
+                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="ph ph-clock text-2xl text-yellow-600"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- In Progress -->
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500">In Progress</p>
+                            <h5 class="text-2xl font-bold text-blue-600 mt-1">{{ $stats['in_progress'] }}</h5>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="ph ph-spinner text-2xl text-blue-600"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resolved -->
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500">Resolved</p>
+                            <h5 class="text-2xl font-bold text-green-600 mt-1">{{ $stats['resolved'] }}</h5>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="ph ph-check-circle text-2xl text-green-600"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Buttons -->
+            <div class="flex flex-wrap gap-2">
+                <button id="filter-all" onclick="filterByStatus('all')" class="px-4 py-2 rounded-lg text-sm font-medium bg-ebara-600 text-white transition">
+                    Semua
+                </button>
+                <button id="filter-Pending" onclick="filterByStatus('Pending')" class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 transition">
+                    Pending
+                </button>
+                <button id="filter-In Progress" onclick="filterByStatus('In Progress')" class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 transition">
+                    In Progress
+                </button>
+                <button id="filter-Resolved" onclick="filterByStatus('Resolved')" class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 transition">
+                    Resolved
+                </button>
+                <button id="filter-Rejected" onclick="filterByStatus('Rejected')" class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 transition">
+                    Rejected
+                </button>
+            </div>
+
+            <!-- Table Card -->
+            <div class="bg-white shadow-lg rounded-xl border border-gray-100 p-6 relative overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table id="reportsTable" class="w-full">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-600 uppercase text-sm">
+                                <th class="px-4 py-3 text-left font-semibold">Ticket ID</th>
+                                <th class="px-4 py-3 text-left font-semibold">Asset</th>
+                                <th class="px-4 py-3 text-left font-semibold">Reporter</th>
+                                <th class="px-4 py-3 text-left font-semibold">Issue Type</th>
+                                <th class="px-4 py-3 text-left font-semibold">Priority</th>
+                                <th class="px-4 py-3 text-left font-semibold">Status</th>
+                                <th class="px-4 py-3 text-left font-semibold">Date</th>
+                                <th class="px-4 py-3 text-center font-semibold">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be loaded by DataTables -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -279,65 +119,41 @@
     @push('scripts')
     <script>
     var reports = @json($reports);
+    var allReports = @json($reports);
+    var currentFilter = 'all';
+    var table = null;
 
     $(document).ready(function() {
-        let table = $('#reportsTable').DataTable({
+        table = $('#reportsTable').DataTable({
             processing: true,
             serverSide: false,
             responsive: true,
-            data: reports,
+            data: allReports,
             columns: [
-                { data: 'report_code' },
-                { data: 'issue_type' },
-                { data: 'priority' },
-                { 
-                    data: 'description',
+                {
+                    data: 'report_code',
                     render: function(data, type, row) {
-                        if (data) {
-                            return '<span class="line-clamp-2">' + data + '</span>';
-                        }
-                        return '';
+                        return '<span class="font-mono text-sm">' + data + '</span>';
                     }
                 },
-                { 
-                    data: 'status',
+                {
+                    data: 'reportable',
                     render: function(data, type, row) {
-                        var badgeClass = '';
-                        var badgeText = '';
-                        
-                        switch(data) {
-                            case 'Pending':
-                                badgeClass = 'bg-yellow-100 text-yellow-800';
-                                badgeText = 'Pending';
-                                break;
-                            case 'In Progress':
-                                badgeClass = 'bg-blue-100 text-blue-800';
-                                badgeText = 'In Progress';
-                                break;
-                            case 'Resolved':
-                                badgeClass = 'bg-green-100 text-green-800';
-                                badgeText = 'Resolved';
-                                break;
-                            case 'Rejected':
-                                badgeClass = 'bg-red-100 text-red-800';
-                                badgeText = 'Rejected';
-                                break;
-                            default:
-                                badgeClass = 'bg-gray-100 text-gray-800';
-                                badgeText = data;
+                        if (!data) return '-';
+                        var assetName = data.name || data.model_name || 'Unknown Asset';
+                        var assetType = row.reportable_type.split('\\').pop();
+                        var assetId = row.reportable_id;
+
+                        // Determine route based on asset type
+                        var routeName = '';
+                        if (assetType === 'AssetMaterial') routeName = 'assets.materials.show';
+                        else if (assetType === 'AssetTool') routeName = 'assets.tools.show';
+                        else if (assetType === 'AssetModel') routeName = 'assets.models.show';
+
+                        if (routeName) {
+                            return '<a href="/assets/' + assetType.toLowerCase().replace('asset', '') + '/' + assetId + '" class="text-ebara-600 hover:text-ebara-800 font-medium">' + assetName + '</a>';
                         }
-                        
-                        return '<span class="px-2 py-1 rounded-full text-xs font-medium ' + badgeClass + '">' + badgeText + '</span>';
-                    }
-                },
-                { data: 'created_at' },
-                { 
-                    data: 'resolved_at',
-                    render: function(data, type, row) {
-                        var createdAt = data ? new Date(data) : '-';
-                        var resolvedAt = row.resolved_at ? new Date(row.resolved_at) : '-';
-                        
-                        return '<div class="text-sm">' + createdAt + '</div>';
+                        return assetName;
                     }
                 },
                 {
@@ -347,9 +163,46 @@
                     }
                 },
                 {
-                    data: 'resolver.name',
+                    data: 'issue_type',
                     render: function(data, type, row) {
-                        return data || '-';
+                        var icons = {
+                            'Damage': 'ph-warning-circle',
+                            'Maintenance': 'ph-wrench',
+                            'Lost': 'ph-ghost',
+                            'Stock Discrepancy': 'ph-chart-bar'
+                        };
+                        var icon = icons[data] || 'ph-file-text';
+                        return '<div class="flex items-center gap-2"><i class="ph ' + icon + '"></i><span>' + data + '</span></div>';
+                    }
+                },
+                {
+                    data: 'priority',
+                    render: function(data, type, row) {
+                        var colors = {
+                            'Low': 'bg-gray-100 text-gray-800',
+                            'Medium': 'bg-blue-100 text-blue-800',
+                            'High': 'bg-orange-100 text-orange-800',
+                            'Critical': 'bg-red-100 text-red-800'
+                        };
+                        return '<span class="px-2 py-1 rounded-full text-xs font-medium ' + (colors[data] || 'bg-gray-100 text-gray-800') + '">' + data + '</span>';
+                    }
+                },
+                {
+                    data: 'status',
+                    render: function(data, type, row) {
+                        var colors = {
+                            'Pending': 'bg-yellow-100 text-yellow-800',
+                            'In Progress': 'bg-blue-100 text-blue-800',
+                            'Resolved': 'bg-green-100 text-green-800',
+                            'Rejected': 'bg-red-100 text-red-800'
+                        };
+                        return '<span class="px-2 py-1 rounded-full text-xs font-medium ' + (colors[data] || 'bg-gray-100 text-gray-800') + '">' + data + '</span>';
+                    }
+                },
+                {
+                    data: 'created_at',
+                    render: function(data, type, row) {
+                        return data ? new Date(data).toLocaleDateString('id-ID') : '-';
                     }
                 },
                 {
@@ -357,17 +210,9 @@
                     render: function(data, type, row) {
                         return `
                             <div class="flex items-center justify-center gap-2">
-                                <a href="{{ route('reports.show', ['id' => row.id]) }}" class="text-indigo-600 hover:text-indigo-800 transition" title="Lihat Detail">
+                                <a href="/reports/${row.id}" class="text-indigo-600 hover:text-indigo-800 transition" title="Lihat Detail">
                                     <i class="ph ph-eye text-xl"></i>
                                 </a>
-                                <button onclick="updateStatus('${row.id}', 'Resolved')" class="text-green-600 hover:text-green-800 transition" title="Selesaikan Selesai">
-                                    <i class="ph ph-check-circle text-xl"></i>
-                                </button>
-                                @if($row.status !== 'Resolved')
-                                    <button onclick="updateStatus('${row.id}', 'Rejected')" class="text-red-600 hover:text-red-800 transition" title="Tolak Laporan">
-                                        <i class="ph ph-x-circle text-xl"></i>
-                                    </button>
-                                @endif
                             </div>
                         `;
                     }
@@ -396,43 +241,43 @@
         });
     });
 
-    function updateStatus(id, status) {
-        $.ajax({
-            url: "{{ route('reports.update-status', ['id' => id]) }}",
-            method: 'PUT',
-            data: {
-                status: status
-            },
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            success: function(response) {
-                if (response.success) {
-                    table.ajax.reload();
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil',
-                        text: 'Status laporan berhasil diperbarui',
-                        confirmButtonColor: '#009B77'
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: response.message,
-                        confirmButtonColor: '#dc2626'
-                    });
+    function filterByStatus(status) {
+        currentFilter = status;
+
+        // Update button styles
+        var buttons = ['all', 'Pending', 'In Progress', 'Resolved', 'Rejected'];
+        buttons.forEach(function(btn) {
+            var button = document.getElementById('filter-' + btn);
+            if (btn === status) {
+                button.classList.remove('bg-gray-200', 'text-gray-700');
+                if (status === 'all') {
+                    button.classList.add('bg-ebara-600', 'text-white');
+                } else if (status === 'Pending') {
+                    button.classList.add('bg-yellow-500', 'text-white');
+                } else if (status === 'In Progress') {
+                    button.classList.add('bg-blue-500', 'text-white');
+                } else if (status === 'Resolved') {
+                    button.classList.add('bg-green-500', 'text-white');
+                } else if (status === 'Rejected') {
+                    button.classList.add('bg-red-500', 'text-white');
                 }
-            },
-            error: function(xhr) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Gagal memperbarui status laporan',
-                    confirmButtonColor: '#dc2626'
-                });
+            } else {
+                button.classList.remove('bg-ebara-600', 'text-white', 'bg-yellow-500', 'bg-blue-500', 'bg-green-500', 'bg-red-500');
+                button.classList.add('bg-gray-200', 'text-gray-700');
             }
         });
+
+        // Filter data
+        var filteredData = allReports;
+        if (status !== 'all') {
+            filteredData = allReports.filter(function(row) {
+                return row.status === status;
+            });
+        }
+
+        // Update DataTable
+        table.clear().rows.add(filteredData).draw();
     }
     </script>
+    @endpush
 </x-app-layout>
