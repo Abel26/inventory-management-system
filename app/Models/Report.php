@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Enums\IssueType;
@@ -24,6 +25,7 @@ class Report extends Model
         'priority',
         'description',
         'photo_path',
+        'admin_note',
         'status',
         'resolved_at',
         'resolved_by',
@@ -33,6 +35,7 @@ class Report extends Model
         'issue_type' => IssueType::class,
         'priority' => Priority::class,
         'status' => Status::class,
+        'resolved_at' => 'datetime',
     ];
     
     /**

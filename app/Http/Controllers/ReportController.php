@@ -194,18 +194,21 @@ class ReportController extends Controller
     {
         $request->validate([
             'status' => 'required|string|in:Pending,In Progress,Resolved,Rejected',
+            'admin_note' => 'nullable|string|max:1000',
         ]);
 
         Log::info('🔄 Updating report status', [
             'id' => $id,
             'old_status' => $this->reportService->find($id)?->status,
             'new_status' => $request->input('status'),
+            'admin_note' => $request->input('admin_note'),
             'updated_by' => auth()->id(),
         ]);
 
         $this->reportService->updateStatus(
             $id,
             $request->input('status'),
+            $request->input('admin_note'),
             auth()->id()
         );
 
@@ -215,7 +218,7 @@ class ReportController extends Controller
         ]);
 
         return redirect()
-            ->route('reports.index')
+            ->route('reports.show', ['id' => $id])
             ->with('success', 'Status laporan berhasil diperbarui');
     }
 
