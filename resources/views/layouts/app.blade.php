@@ -204,35 +204,15 @@
                 </button>
                 
                 <!-- Desktop Sidebar Toggle -->
-                <button @click="sidebarOpen = !sidebarOpen" 
+                <button @click="sidebarOpen = !sidebarOpen"
                         class="hidden lg:block p-2 rounded-lg hover:bg-gray-100 transition">
                     <i class="ph ph-list text-2xl text-slate-600"></i>
                 </button>
                 
-                <!-- Search -->
-                <div class="flex-1 max-w-xl mx-4">
-                    <div class="relative">
-                        <input type="text" 
-                               placeholder="Cari..." 
-                               class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-ebara-500 focus:border-transparent">
-                        <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    </div>
-                </div>
-                
                 <!-- Right Actions -->
                 <div class="flex items-center space-x-4">
                     <!-- Notifications -->
-                    <a href="{{ route('reports.index') }}" class="relative p-2 rounded-lg hover:bg-gray-100 transition">
-                        <i class="ph ph-bell text-xl text-slate-600"></i>
-                        @if(isset($pendingReportCount) && $pendingReportCount > 0)
-                            <span class="absolute top-1 right-1 flex h-4 w-4">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-4 w-4 bg-red-500 text-[10px] font-medium text-white items-center justify-center">
-                                    {{ $pendingReportCount > 9 ? '9+' : $pendingReportCount }}
-                                </span>
-                            </span>
-                        @endif
-                    </a>
+                    <x-user.notification-bell :count="$pendingReportCount ?? 0" :notifications="$latestNotifications ?? null" />
                     
                     <!-- Profile Dropdown -->
                     <div class="relative" x-data="{ open: false }">

@@ -113,7 +113,7 @@
 
         <!-- Report Form -->
         <div class="bg-white shadow-lg rounded-xl border border-gray-100 p-6">
-            <form action="{{ route('reports.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+            <form id="reportForm" action="{{ route('reports.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                 @csrf
 
                 <input type="hidden" name="reportable_id" value="{{ session('asset')['id'] ?? $assetInfo['id'] ?? '' }}">
@@ -202,7 +202,7 @@
                     <a href="{{ route('reports.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition">
                         Batal
                     </a>
-                    <button type="submit" class="bg-ebara-600 hover:bg-ebara-700 text-white font-medium py-2 px-6 rounded-lg inline-flex items-center gap-2 transition">
+                    <button type="button" id="submitReportBtn" class="bg-ebara-600 hover:bg-ebara-700 text-white font-medium py-2 px-6 rounded-lg inline-flex items-center gap-2 transition">
                         <i class="ph ph-paper-plane-right text-lg"></i>
                         <span>Kirim Laporan</span>
                     </button>
@@ -214,6 +214,7 @@
 
     @push('scripts')
     <script>
+        // Photo preview functionality
         document.getElementById('photoInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -224,6 +225,27 @@
                 }
                 reader.readAsDataURL(file);
             }
+        });
+
+        // SweetAlert2 confirmation before submit
+        document.getElementById('submitReportBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            Swal.fire({
+                title: 'Kirim Laporan?',
+                text: 'Pastikan data yang Anda masukkan sudah benar.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#16a34a', // Green color for confirm
+                cancelButtonColor: '#6b7280', // Gray color for cancel
+                confirmButtonText: 'Ya, Kirim!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('reportForm').submit();
+                }
+            });
         });
     </script>
     @endpush

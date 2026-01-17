@@ -124,6 +124,20 @@
     var table = null;
 
     $(document).ready(function() {
+        // Check for success message and show SweetAlert
+        @if(session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: "{{ session('success') }}",
+                showConfirmButton: true,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#059669',
+                timer: 5000,
+                timerProgressBar: true
+            });
+        @endif
+
         table = $('#reportsTable').DataTable({
             processing: true,
             serverSide: false,
@@ -281,3 +295,4 @@
     </script>
     @endpush
 </x-app-layout>
+

@@ -63,7 +63,7 @@
     <div class="flex items-center space-x-3">
         
         <!-- Notifications -->
-        <x-user.notification-bell :count="$pendingReportCount ?? 0" />
+        <x-user.notification-bell :count="$pendingReportCount ?? 0" :notifications="$latestNotifications ?? null" />
         
         <!-- User Profile Dropdown -->
         <x-user.user-dropdown />

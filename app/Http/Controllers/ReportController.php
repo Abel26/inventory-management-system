@@ -167,7 +167,7 @@ class ReportController extends Controller
 
         return redirect()
             ->route('reports.index')
-            ->with('success', 'Laporan berhasil dibuat');
+            ->with('success', 'Laporan berhasil dibuat! Tim kami akan segera menindaklanjutinya.');
     }
 
     /**
