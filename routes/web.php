@@ -3,6 +3,7 @@
 use App\Http\Controllers\AssetManagementController;
 use App\Http\Controllers\AssetModelController;
 use App\Http\Controllers\AssetToolController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
@@ -14,9 +15,19 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Executive Dashboard
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Dashboard API Endpoints
+    Route::prefix('api/dashboard')->group(function () {
+        Route::get('/data', [DashboardController::class, 'getData'])->name('dashboard.data');
+        Route::post('/search', [DashboardController::class, 'search'])->name('dashboard.search');
+        Route::post('/filter', [DashboardController::class, 'filter'])->name('dashboard.filter');
+        Route::get('/export/pdf', [DashboardController::class, 'exportPdf'])->name('dashboard.export-pdf');
+        Route::get('/export/excel', [DashboardController::class, 'exportExcel'])->name('dashboard.export-excel');
+    });
+});
 
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 
