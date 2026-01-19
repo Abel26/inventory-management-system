@@ -5,7 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Password;
+use Illuminate\Validation\Rules\Password;
 use App\Models\Report;
 
 class AppServiceProvider extends ServiceProvider
