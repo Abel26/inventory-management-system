@@ -36,6 +36,9 @@ class StoreAssetMaterialRequest extends FormRequest
             'location' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'unit_price' => 'nullable|numeric|min:0',
+            // File upload validation - Security hardening
+            'image' => 'nullable|file|max:5120|mimes:jpg,jpeg,png,webp,pdf',
+            'documents.*' => 'nullable|file|max:5120|mimes:jpg,jpeg,png,webp,pdf',
         ];
     }
 
