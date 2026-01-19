@@ -38,6 +38,9 @@ class UpdateAssetToolRequest extends FormRequest
             'last_maintenance' => 'nullable|date',
             'next_maintenance' => 'nullable|date|after_or_equal:last_maintenance',
             'notes' => 'nullable|string',
+            // File upload validation - Security hardening
+            'image' => 'nullable|file|max:5120|mimes:jpg,jpeg,png,webp,pdf',
+            'documents.*' => 'nullable|file|max:5120|mimes:jpg,jpeg,png,webp,pdf',
         ];
     }
 
