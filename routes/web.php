@@ -12,7 +12,7 @@ use App\Http\Controllers\ReportsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return auth()->check() ? redirect()->route('dashboard') : redirect()->route('login');
 });
 
 // Executive Dashboard
@@ -103,6 +103,18 @@ Route::middleware('auth')->group(function () {
         // Inventory & Transaction Reports (ReportsController)
         Route::get('/inventory', [ReportsController::class, 'inventory'])->name('inventory');
         Route::get('/transactions', [ReportsController::class, 'transactions'])->name('transactions');
+    });
+
+    // Inventory Routes (Placeholder - Controller to be implemented)
+    Route::prefix('inventory')->name('inventory.')->group(function () {
+        Route::get('/stock-in', function() { return view('inventory.stock-in'); })->name('stock-in');
+        Route::get('/stock-out', function() { return view('inventory.stock-out'); })->name('stock-out');
+        Route::get('/history', function() { return view('inventory.history'); })->name('history');
+    });
+
+    // Settings Routes (Placeholder - Controller to be implemented)
+    Route::prefix('settings')->name('settings.')->group(function () {
+        Route::get('/', function() { return view('settings.index'); })->name('index');
     });
 });
 

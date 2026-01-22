@@ -32,7 +32,7 @@
                             </span>
                         </h3>
 
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <x-ui.form-grid columns="2">
                             <div>
                                 <p class="text-gray-500">Kode</p>
                                 <p class="font-medium text-gray-900">{{ session('asset')['code'] }}</p>
@@ -41,6 +41,8 @@
                                 <p class="text-gray-500">Tipe</p>
                                 <p class="font-medium text-gray-900">{{ session('asset')['type'] }}</p>
                             </div>
+                        </x-ui.form-grid>
+                        <x-ui.form-grid columns="2">
                             <div>
                                 <p class="text-gray-500">Kondisi</p>
                                 <p class="font-medium text-gray-900">{{ session('asset')['condition'] ?? '-' }}</p>
@@ -49,10 +51,11 @@
                                 <p class="text-gray-500">Lokasi</p>
                                 <p class="font-medium text-gray-900">{{ session('asset')['location'] }}</p>
                             </div>
-                        </div>
+                        </x-ui.form-grid>
                     </div>
                 </div>
             </div>
+        </div>
         @elseif($assetInfo)
             <!-- Asset Card from URL Parameter -->
             <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
@@ -71,7 +74,7 @@
                             </span>
                         </h3>
 
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <x-ui.form-grid columns="2">
                             <div>
                                 <p class="text-gray-500">Kode</p>
                                 <p class="font-medium text-gray-900">{{ $assetInfo['code'] }}</p>
@@ -80,6 +83,8 @@
                                 <p class="text-gray-500">Tipe</p>
                                 <p class="font-medium text-gray-900">{{ $assetInfo['type'] }}</p>
                             </div>
+                        </x-ui.form-grid>
+                        <x-ui.form-grid columns="2">
                             <div>
                                 <p class="text-gray-500">Kondisi</p>
                                 <p class="font-medium text-gray-900">{{ $assetInfo['condition'] ?? '-' }}</p>
@@ -88,7 +93,7 @@
                                 <p class="text-gray-500">Lokasi</p>
                                 <p class="font-medium text-gray-900">{{ $assetInfo['location'] }}</p>
                             </div>
-                        </div>
+                        </x-ui.form-grid>
                     </div>
                 </div>
             </div>
@@ -122,7 +127,7 @@
                 <!-- Issue Type -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-3">Jenis Masalah</label>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <x-ui.form-grid columns="2">
                         <label class="flex items-center space-x-2 cursor-pointer bg-gray-50 hover:bg-gray-100 rounded-lg p-3 transition">
                             <input type="radio" name="issue_type" value="Damage" class="w-4 h-4 text-red-600" required>
                             <span class="text-sm text-gray-700">Kerusakan</span>
@@ -131,6 +136,8 @@
                             <input type="radio" name="issue_type" value="Maintenance" class="w-4 h-4 text-yellow-600">
                             <span class="text-sm text-gray-700">Perawatan</span>
                         </label>
+                    </x-ui.form-grid>
+                    <x-ui.form-grid columns="2">
                         <label class="flex items-center space-x-2 cursor-pointer bg-gray-50 hover:bg-gray-100 rounded-lg p-3 transition">
                             <input type="radio" name="issue_type" value="Lost" class="w-4 h-4 text-orange-600">
                             <span class="text-sm text-gray-700">Hilang</span>
@@ -139,13 +146,13 @@
                             <input type="radio" name="issue_type" value="Stock Discrepancy" class="w-4 h-4 text-purple-600">
                             <span class="text-sm text-gray-700">Selisih Stok</span>
                         </label>
-                    </div>
+                    </x-ui.form-grid>
                 </div>
 
                 <!-- Priority -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-3">Prioritas</label>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <x-ui.form-grid columns="2">
                         <label class="flex items-center space-x-2 cursor-pointer bg-gray-50 hover:bg-gray-100 rounded-lg p-3 transition">
                             <input type="radio" name="priority" value="Low" class="w-4 h-4 text-gray-600">
                             <span class="text-sm text-gray-700">Rendah</span>
@@ -162,7 +169,7 @@
                             <input type="radio" name="priority" value="Critical" class="w-4 h-4 text-red-600">
                             <span class="text-sm text-gray-700">Kritis</span>
                         </label>
-                    </div>
+                    </x-ui.form-grid>
                 </div>
 
                 <!-- Description -->
@@ -198,7 +205,7 @@
                 </div>
 
                 <!-- Submit Button -->
-                <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-200">
                     <a href="{{ route('reports.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition">
                         Batal
                     </a>
