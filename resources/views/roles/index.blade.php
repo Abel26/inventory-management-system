@@ -1,175 +1,6 @@
 <x-app-layout>
     <x-slot name="title">Manajemen Role</x-slot>
     
-    @push('styles')
-    <style>
-        /* DataTables Custom Styling */
-        .dataTables_wrapper .dataTables_length select {
-            padding: 0.5rem 1rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.5rem;
-            background-color: white;
-            font-size: 0.875rem;
-            color: #374151;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        
-        .dataTables_wrapper .dataTables_length select:focus {
-            border-color: #009B77;
-            box-shadow: 0 0 0 3px rgba(0, 155, 119, 0.1);
-        }
-        
-        .dataTables_wrapper .dataTables_filter input {
-            padding: 0.5rem 1rem 0.5rem 2.5rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.5rem;
-            background-color: white;
-            font-size: 0.875rem;
-            color: #374151;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            width: 200px;
-        }
-        
-        .dataTables_wrapper .dataTables_filter input:focus {
-            border-color: #009B77;
-            box-shadow: 0 0 0 3px rgba(0, 155, 119, 0.1);
-        }
-        
-        .dataTables_wrapper .dataTables_info {
-            padding-top: 1rem;
-            padding-bottom: 0.5rem;
-            color: #6b7280;
-            font-size: 0.875rem;
-            margin-bottom: 0;
-        }
-        
-        .dataTables_wrapper .dataTables_paginate {
-            padding-top: 0.5rem;
-            padding-bottom: 0;
-            margin-bottom: 0;
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.25rem;
-        }
-        
-        .dataTables_wrapper .dataTables_paginate .paginate_button {
-            margin: 0 2px;
-            padding: 6px 12px;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            background-color: white;
-            color: #374151 !important;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-            background-color: #f3f4f6;
-            color: #111827 !important;
-            border-color: #d1d5db;
-        }
-        
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-            background-color: #4f46e5 !important;
-            color: white !important;
-            border-color: #4f46e5 !important;
-        }
-        
-        .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .dataTables_wrapper .dataTables_processing {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 200px;
-            margin-left: -100px;
-            margin-top: -25px;
-            border: 1px solid #ddd;
-            text-align: center;
-            color: #333;
-            font-size: 14px;
-            background-color: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        
-        /* Fix table wrapper overflow */
-        .dataTables_wrapper {
-            width: 100%;
-            margin-bottom: 0 !important;
-            padding-bottom: 0 !important;
-        }
-        
-        .dataTables_wrapper table {
-            width: 100% !important;
-            margin-bottom: 0 !important;
-        }
-        
-        /* Fix excessive spacing from DataTables */
-        .dataTables_wrapper .dataTables_length,
-        .dataTables_wrapper .dataTables_filter {
-            margin-bottom: 0.5rem !important;
-        }
-        
-        /* Fix alignment for length and filter */
-        .dataTables_wrapper .dataTables_length {
-            float: left;
-            text-align: left;
-        }
-        
-        .dataTables_wrapper .dataTables_filter {
-            float: right;
-            text-align: right;
-        }
-        
-        .dataTables_wrapper .dataTables_length label,
-        .dataTables_wrapper .dataTables_filter label {
-            font-weight: 500;
-            color: #6b7280;
-            font-size: 0.875rem;
-        }
-        
-        /* Clear floats for pagination */
-        .dataTables_wrapper:after {
-            content: "";
-            display: table;
-            clear: both;
-        }
-        
-        /* Permission Matrix Styles */
-        .permission-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-        
-        .permission-item {
-            padding: 1rem;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.5rem;
-            background-color: white;
-        }
-        
-        .permission-item:hover {
-            border-color: #009B77;
-        }
-        
-        .module-header {
-            background-color: #f8fafc;
-            border-bottom: 2px solid #e5e7eb;
-            padding: 1rem;
-            margin-bottom: 1rem;
-        }
-    </style>
-    @endpush
-    
     <div class="space-y-6">
         
         <!-- Header -->
@@ -178,23 +9,23 @@
                 <h1 class="text-2xl font-bold text-gray-900">Manajemen Role</h1>
                 <p class="text-gray-600 mt-1">Kelola peran dan hak akses pengguna</p>
             </div>
-            <div class="flex gap-3">
+            <div class="flex flex-col sm:flex-row gap-3">
                 <!-- Export Dropdown -->
                 <div x-data="{ open: false }" class="relative">
                     <button type="button" @click="open = !open" @click.away="open = false" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg inline-flex items-center gap-2 transition">
                         <i class="ph ph-download-simple text-lg"></i>
                         <span>Ekspor</span>
-                        <i class="ph ph-caret-down text-sm"></i>
+                        <i class="ph ph-caret-down text-sm" x-show="open" x-transition></i>
                     </button>
                     
                     <!-- Dropdown Menu -->
-                    <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute right-0 mt-2 w-48 bg-white shadow-xl rounded-lg border border-gray-100 z-50">
+                    <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute right-0 mt-2 w-48 bg-white shadow-xl rounded-lg border border-gray-200 z-50">
                         <div class="py-1">
                             <a href="{{ route('roles.export') }}" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
                                 <i class="ph ph-microsoft-excel-logo text-lg text-green-600"></i>
                                 <span>Export Excel</span>
                             </a>
-                            <a href="{{ route('roles.export-pdf') }}" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                            <a href="{{ route('roles.export-pdf') }}" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 border-t border-gray-100">
                                 <i class="ph ph-file-pdf text-lg text-red-600"></i>
                                 <span>Export PDF</span>
                             </a>
@@ -210,7 +41,7 @@
         </div>
         
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                 <div class="flex items-center justify-between">
                     <div>
@@ -236,32 +67,30 @@
         </div>
         
         <!-- Table Card -->
-        <div class="bg-white shadow-lg rounded-xl border border-gray-100 p-6 relative overflow-hidden">
-            <div class="overflow-x-auto">
-                <table id="rolesTable" class="w-full">
-                    <thead>
-                        <tr class="bg-gray-100 text-gray-600 uppercase text-sm">
-                            <th class="px-4 py-3 text-left font-semibold">Nama Role</th>
-                            <th class="px-4 py-3 text-left font-semibold">Guard</th>
-                            <th class="px-4 py-3 text-left font-semibold">Jumlah Permission</th>
-                            <th class="px-4 py-3 text-center font-semibold">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Data will be loaded by DataTables -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        <x-ui.data-table-wrapper tableId="rolesTable" minWidth="700px">
+            <table id="rolesTable" class="w-full">
+                <thead>
+                    <tr class="bg-gray-100 text-gray-600 uppercase text-sm">
+                        <th class="px-4 py-3 text-left font-semibold">Nama Role</th>
+                        <th class="px-4 py-3 text-left font-semibold">Guard</th>
+                        <th class="px-4 py-3 text-left font-semibold">Jumlah Permission</th>
+                        <th class="px-4 py-3 text-center font-semibold">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be loaded by DataTables -->
+                </tbody>
+            </table>
+        </x-ui.data-table-wrapper>
     </div>
     
     <!-- Add/Edit Modal -->
-    <div id="roleModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden z-50 overflow-y-auto">
-        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-4">
-            <div class="relative bg-white rounded-xl shadow-2xl max-w-4xl w-full mx-4 flex flex-col max-h-[80vh]">
-                <div class="flex justify-between items-center p-6 border-b border-gray-200">
+    <div id="roleModal" class="fixed inset-0 bg-gray-900/50 z-50 overflow-y-auto hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="relative bg-white rounded-xl shadow-2xl w-full mx-4 sm:mx-auto sm:max-w-4xl flex flex-col max-h-[90vh]">
+                <div class="flex justify-between items-center p-6 border-b border-gray-200 flex-shrink-0">
                     <h3 class="text-lg font-semibold text-gray-900" id="modalTitle">Tambah Role</h3>
-                    <button type="button" id="closeModalBtn" class="text-gray-400 hover:text-gray-600 transition">
+                    <button type="button" id="closeModalBtn" class="text-gray-400 hover:text-gray-600 transition p-1 rounded-lg hover:bg-gray-100">
                         <i class="ph ph-x text-2xl"></i>
                     </button>
                 </div>
@@ -289,15 +118,15 @@
                             <!-- Permissions will be loaded dynamically -->
                         </div>
                     </div>
-                    <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 flex-shrink-0 px-6">
+                    <div class="flex flex-col sm:flex-row justify-end gap-3 p-6 border-t border-gray-200 flex-shrink-0">
                         <button type="button" id="cancelBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition">Batal</button>
-                        <button type="submit" class="bg-ebara-600 hover:bg-ebara-700 text-white font-medium py-2 px-4 rounded-lg transition">Simpan</button>
+                        <button type="submit" id="submitRoleBtn" class="bg-ebara-600 hover:bg-ebara-700 text-white font-medium py-2 px-4 rounded-lg transition">Simpan</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-    
+
     @push('scripts')
     <script>
     var storeUrl = "{{ route('roles.store') }}";

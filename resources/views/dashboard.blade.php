@@ -625,6 +625,10 @@
                 theme: 'dark',
                 y: { formatter: function (val) { return val + ' laporan' } },
             },
+            legend: {
+                position: window.innerWidth < 768 ? 'bottom' : 'top',
+                labels: { colors: colors.secondary },
+            },
         };
 
         const monthlyTrendChart = new ApexCharts(document.querySelector('#monthlyTrendChart'), monthlyTrendOptions);
@@ -803,7 +807,7 @@
                 },
             },
             legend: {
-                position: 'bottom',
+                position: window.innerWidth < 768 ? 'bottom' : 'top',
                 labels: { colors: colors.secondary },
             },
         };
@@ -901,7 +905,7 @@
                 },
             },
             legend: {
-                position: 'bottom',
+                position: window.innerWidth < 768 ? 'bottom' : 'top',
                 labels: { colors: colors.secondary },
             },
         };
@@ -1092,10 +1096,28 @@
 
         // Also resize on window resize
         window.addEventListener('resize', function() {
-            if (monthlyTrendChart) monthlyTrendChart.resize();
+            const isMobile = window.innerWidth < 768;
+            
+            // Update legend position on resize
+            if (monthlyTrendChart) {
+                monthlyTrendChart.updateOptions({
+                    legend: { position: isMobile ? 'bottom' : 'top' }
+                });
+                monthlyTrendChart.resize();
+            }
             if (healthGaugeChart) healthGaugeChart.resize();
-            if (radarChart) radarChart.resize();
-            if (stackedColumnChart) stackedColumnChart.resize();
+            if (radarChart) {
+                radarChart.updateOptions({
+                    legend: { position: isMobile ? 'bottom' : 'top' }
+                });
+                radarChart.resize();
+            }
+            if (stackedColumnChart) {
+                stackedColumnChart.updateOptions({
+                    legend: { position: isMobile ? 'bottom' : 'top' }
+                });
+                stackedColumnChart.resize();
+            }
             if (treemapChart) treemapChart.resize();
         });
     </script>

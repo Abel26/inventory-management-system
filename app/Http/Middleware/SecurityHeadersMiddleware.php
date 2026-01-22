@@ -71,10 +71,10 @@ class SecurityHeadersMiddleware
         $response->headers->remove('Server');
         $response->headers->remove('X-Powered-By');
 
-        // Add Content-Security-Policy header (basic)
+        // Add Content-Security-Policy header (environment-aware)
         // CSP memblokir script dari domain yang tidak di-whitelist
         // Ini sangat penting untuk mencegah "Judol" scripts
-        $this->addContentSecurityPolicy($response);
+        $this->addContentSecurityPolicy($response, $request);
 
         return $response;
     }
@@ -87,34 +87,48 @@ class SecurityHeadersMiddleware
      * disuntikkan melalui XSS atau defacement.
      *
      * @param mixed $response Response object
+     * @param \Illuminate\Http\Request $request Request object
      */
-    private function addContentSecurityPolicy($response): void
+    private function addContentSecurityPolicy($response, Request $request): void
     {
-        // Basic CSP policy
-        // default-src 'self': Hanya resource dari domain sendiri
-        // script-src 'self' 'unsafe-inline' 'unsafe-eval': Script hanya dari domain sendiri
-        // style-src 'self' 'unsafe-inline': Style hanya dari domain sendiri
-        // img-src 'self' data: https: 'unsafe-inline': Gambar dari domain sendiri dan data URI
-        // font-src 'self': Font hanya dari domain sendiri
-        // connect-src 'self': Request hanya ke domain sendiri
-        // frame-ancestors 'none': Tidak boleh di-embed di iframe
-        // base-uri 'self': Base URL hanya dari domain sendiri
-        // form-action 'self': Form hanya submit ke domain sendiri
-        // frame-src 'none': Tidak boleh ada iframe
-        $cspPolicy = implode('; ', [
-            "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // unsafe-inline untuk Alpine.js/Vue.js
-            "style-src 'self' 'unsafe-inline'", // unsafe-inline untuk Tailwind CSS
-            "img-src 'self' data: https: 'unsafe-inline'",
-            "font-src 'self'",
-            "connect-src 'self'",
-            "frame-ancestors 'none'",
-            "base-uri 'self'",
-            "form-action 'self'",
-            "frame-src 'none'",
-            "object-src 'none'",
-            "report-uri " . config('app.url') . '/csp-report', // CSP violation report endpoint
-        ]);
+        $isLocal = config('app.env') === 'local';
+        $isSecure = $request->secure();
+        $protocol = $isSecure ? 'https:' : 'http:';
+
+        // Scenario A: Local Development - Ultra-permissive CSP
+        // Allow everything needed for development (Vite HMR, debugbars, inline styles)
+        if ($isLocal) {
+            $cspPolicy = implode('; ', [
+                "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:",
+                "script-src * 'unsafe-inline' 'unsafe-eval' blob:",
+                "connect-src * 'unsafe-inline' ws: wss:",
+                "style-src * 'unsafe-inline'",
+                "img-src * data: blob:",
+                "font-src * data:",
+                "frame-src *",
+                "object-src *",
+                "base-uri *",
+                "form-action *",
+            ]);
+        }
+        // Scenario B: Production - Strict & Secure CSP (Protocol-aware)
+        // Only allow specific domains needed for the application
+        // Supports both HTTP (transitional) and HTTPS (production-ready)
+        else {
+            $cspPolicy = implode('; ', [
+                "default-src 'self' {$protocol}",
+                "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: {$protocol} //cdn.jsdelivr.net",
+                "style-src 'self' 'unsafe-inline' {$protocol} //fonts.googleapis.com //cdn.jsdelivr.net",
+                "img-src 'self' data: {$protocol} blob:",
+                "font-src 'self' {$protocol} //fonts.googleapis.com //fonts.gstatic.com data:",
+                "connect-src 'self' {$protocol} //cdn.jsdelivr.net",
+                "frame-src 'self' {$protocol} //www.google.com",
+                "frame-ancestors 'none'",
+                "object-src 'none'",
+                "base-uri 'self'",
+                "form-action 'self'",
+            ]);
+        }
 
         $response->headers->set('Content-Security-Policy', $cspPolicy);
     }

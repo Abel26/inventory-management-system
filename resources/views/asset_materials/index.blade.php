@@ -1,150 +1,6 @@
 <x-app-layout>
     <x-slot name="title">Material Aset</x-slot>
     
-    @push('styles')
-    <style>
-        /* DataTables Custom Styling */
-        .dataTables_wrapper .dataTables_length select {
-            padding: 0.5rem 1rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.5rem;
-            background-color: white;
-            font-size: 0.875rem;
-            color: #374151;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        
-        .dataTables_wrapper .dataTables_length select:focus {
-            border-color: #009B77;
-            box-shadow: 0 0 0 3px rgba(0, 155, 119, 0.1);
-        }
-        
-        .dataTables_wrapper .dataTables_filter input {
-            padding: 0.5rem 1rem 0.5rem 2.5rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.5rem;
-            background-color: white;
-            font-size: 0.875rem;
-            color: #374151;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            width: 200px;
-        }
-        
-        .dataTables_wrapper .dataTables_filter input:focus {
-            border-color: #009B77;
-            box-shadow: 0 0 0 3px rgba(0, 155, 119, 0.1);
-        }
-        
-        .dataTables_wrapper .dataTables_info {
-            padding-top: 1rem;
-            padding-bottom: 0.5rem;
-            color: #6b7280;
-            font-size: 0.875rem;
-            margin-bottom: 0;
-        }
-        
-        .dataTables_wrapper .dataTables_paginate {
-            padding-top: 0.5rem;
-            padding-bottom: 0;
-            margin-bottom: 0;
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.25rem;
-        }
-        
-        .dataTables_wrapper .dataTables_paginate .paginate_button {
-            margin: 0 2px;
-            padding: 6px 12px;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            background-color: white;
-            color: #374151 !important;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-            background-color: #f3f4f6;
-            color: #111827 !important;
-            border-color: #d1d5db;
-        }
-        
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-            background-color: #4f46e5 !important;
-            color: white !important;
-            border-color: #4f46e5 !important;
-        }
-        
-        .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .dataTables_wrapper .dataTables_processing {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 200px;
-            margin-left: -100px;
-            margin-top: -25px;
-            border: 1px solid #ddd;
-            text-align: center;
-            color: #333;
-            font-size: 14px;
-            background-color: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        
-        /* Fix table wrapper overflow */
-        .dataTables_wrapper {
-            width: 100%;
-            margin-bottom: 0 !important;
-            padding-bottom: 0 !important;
-        }
-        
-        .dataTables_wrapper table {
-            width: 100% !important;
-            margin-bottom: 0 !important;
-        }
-        
-        /* Fix excessive spacing from DataTables */
-        .dataTables_wrapper .dataTables_length,
-        .dataTables_wrapper .dataTables_filter {
-            margin-bottom: 0.5rem !important;
-        }
-        
-        /* Fix alignment for length and filter */
-        .dataTables_wrapper .dataTables_length {
-            float: left;
-            text-align: left;
-        }
-        
-        .dataTables_wrapper .dataTables_filter {
-            float: right;
-            text-align: right;
-        }
-        
-        .dataTables_wrapper .dataTables_length label,
-        .dataTables_wrapper .dataTables_filter label {
-            font-weight: 500;
-            color: #6b7280;
-            font-size: 0.875rem;
-        }
-        
-        /* Clear floats for pagination */
-        .dataTables_wrapper:after {
-            content: "";
-            display: table;
-            clear: both;
-        }
-    </style>
-    @endpush
-    
     <div class="space-y-6">
         
         <!-- Header -->
@@ -153,10 +9,10 @@
                 <h1 class="text-2xl font-bold text-gray-900">Material Aset</h1>
                 <p class="text-gray-600 mt-1">Kelola inventaris material dan persediaan</p>
             </div>
-            <div class="flex gap-3">
+            <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
                 <!-- Export Dropdown -->
-                <div x-data="{ open: false }" class="relative">
-                    <button @click="open = !open" @click.outside="open = false" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg inline-flex items-center gap-2 transition">
+                <div x-data="{ open: false }" class="relative w-full md:w-auto">
+                    <button @click="open = !open" @click.outside="open = false" class="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 px-4 rounded-lg inline-flex items-center justify-center gap-2 transition">
                         <i class="ph ph-download-simple text-lg"></i>
                         <span>Ekspor</span>
                         <i class="ph ph-caret-down text-sm" x-show="open" x-transition></i>
@@ -172,7 +28,7 @@
                         </a>
                     </div>
                 </div>
-                <button type="button" id="createNewMaterial" class="bg-ebara-600 hover:bg-ebara-700 text-white font-medium py-2 px-4 rounded-lg inline-flex items-center gap-2 transition">
+                <button type="button" id="createNewMaterial" class="w-full md:w-auto bg-ebara-600 hover:bg-ebara-700 text-white font-medium py-2.5 px-4 rounded-lg inline-flex items-center justify-center gap-2 transition">
                     <i class="ph ph-plus text-lg"></i>
                     <span>Tambah Data</span>
                 </button>
@@ -180,7 +36,7 @@
         </div>
 
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                 <div class="flex items-center justify-between">
                     <div>
@@ -228,38 +84,50 @@
         </div>
 
         <!-- Table Card -->
-        <div class="bg-white shadow-lg rounded-xl border border-gray-100 p-6 relative overflow-hidden">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <!-- Controls Header -->
+            <div class="p-5 border-b border-gray-100 bg-white flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex-1">
+                    <input type="text" id="searchInput" placeholder="Cari material..." class="pl-10 pr-4 py-2.5 bg-gray-50 border-transparent focus:bg-white focus:border-ebara-500 focus:ring-0 rounded-xl text-sm w-full md:w-72 transition-all">
+                </div>
+            </div>
             <table id="materialsTable" class="w-full">
                 <thead>
-                    <tr class="bg-gray-100 text-gray-600 uppercase text-sm">
-                        <th class="px-4 py-3 text-left font-semibold">Kode</th>
-                        <th class="px-4 py-3 text-left font-semibold">Nama</th>
-                        <th class="px-4 py-3 text-left font-semibold">Tipe</th>
-                        <th class="px-4 py-3 text-left font-semibold">Stok</th>
-                        <th class="px-4 py-3 text-left font-semibold">Supplier</th>
-                        <th class="px-4 py-3 text-left font-semibold">Lokasi</th>
-                        <th class="px-4 py-3 text-center font-semibold">Aksi</th>
+                    <tr class="bg-gray-50/80 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Kode</th>
+                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Nama Aset</th>
+                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Tipe</th>
+                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Stok</th>
+                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Supplier</th>
+                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Lokasi</th>
+                        <th class="px-6 py-4 text-center font-semibold whitespace-nowrap">Aksi</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-gray-100">
                     <!-- Data will be loaded by DataTables -->
                 </tbody>
             </table>
+            
+            <!-- Empty State -->
+            <div id="emptyState" class="p-12 text-center flex flex-col items-center justify-center hidden">
+                <i class="ph ph-magnifying-glass text-5xl mb-4 text-gray-300"></i>
+                <p class="text-sm text-gray-500">Belum ada data Material Aset ditemukan.</p>
+            </div>
         </div>
 
     </div>
 
     <!-- Add/Edit Modal -->
-    <div id="materialModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden z-50 overflow-y-auto">
-        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-4">
-            <div class="relative bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4">
-                <div class="flex justify-between items-center p-6 border-b border-gray-200">
+    <div id="materialModal" class="fixed inset-0 bg-gray-900/50 z-50 overflow-y-auto hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="relative bg-white rounded-xl shadow-2xl w-full mx-4 sm:mx-auto sm:max-w-2xl flex flex-col max-h-[90vh]">
+                <div class="flex justify-between items-center p-6 border-b border-gray-200 flex-shrink-0">
                     <h3 class="text-lg font-semibold text-gray-900" id="modalTitle">Tambah Material</h3>
-                    <button type="button" id="closeModalBtn" class="text-gray-400 hover:text-gray-600 transition">
+                    <button type="button" id="closeModalBtn" class="text-gray-400 hover:text-gray-600 transition p-1 rounded-lg hover:bg-gray-100">
                         <i class="ph ph-x text-2xl"></i>
                     </button>
                 </div>
-                <form id="materialForm" class="p-6 space-y-4">
+                <form id="materialForm" class="p-6 space-y-4 overflow-y-auto flex-1">
                     <input type="hidden" id="materialId" name="id">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Nama Material</label>
@@ -275,7 +143,7 @@
                             <option value="lainnya">Lainnya</option>
                         </select>
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
+                    <x-ui.form-grid columns="2">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah</label>
                             <input type="number" id="quantity" name="quantity" required min="0" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition">
@@ -284,8 +152,8 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">Satuan</label>
                             <input type="text" id="unit" name="unit" required class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition">
                         </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
+                    </x-ui.form-grid>
+                    <x-ui.form-grid columns="2">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Min. Stok</label>
                             <input type="number" id="min_threshold" name="min_threshold" required min="0" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition">
@@ -294,12 +162,12 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">Harga Satuan</label>
                             <input type="number" id="unit_price" name="unit_price" required min="0" step="0.01" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition">
                         </div>
-                    </div>
+                    </x-ui.form-grid>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Supplier</label>
                         <input type="text" id="supplier" name="supplier" required class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition">
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
+                    <x-ui.form-grid columns="2">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Masuk</label>
                             <input type="date" id="entry_date" name="entry_date" required class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition">
@@ -308,7 +176,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Kadaluarsa</label>
                             <input type="date" id="expiry_date" name="expiry_date" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition">
                         </div>
-                    </div>
+                    </x-ui.form-grid>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Lokasi</label>
                         <input type="text" id="location" name="location" required class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition">
@@ -317,26 +185,26 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
                         <textarea id="description" name="description" rows="3" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition"></textarea>
                     </div>
-                    <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
-                        <button type="button" id="cancelBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition">Batal</button>
-                        <button type="submit" class="bg-ebara-600 hover:bg-ebara-700 text-white font-medium py-2 px-4 rounded-lg transition">Simpan</button>
-                    </div>
                 </form>
+                <div class="flex flex-col sm:flex-row justify-end gap-3 p-6 border-t border-gray-200 flex-shrink-0">
+                    <button type="button" id="cancelBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition">Batal</button>
+                    <button type="submit" id="submitMaterialBtn" class="bg-ebara-600 hover:bg-ebara-700 text-white font-medium py-2 px-4 rounded-lg transition">Simpan</button>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- QR Code Modal -->
-    <div id="qrModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden z-50 overflow-y-auto">
-        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-4">
-            <div class="relative bg-white rounded-xl shadow-2xl max-w-md w-full mx-4">
-                <div class="flex justify-between items-center p-6 border-b border-gray-200">
+    <div id="qrModal" class="fixed inset-0 bg-gray-900/50 z-50 overflow-y-auto hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="relative bg-white rounded-xl shadow-2xl w-full mx-4 sm:mx-auto sm:max-w-md flex flex-col max-h-[90vh]">
+                <div class="flex justify-between items-center p-6 border-b border-gray-200 flex-shrink-0">
                     <h3 class="text-lg font-semibold text-gray-900">QR Code</h3>
-                    <button type="button" id="closeQrModalBtn" class="text-gray-400 hover:text-gray-600 transition">
+                    <button type="button" id="closeQrModalBtn" class="text-gray-400 hover:text-gray-600 transition p-1 rounded-lg hover:bg-gray-100">
                         <i class="ph ph-x text-2xl"></i>
                     </button>
                 </div>
-                <div class="p-6 text-center">
+                <div class="p-6 text-center overflow-y-auto flex-1">
                     <div id="qrCodeContainer" class="flex justify-center"></div>
                     <p id="qrCodeText" class="mt-4 text-sm text-gray-600"></p>
                 </div>
@@ -358,20 +226,45 @@
             serverSide: true,
             responsive: true,
             ajax: '{{ route('assets.materials.data') }}',
+            createdRow: function(row, data, dataIndex) {
+                // Add group class and smooth hover effect to rows
+                $(row).addClass('group hover:bg-gray-50 transition-colors duration-200');
+            },
+            columnDefs: [
+                {
+                    targets: 0, // Kode - Pill style
+                    className: 'text-sm',
+                    render: function(data, type, row) {
+                        return '<span class="bg-gray-100 text-gray-600 py-1 px-2 rounded-md font-mono text-xs">' + data + '</span>';
+                    }
+                },
+                {
+                    targets: 1, // Nama Aset (primary column)
+                    className: 'text-sm font-bold text-gray-900'
+                },
+                {
+                    targets: [2, 4, 5], // Tipe, Supplier, Lokasi
+                    className: 'text-sm text-gray-600'
+                },
+                {
+                    targets: 6, // Aksi
+                    className: 'text-center'
+                }
+            ],
             columns: [
                 { data: 'material_code' },
                 { data: 'name' },
                 { data: 'type' },
-                { 
+                {
                     data: 'quantity',
                     render: function(data, type, row) {
-                        let badgeClass = 'bg-green-100 text-green-800';
+                        let badgeClass = 'bg-green-50 text-green-700 px-2 py-1 rounded-full text-xs font-medium';
                         if (data == 0) {
-                            badgeClass = 'bg-red-100 text-red-800';
+                            badgeClass = 'bg-red-50 text-red-700 px-2 py-1 rounded-full text-xs font-medium';
                         } else if (data <= row.min_threshold) {
-                            badgeClass = 'bg-yellow-100 text-yellow-800';
+                            badgeClass = 'bg-yellow-50 text-yellow-700 px-2 py-1 rounded-full text-xs font-medium';
                         }
-                        return '<span class="px-2 py-1 rounded-full text-xs font-medium ' + badgeClass + '">' + data + ' ' + row.unit + '</span>';
+                        return '<span class="' + badgeClass + '">' + data + ' ' + row.unit + '</span>';
                     }
                 },
                 { data: 'supplier' },
@@ -381,13 +274,13 @@
                     render: function(data, type, row) {
                         return `
                             <div class="flex items-center justify-center gap-2">
-                                <button onclick="viewQrCode(${row.id})" class="text-blue-600 hover:text-blue-800 transition" title="QR Code">
+                                <button onclick="viewQrCode(${row.id})" class="text-gray-400 hover:text-ebara-600 hover:bg-ebara-50 p-2 rounded-lg transition" title="QR Code">
                                     <i class="ph ph-qr-code text-xl"></i>
                                 </button>
-                                <button onclick="editMaterial(${row.id})" class="text-indigo-600 hover:text-indigo-800 transition" title="Edit">
+                                <button onclick="editMaterial(${row.id})" class="text-gray-400 hover:text-ebara-600 hover:bg-ebara-50 p-2 rounded-lg transition" title="Edit">
                                     <i class="ph ph-pencil-simple text-xl"></i>
                                 </button>
-                                <button onclick="deleteMaterial(${row.id})" class="text-red-600 hover:text-red-800 transition" title="Hapus">
+                                <button onclick="deleteMaterial(${row.id})" class="text-gray-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition" title="Hapus">
                                     <i class="ph ph-trash text-xl"></i>
                                 </button>
                             </div>
@@ -415,7 +308,17 @@
                 }
             },
             dom: '<"flex flex-col sm:flex-row justify-between items-center gap-4 mb-4"lf>rt<"flex flex-col sm:flex-row justify-between items-center gap-4 mt-4"ip>',
-            lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]]
+            lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+            initComplete: function() {
+                // Show/hide empty state based on data count
+                let api = this.api();
+                let count = api.page.info().recordsTotal;
+                if (count === 0) {
+                    $('#emptyState').removeClass('hidden');
+                } else {
+                    $('#emptyState').addClass('hidden');
+                }
+            }
         });
 
         table.on('xhr', function() {

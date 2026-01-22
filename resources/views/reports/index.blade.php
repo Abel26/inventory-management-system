@@ -18,7 +18,7 @@
             </div>
 
             <!-- Stats Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <!-- Total -->
                 <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                     <div class="flex items-center justify-between">
@@ -92,27 +92,25 @@
             </div>
 
             <!-- Table Card -->
-            <div class="bg-white shadow-lg rounded-xl border border-gray-100 p-6 relative overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table id="reportsTable" class="w-full">
-                        <thead>
-                            <tr class="bg-gray-100 text-gray-600 uppercase text-sm">
-                                <th class="px-4 py-3 text-left font-semibold">Ticket ID</th>
-                                <th class="px-4 py-3 text-left font-semibold">Asset</th>
-                                <th class="px-4 py-3 text-left font-semibold">Reporter</th>
-                                <th class="px-4 py-3 text-left font-semibold">Issue Type</th>
-                                <th class="px-4 py-3 text-left font-semibold">Priority</th>
-                                <th class="px-4 py-3 text-left font-semibold">Status</th>
-                                <th class="px-4 py-3 text-left font-semibold">Date</th>
-                                <th class="px-4 py-3 text-center font-semibold">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Data will be loaded by DataTables -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <x-ui.data-table-wrapper tableId="reportsTable" minWidth="1000px">
+                <table id="reportsTable" class="w-full">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-600 uppercase text-sm">
+                            <th class="px-4 py-3 text-left font-semibold">Ticket ID</th>
+                            <th class="px-4 py-3 text-left font-semibold">Asset</th>
+                            <th class="px-4 py-3 text-left font-semibold">Reporter</th>
+                            <th class="px-4 py-3 text-left font-semibold">Issue Type</th>
+                            <th class="px-4 py-3 text-left font-semibold">Priority</th>
+                            <th class="px-4 py-3 text-left font-semibold">Status</th>
+                            <th class="px-4 py-3 text-left font-semibold hidden sm:table-cell">Date</th>
+                            <th class="px-4 py-3 text-center font-semibold">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be loaded by DataTables -->
+                    </tbody>
+                </table>
+            </x-ui.data-table-wrapper>
         </div>
     </div>
 
@@ -157,15 +155,14 @@
                         var assetName = data.name || data.model_name || 'Unknown Asset';
                         var assetType = row.reportable_type.split('\\').pop();
                         var assetId = row.reportable_id;
-
-                        // Determine route based on asset type
                         var routeName = '';
+                        
                         if (assetType === 'AssetMaterial') routeName = 'assets.materials.show';
                         else if (assetType === 'AssetTool') routeName = 'assets.tools.show';
                         else if (assetType === 'AssetModel') routeName = 'assets.models.show';
-
+                        
                         if (routeName) {
-                            return '<a href="/assets/' + assetType.toLowerCase().replace('asset', '') + '/' + assetId + '" class="text-ebara-600 hover:text-ebara-800 font-medium">' + assetName + '</a>';
+                            return '<a href="/' + assetType.toLowerCase().replace('asset', '') + 's/' + assetId + '" class="text-ebara-600 hover:text-ebara-800 font-medium">' + assetName + '</a>';
                         }
                         return assetName;
                     }
@@ -276,8 +273,8 @@
                     button.classList.add('bg-red-500', 'text-white');
                 }
             } else {
-                button.classList.remove('bg-ebara-600', 'text-white', 'bg-yellow-500', 'bg-blue-500', 'bg-green-500', 'bg-red-500');
                 button.classList.add('bg-gray-200', 'text-gray-700');
+                button.classList.remove('bg-ebara-600', 'bg-yellow-500', 'bg-blue-500', 'bg-green-500', 'bg-red-500', 'text-white');
             }
         });
 
@@ -295,4 +292,3 @@
     </script>
     @endpush
 </x-app-layout>
-
