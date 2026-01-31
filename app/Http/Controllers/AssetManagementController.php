@@ -102,6 +102,14 @@ class AssetManagementController extends Controller
     public function update(UpdateAssetMaterialRequest $request, int $id)
     {
         try {
+            // Ensure we have a valid material ID
+            if (!$id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'ID Material tidak valid'
+                ], 400);
+            }
+            
             $updated = $this->assetMaterialService->update($id, $request->validated());
             
             if (!$updated) {
@@ -207,23 +215,24 @@ class AssetManagementController extends Controller
         $length = $request->get('length');
         $search = $request->get('search')['value'] ?? '';
 
-        // Get all materials
-        $query = AssetMaterial::query();
+        // Get all materials with fresh data to avoid cache issues
+        $query = AssetMaterial::query()->latest();
 
         // Apply search
         if ($search) {
-            $query->where('name', 'like', "%{$search}%")
-                ->orWhere('material_code', 'like', "%{$search}%")
-                ->orWhere('type', 'like', "%{$search}%");
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('material_code', 'like', "%{$search}%")
+                  ->orWhere('type', 'like', "%{$search}%");
+            });
         }
 
         // Get total records
         $totalRecords = $query->count();
 
-        // Apply pagination
+        // Apply pagination with fresh data
         $materials = $query->offset($start)
             ->limit($length)
-            ->orderBy('created_at', 'desc')
             ->get();
 
         // Format data for DataTables

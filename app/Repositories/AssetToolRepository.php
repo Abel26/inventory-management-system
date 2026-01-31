@@ -13,7 +13,7 @@ class AssetToolRepository implements AssetToolRepositoryInterface
      */
     public function all(): \Illuminate\Database\Eloquent\Collection
     {
-        return AssetTool::all();
+        return AssetTool::withoutTrashed()->get();
     }
 
     /**
@@ -21,7 +21,7 @@ class AssetToolRepository implements AssetToolRepositoryInterface
      */
     public function find(int $id): ?AssetTool
     {
-        return AssetTool::find($id);
+        return AssetTool::withoutTrashed()->find($id);
     }
 
     /**

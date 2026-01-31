@@ -28,7 +28,7 @@
                         </a>
                     </div>
                 </div>
-                <button type="button" id="createNewModel" class="w-full md:w-auto bg-ebara-600 hover:bg-ebara-700 text-white font-medium py-2.5 px-4 rounded-xl inline-flex items-center justify-center gap-2 transition-colors">
+                <button type="button" id="createNewModel" class="w-full md:w-auto bg-ebara-600 hover:bg-ebara-700 text-white font-medium py-2.5 px-4 rounded-xl inline-flex items-center justify-center gap-2 transition-colors" onclick="console.log('Inline create clicked'); handleCreateNewModel();">
                     <i class="ph ph-plus text-lg"></i>
                     <span>Tambah Data</span>
                 </button>
@@ -96,12 +96,11 @@
                     <tr class="bg-gray-50/80 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                         <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Kode</th>
                         <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Nama Model</th>
-                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Kategori</th>
-                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Merk</th>
                         <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Tipe</th>
-                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Tahun</th>
-                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Total Aset</th>
-                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Status</th>
+                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Material</th>
+                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Tanggal Pembuatan</th>
+                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Kondisi</th>
+                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Lokasi</th>
                         <th class="px-6 py-4 text-center font-semibold whitespace-nowrap">Aksi</th>
                     </tr>
                 </thead>
@@ -120,73 +119,182 @@
     </div>
  
     <!-- Add/Edit Modal -->
-    <div id="modelModal" class="fixed inset-0 bg-gray-900/50 z-50 overflow-y-auto hidden">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="relative bg-white rounded-xl shadow-2xl w-full mx-4 sm:mx-auto sm:max-w-2xl flex flex-col max-h-[90vh]">
+    <!-- REMINDER: Pastikan controller menggunakan $request->validate([...]) atau StoreModelRequest untuk validasi backend -->
+    <div id="modelModal" class="fixed inset-0 bg-gray-900/50 z-[9999] hidden p-4" style="display: none;" x-data="{ open: {{ $errors->any() ? 'true' : 'false' }} }">
+        <div class="flex items-center justify-center min-h-full">
+            <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh] z-[10000] modal-content">
                 <div class="flex justify-between items-center p-6 border-b border-gray-200 flex-shrink-0">
                     <h3 class="text-lg font-semibold text-gray-900" id="modalTitle">Tambah Model</h3>
-                    <button type="button" id="closeModalBtn" class="text-gray-400 hover:text-gray-600 transition p-1 rounded-lg hover:bg-gray-100">
+                    <button type="button" id="closeModalBtn" class="text-gray-400 hover:text-gray-600 transition p-1 rounded-lg hover:bg-gray-100" tabindex="0" role="button" aria-label="Tutup modal" onclick="console.log('Inline close clicked'); hideModal();">
                         <i class="ph ph-x text-2xl"></i>
                     </button>
                 </div>
-                <form id="modelForm" class="p-6 space-y-4 overflow-y-auto flex-1">
+                <form id="modelForm" class="p-6 space-y-6 overflow-y-auto flex-1" action="{{ route('assets.models.store') }}" method="POST">
+                    @csrf
                     <input type="hidden" id="modelId" name="id">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Model</label>
-                        <input type="text" id="name" name="name" required class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition">
+                        <label for="name" class="block text-sm font-medium text-gray-700 mb-1.5">Nama Model</label>
+                        <input type="text" id="name" name="name" required value="{{ old('name') }}" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-ebara-500 focus:ring-ebara-500 sm:text-sm py-2.5">
+                        @error('name')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
                     </div>
-                    <x-ui.form-grid columns="2">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
-                            <select id="category" name="category" required class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition">
-                                <option value="">Pilih Kategori</option>
-                                <option value="Mold">Mold</option>
-                                <option value="Core">Core</option>
-                                <option value="Cavity">Cavity</option>
-                                <option value="Insert">Insert</option>
-                                <option value="Other">Lainnya</option>
+                            <label for="type" class="block text-sm font-medium text-gray-700 mb-1.5">Tipe</label>
+                            <input type="text" id="type" name="type" required value="{{ old('type') }}" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-ebara-500 focus:ring-ebara-500 sm:text-sm py-2.5" placeholder="Contoh: Injection, CNC">
+                            @error('type')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div>
+                            <label for="material_id" class="block text-sm font-medium text-gray-700 mb-1.5">Material</label>
+                            <select id="material_id" name="material_id" value="{{ old('material_id') }}" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-ebara-500 focus:ring-ebara-500 sm:text-sm py-2.5">
+                                <option value="">Pilih Material</option>
+                                @if(isset($materials))
+                                    @foreach($materials as $material)
+                                        <option value="{{ $material->id }}" {{ old('material_id') == $material->id ? 'selected' : '' }}>{{ $material->name }}</option>
+                                    @endforeach
+                                @endif
                             </select>
+                            @error('material_id')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <label for="manufactured_date" class="block text-sm font-medium text-gray-700 mb-1.5">Tanggal Pembuatan</label>
+                            <input type="date" id="manufactured_date" name="manufactured_date" value="{{ old('manufactured_date') }}" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-ebara-500 focus:ring-ebara-500 sm:text-sm py-2.5">
+                            @error('manufactured_date')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Merk</label>
-                            <input type="text" id="brand" name="brand" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition" placeholder="Contoh: Mitsubishi, Bosch">
+                            <label for="condition" class="block text-sm font-medium text-gray-700 mb-1.5">Kondisi</label>
+                            <select id="condition" name="condition" required value="{{ old('condition') }}" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-ebara-500 focus:ring-ebara-500 sm:text-sm py-2.5">
+                                <option value="">Pilih Kondisi</option>
+                                <option value="Good" {{ old('condition') == 'Good' ? 'selected' : '' }}>Baik</option>
+                                <option value="Repair" {{ old('condition') == 'Repair' ? 'selected' : '' }}>Perbaikan</option>
+                                <option value="Damaged" {{ old('condition') == 'Damaged' ? 'selected' : '' }}>Rusak</option>
+                            </select>
+                            @error('condition')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
                         </div>
-                    </x-ui.form-grid>
-                    <x-ui.form-grid columns="2">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Tipe</label>
-                            <input type="text" id="type" name="type" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition" placeholder="Contoh: MX-200">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Tahun</label>
-                            <input type="number" id="year" name="year" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition" placeholder="Contoh: 2023">
-                        </div>
-                    </x-ui.form-grid>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Total Aset</label>
-                        <input type="number" id="total_assets" name="total_assets" required min="0" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                        <select id="status" name="status" required class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition">
-                            <option value="">Pilih Status</option>
-                            <option value="Active">Aktif</option>
-                            <option value="Inactive">Non-Aktif</option>
-                        </select>
+                        <label for="location" class="block text-sm font-medium text-gray-700 mb-1.5">Lokasi</label>
+                        <input type="text" id="location" name="location" value="{{ old('location') }}" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-ebara-500 focus:ring-ebara-500 sm:text-sm py-2.5" placeholder="Contoh: Gudang A, Ruang Produksi">
+                        @error('location')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
-                        <textarea id="description" name="description" rows="3" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition"></textarea>
+                        <label for="description" class="block text-sm font-medium text-gray-700 mb-1.5">Deskripsi</label>
+                        <textarea id="description" name="description" rows="3" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-ebara-500 focus:ring-ebara-500 sm:text-sm py-2.5">{{ old('description') }}</textarea>
+                        @error('description')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
                     </div>
                 </form>
-                <div class="flex flex-col sm:flex-row justify-end gap-3 p-6 border-t border-gray-200 flex-shrink-0">
-                    <button type="button" id="cancelBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition">Batal</button>
-                    <button type="submit" id="submitModelBtn" class="bg-ebara-600 hover:bg-ebara-700 text-white font-medium py-2 px-4 rounded-lg transition">Simpan</button>
+                <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row justify-end gap-3 flex-shrink-0">
+                    <button type="button" id="cancelBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2.5 px-4 rounded-xl transition" tabindex="0" role="button" aria-label="Batal" onclick="console.log('Inline cancel clicked'); hideModal();">Batal</button>
+                    <button type="submit" form="modelForm" class="bg-ebara-600 hover:bg-ebara-700 text-white font-medium py-2.5 px-4 rounded-xl transition" tabindex="0" role="button" aria-label="Simpan data">Simpan</button>
                 </div>
             </div>
         </div>
-    </div>
- 
+        </div>
+        </div>
+      
+        <!-- QR Code Modal -->
+        <div id="qrModal" class="fixed inset-0 bg-gray-900/50 z-50 overflow-y-auto hidden">
+            <div class="flex items-center justify-center min-h-screen p-4">
+                <div class="relative bg-white rounded-xl shadow-2xl w-full mx-4 sm:mx-auto sm:max-w-md flex flex-col max-h-[90vh]">
+                    <div class="flex justify-between items-center p-6 border-b border-gray-200 flex-shrink-0">
+                        <h3 class="text-lg font-semibold text-gray-900">QR Code</h3>
+                        <button type="button" id="closeQrModalBtn" class="text-gray-400 hover:text-gray-600 transition p-1 rounded-lg hover:bg-gray-100">
+                            <i class="ph ph-x text-2xl"></i>
+                        </button>
+                    </div>
+                    <div class="p-6 text-center overflow-y-auto flex-1">
+                        <div id="qrCodeContainer" class="flex justify-center"></div>
+                        <p id="qrCodeText" class="mt-4 text-sm text-gray-600"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+      
+        @push('styles')
+    <style>
+        #modelModal {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        #modelModal.show {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        
+        #modelModal.hide, #modelModal.hidden {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+        }
+        
+        #modelModal .modal-content {
+            animation: modalSlideIn 0.3s ease-out;
+            pointer-events: auto !important;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Ensure buttons are clickable */
+        #modelModal button {
+            pointer-events: auto !important;
+            position: relative !important;
+            z-index: 10001 !important;
+            cursor: pointer !important;
+        }
+        
+        /* Fix any overlay issues */
+        #modelModal {
+            pointer-events: auto !important;
+        }
+        
+        /* Ensure modal is on top */
+        #modelModal.show {
+            z-index: 9999 !important;
+        }
+        
+        /* Center modal properly on all screen sizes */
+        @media (max-width: 640px) {
+            #modelModal .modal-content {
+                width: 90vw !important;
+                max-width: 90vw !important;
+                margin: 0 auto;
+            }
+        }
+    </style>
+    @endpush
+    
     @push('scripts')
     <script>
     var storeUrl = "{{ route('assets.models.store') }}";
@@ -195,7 +303,194 @@
     var destroyUrlTemplate = "{{ route('assets.models.destroy', ':id') }}";
     var qrCodeUrlTemplate = "{{ route('assets.models.qr-code', ':id') }}";
  
+    // Global functions - define outside document ready
+    window.showModal = function() {
+        console.log('Showing modal...');
+        const modal = document.getElementById('modelModal');
+        if (!modal) {
+            console.error('Modal element not found!');
+            return;
+        }
+        console.log('Modal before:', {
+            display: modal.style.display,
+            classes: modal.className
+        });
+        modal.classList.remove('hide', 'hidden');
+        modal.classList.add('show');
+        modal.style.display = 'flex';
+        modal.style.visibility = 'visible';
+        modal.style.opacity = '1';
+        modal.style.alignItems = 'center';
+        modal.style.justifyContent = 'center';
+        console.log('Modal after:', {
+            display: modal.style.display,
+            classes: modal.className
+        });
+    }
+
+    window.hideModal = function() {
+        console.log('Hiding modal...');
+        const modal = document.getElementById('modelModal');
+        if (!modal) {
+            console.error('Modal element not found!');
+            return;
+        }
+        console.log('Modal before hide:', {
+            display: modal.style.display,
+            classes: modal.className
+        });
+        modal.classList.remove('show');
+        modal.classList.add('hide', 'hidden');
+        modal.style.display = 'none';
+        modal.style.visibility = 'hidden';
+        modal.style.opacity = '0';
+        console.log('Modal after hide:', {
+            display: modal.style.display,
+            classes: modal.className
+        });
+    }
+
+    window.handleCreateNewModel = function() {
+        console.log('Global create handler called');
+        try {
+            // Direct DOM manipulation
+            const modal = document.getElementById('modelModal');
+            const title = document.getElementById('modalTitle');
+            const form = document.getElementById('modelForm');
+            const idField = document.getElementById('modelId');
+            
+            console.log('Elements found:', {
+                modal: !!modal,
+                title: !!title,
+                form: !!form,
+                idField: !!idField
+            });
+            
+            if (title) title.textContent = 'Tambah Model';
+            if (form) form.reset();
+            if (idField) idField.value = '';
+            
+            // Force show modal with multiple methods
+            if (modal) {
+                modal.style.display = 'flex';
+                modal.style.visibility = 'visible';
+                modal.style.opacity = '1';
+                modal.style.alignItems = 'center';
+                modal.style.justifyContent = 'center';
+                modal.classList.remove('hide', 'hidden');
+                modal.classList.add('show');
+                
+                // Fallback: try jQuery
+                $(modal).show();
+            }
+            
+            console.log('Modal should be visible now');
+        } catch (error) {
+            console.error('Error in create handler:', error);
+            // Ultimate fallback jQuery method
+            $('#modalTitle').text('Tambah Model');
+            $('#modelForm')[0].reset();
+            $('#modelId').val('');
+            $('#modelModal').show().removeClass('hide hidden').addClass('show');
+        }
+    }
+
+    window.handleInlineSubmit = function() {
+        console.log('Inline submit handler called');
+        
+        const form = document.getElementById('modelForm');
+        const formData = new FormData(form);
+        const id = document.getElementById('modelId').value;
+        let url = storeUrl;
+        let method = 'POST';
+        let successMessage = 'Data berhasil disimpan';
+ 
+        if (id) {
+            url = updateUrlTemplate.replace(':id', id);
+            method = 'PUT';
+            successMessage = 'Data berhasil diupdate';
+        }
+
+        // Add method override for PUT requests
+        if (method === 'PUT') {
+            formData.append('_method', 'PUT');
+        }
+
+        fetch(url, {
+            method: 'POST', // Always use POST with _method override
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Response:', data);
+            hideModal();
+            $('#modelsTable').DataTable().ajax.reload();
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil',
+                text: successMessage,
+                confirmButtonColor: '#009B77'
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Terjadi kesalahan saat menyimpan data',
+                confirmButtonColor: '#dc2626'
+            });
+        });
+    }
+
+    // Debug: Check if global functions are available
+    console.log('Global functions available:', {
+        showModal: typeof window.showModal,
+        hideModal: typeof window.hideModal,
+        handleCreateNewModel: typeof window.handleCreateNewModel,
+        handleInlineSubmit: typeof window.handleInlineSubmit
+    });
+
     $(document).ready(function() {
+        console.log('Document ready, initializing modal handlers...');
+        
+        // Test if elements exist
+        console.log('Create button exists:', !!document.getElementById('createNewModel'));
+        console.log('Close button exists:', !!document.getElementById('closeModalBtn'));
+        console.log('Cancel button exists:', !!document.getElementById('cancelBtn'));
+        console.log('Submit button exists:', !!document.getElementById('submitModelBtn'));
+        console.log('Modal exists:', !!document.getElementById('modelModal'));
+        
+        // Test button clickability
+        setTimeout(function() {
+            console.log('Testing button clickability...');
+            const buttons = ['createNewModel', 'closeModalBtn', 'cancelBtn', 'submitModelBtn'];
+            buttons.forEach(function(id) {
+                const btn = document.getElementById(id);
+                if (btn) {
+                    console.log(`${id} is clickable:`, !btn.disabled);
+                    console.log(`${id} has pointer events:`, window.getComputedStyle(btn).pointerEvents);
+                }
+            });
+        }, 1000);
+        
+        // Force remove hidden class for testing
+        setTimeout(function() {
+            console.log('Testing modal visibility...');
+            const modal = document.getElementById('modelModal');
+            if (modal.classList.contains('hidden')) {
+                console.log('Modal is hidden, attempting to show...');
+                modal.classList.remove('hidden');
+                setTimeout(function() {
+                    console.log('Modal should be visible now');
+                    modal.classList.add('hidden');
+                }, 1000);
+            }
+        }, 2000);
         let table = $('#modelsTable').DataTable({
             processing: true,
             serverSide: true,
@@ -218,41 +513,41 @@
                     className: 'text-sm font-bold text-gray-900'
                 },
                 {
-                    targets: [2, 3, 4, 5, 6, 7], // Kategori, Merk, Tipe, Tahun, Total Aset
+                    targets: [2, 3, 4, 5, 6], // Tipe, Material, Tanggal, Kondisi, Lokasi
                     className: 'text-sm text-gray-600'
                 },
                 {
-                    targets: 8, // Status
-                    className: 'text-sm'
-                },
-                {
-                    targets: 9, // Aksi
+                    targets: 7, // Aksi
                     className: 'text-center'
                 }
             ],
             columns: [
                 { data: 'model_code' },
                 { data: 'name' },
-                { data: 'category' },
-                { data: 'brand' },
                 { data: 'type' },
-                { data: 'year' },
-                { data: 'total_assets' },
-                { 
-                    data: 'status',
+                { data: 'material_name' },
+                { data: 'manufactured_date' },
+                {
+                    data: 'condition',
                     render: function(data, type, row) {
                         let badgeClass = 'bg-green-50 text-green-700 px-2 py-1 rounded-full text-xs font-medium';
-                        if (data === 'Inactive') {
+                        if (data === 'Repair') {
                             badgeClass = 'bg-yellow-50 text-yellow-700 px-2 py-1 rounded-full text-xs font-medium';
+                        } else if (data === 'Damaged') {
+                            badgeClass = 'bg-red-50 text-red-700 px-2 py-1 rounded-full text-xs font-medium';
                         }
-                        return '<span class="' + badgeClass + '">' + (data === 'Active' ? 'Aktif' : 'Non-Aktif') + '</span>';
+                        return '<span class="' + badgeClass + '">' + (data === 'Good' ? 'Baik' : (data === 'Repair' ? 'Perbaikan' : 'Rusak')) + '</span>';
                     }
                 },
+                { data: 'location' },
                 {
                     data: 'actions',
                     render: function(data, type, row) {
                         return `
                             <div class="flex items-center justify-center gap-2">
+                                <button onclick="viewQrCode(${row.id})" class="text-gray-400 hover:text-ebara-600 hover:bg-ebara-50 p-2 rounded-lg transition" title="QR Code">
+                                    <i class="ph ph-qr-code text-xl"></i>
+                                </button>
                                 <button onclick="editModel(${row.id})" class="text-gray-400 hover:text-ebara-600 hover:bg-ebara-50 p-2 rounded-lg transition" title="Edit">
                                     <i class="ph ph-pencil-simple text-xl"></i>
                                 </button>
@@ -307,22 +602,169 @@
             }
         });
  
+
+        // Create button handler (jQuery)
         $('#createNewModel').on('click', function() {
-            $('#modalTitle').text('Tambah Model');
-            $('#modelForm')[0].reset();
-            $('#modelId').val('');
-            $('#modelModal').removeClass('hidden');
+            console.log('Create button clicked (jQuery)'); // Debug log
+            handleCreateNewModel();
+        });
+
+        // Fallback vanilla JS handler
+        document.getElementById('createNewModel').addEventListener('click', function(e) {
+            console.log('Create button clicked (vanilla JS)'); // Debug log
+            e.preventDefault();
+            e.stopPropagation();
+            handleCreateNewModel();
         });
  
+        // Close button handlers
         $('#closeModalBtn').on('click', function() {
-            $('#modelModal').addClass('hidden');
+            console.log('Close button clicked (jQuery)'); // Debug log
+            hideModal();
         });
- 
+
         $('#cancelBtn').on('click', function() {
-            $('#modelModal').addClass('hidden');
+            console.log('Cancel button clicked (jQuery)'); // Debug log
+            hideModal();
         });
-    });
+
+        // Fallback close handlers (vanilla JS)
+        document.getElementById('closeModalBtn').addEventListener('click', function(e) {
+            console.log('Close button clicked (vanilla JS)'); // Debug log
+            e.preventDefault();
+            e.stopPropagation();
+            hideModal();
+        });
+
+        document.getElementById('cancelBtn').addEventListener('click', function(e) {
+            console.log('Cancel button clicked (vanilla JS)'); // Debug log
+            e.preventDefault();
+            e.stopPropagation();
+            hideModal();
+        });
+
+        // Submit button handler
+        document.getElementById('submitModelBtn').addEventListener('click', function(e) {
+            console.log('Submit button clicked (vanilla JS)'); // Debug log
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const form = document.getElementById('modelForm');
+            const formData = new FormData(form);
+            const id = document.getElementById('modelId').value;
+            let url = storeUrl;
+            let method = 'POST';
+            let successMessage = 'Data berhasil disimpan';
  
+            if (id) {
+                url = updateUrlTemplate.replace(':id', id);
+                method = 'PUT';
+                successMessage = 'Data berhasil diupdate';
+            }
+
+            // Add method override for PUT requests
+            if (method === 'PUT') {
+                formData.append('_method', 'PUT');
+            }
+
+            fetch(url, {
+                method: 'POST', // Always use POST with _method override
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Response:', data);
+                hideModal();
+                $('#modelsTable').DataTable().ajax.reload();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: successMessage,
+                    confirmButtonColor: '#009B77'
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Terjadi kesalahan saat menyimpan data',
+                    confirmButtonColor: '#dc2626'
+                });
+            });
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('modelModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                console.log('Clicked outside modal, closing...'); // Debug log
+                hideModal();
+            }
+        });
+
+        // Close modal with ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('modelModal');
+                if (modal.classList.contains('show')) {
+                    console.log('ESC key pressed, closing modal...'); // Debug log
+                    hideModal();
+                }
+            }
+        });
+
+        // Simple button testing
+        setTimeout(function() {
+            console.log('Testing modal functionality...');
+            
+            // Test modal visibility
+            const modal = document.getElementById('modelModal');
+            console.log('Modal element:', modal);
+            console.log('Modal classes:', modal.className);
+            console.log('Modal style:', modal.style.cssText);
+            
+            // Test buttons exist
+            const buttons = {
+                create: document.getElementById('createNewModel'),
+                close: document.getElementById('closeModalBtn'),
+                cancel: document.getElementById('cancelBtn'),
+                submit: document.getElementById('submitModelBtn')
+            };
+            
+            Object.keys(buttons).forEach(key => {
+                const btn = buttons[key];
+                console.log(`${key} button:`, {
+                    exists: !!btn,
+                    disabled: btn ? btn.disabled : 'N/A',
+                    onclick: btn ? (btn.onclick ? 'has onclick' : 'no onclick') : 'N/A',
+                    rect: btn ? btn.getBoundingClientRect() : 'N/A'
+                });
+            });
+            
+            // Test create button specifically
+            const createBtn = document.getElementById('createNewModel');
+            if (createBtn) {
+                console.log('Testing create button click...');
+                createBtn.click();
+            }
+            
+            // Test manual modal show/hide
+            setTimeout(function() {
+                console.log('Testing manual modal show...');
+                showModal();
+                setTimeout(function() {
+                    console.log('Testing manual modal hide...');
+                    hideModal();
+                }, 2000);
+            }, 1000);
+        }, 2000);
+
+    });
+
     function editModel(id) {
         $.ajax({
             url: showUrlTemplate.replace(':id', id),
@@ -333,14 +775,13 @@
                     $('#modalTitle').text('Edit Model');
                     $('#modelId').val(data.id);
                     $('#name').val(data.name);
-                    $('#category').val(data.category);
-                    $('#brand').val(data.brand);
                     $('#type').val(data.type);
-                    $('#year').val(data.year);
-                    $('#total_assets').val(data.total_assets);
-                    $('#status').val(data.status);
+                    $('#material_id').val(data.material_id);
+                    $('#manufactured_date').val(data.manufactured_date);
+                    $('#condition').val(data.condition);
+                    $('#location').val(data.location);
                     $('#description').val(data.description);
-                    $('#modelModal').removeClass('hidden');
+                    showModal();
                 } else {
                     Swal.fire({
                         icon: 'error',
@@ -361,52 +802,6 @@
         });
     }
  
-    $('#modelForm').on('submit', function(e) {
-        e.preventDefault();
-        let formData = $(this).serialize();
-        let id = $('#modelId').val();
-        let url = storeUrl;
-        let method = 'POST';
-        let successMessage = 'Data berhasil disimpan';
- 
-        if (id) {
-            url = updateUrlTemplate.replace(':id', id);
-            method = 'PUT';
-            successMessage = 'Data berhasil diupdate';
-        }
- 
-        $.ajax({
-            url: url,
-            method: method,
-            data: formData,
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            success: function(response) {
-                $('#modelModal').addClass('hidden');
-                $('#modelsTable').DataTable().ajax.reload();
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil',
-                    text: successMessage,
-                    confirmButtonColor: '#009B77'
-                });
-            },
-            error: function(xhr) {
-                let errors = xhr.responseJSON.errors;
-                let errorMessage = '';
-                for (let key in errors) {
-                    errorMessage += errors[key][0] + '\n';
-                }
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: errorMessage,
-                    confirmButtonColor: '#dc2626'
-                });
-            }
-        });
-    });
  
     function deleteModel(id) {
         Swal.fire({
@@ -439,6 +834,58 @@
             }
         });
     }
+
+    function viewQrCode(id) {
+        $.ajax({
+            url: qrCodeUrlTemplate.replace(':id', id),
+            method: 'GET',
+            success: function(response) {
+                if (response.success) {
+                    $('#qrCodeContainer').html(response.qrCode);
+                    $('#qrCodeText').text('QR Code untuk: ' + response.modelCode);
+                    $('#qrModal').removeClass('hidden');
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message || 'Gagal generate QR Code',
+                        confirmButtonColor: '#dc2626'
+                    });
+                }
+            },
+            error: function(xhr) {
+                let errorMessage = 'Gagal memuat QR Code';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: errorMessage,
+                    confirmButtonColor: '#dc2626'
+                });
+            }
+        });
+    }
+
+    // QR Modal close handlers
+    $('#closeQrModalBtn').on('click', function() {
+        $('#qrModal').addClass('hidden');
+    });
+
+    // Close modal when clicking outside
+    $('#qrModal').on('click', function(e) {
+        if (e.target === this) {
+            $('#qrModal').addClass('hidden');
+        }
+    });
+
+    // Close modal with ESC key
+    $(document).on('keydown', function(e) {
+        if (e.key === 'Escape') {
+            $('#qrModal').addClass('hidden');
+        }
+    });
     </script>
     @endpush
 </x-app-layout>

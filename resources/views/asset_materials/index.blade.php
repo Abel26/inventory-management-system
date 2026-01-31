@@ -130,6 +130,10 @@
                 <form id="materialForm" class="p-6 space-y-4 overflow-y-auto flex-1">
                     <input type="hidden" id="materialId" name="id">
                     <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Kode Material</label>
+                        <input type="text" id="material_code" name="material_code" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition" placeholder="Opsional, akan digenerate otomatis">
+                    </div>
+                    <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Nama Material</label>
                         <input type="text" id="name" name="name" required class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition">
                     </div>
@@ -160,12 +164,12 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Harga Satuan</label>
-                            <input type="number" id="unit_price" name="unit_price" required min="0" step="0.01" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition">
+                            <input type="number" id="unit_price" name="unit_price" min="0" step="0.01" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition" placeholder="Opsional">
                         </div>
                     </x-ui.form-grid>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Supplier</label>
-                        <input type="text" id="supplier" name="supplier" required class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition">
+                        <input type="text" id="supplier" name="supplier" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition" placeholder="Opsional">
                     </div>
                     <x-ui.form-grid columns="2">
                         <div>
@@ -174,22 +178,22 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Kadaluarsa</label>
-                            <input type="date" id="expiry_date" name="expiry_date" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition">
+                            <input type="date" id="expiry_date" name="expiry_date" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition" placeholder="Opsional">
                         </div>
                     </x-ui.form-grid>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Lokasi</label>
-                        <input type="text" id="location" name="location" required class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition">
+                        <input type="text" id="location" name="location" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition" placeholder="Opsional">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
                         <textarea id="description" name="description" rows="3" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition"></textarea>
                     </div>
+                    <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-200">
+                        <button type="button" id="cancelBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition">Batal</button>
+                        <button type="button" id="submitMaterialBtn" class="bg-ebara-600 hover:bg-ebara-700 text-white font-medium py-2 px-4 rounded-lg transition">Simpan</button>
+                    </div>
                 </form>
-                <div class="flex flex-col sm:flex-row justify-end gap-3 p-6 border-t border-gray-200 flex-shrink-0">
-                    <button type="button" id="cancelBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition">Batal</button>
-                    <button type="submit" id="submitMaterialBtn" class="bg-ebara-600 hover:bg-ebara-700 text-white font-medium py-2 px-4 rounded-lg transition">Simpan</button>
-                </div>
             </div>
         </div>
     </div>
@@ -360,6 +364,7 @@
                     const data = response.data;
                     $('#modalTitle').text('Edit Material');
                     $('#materialId').val(data.id);
+                    $('#material_code').val(data.material_code);
                     $('#name').val(data.name);
                     $('#type').val(data.type);
                     $('#quantity').val(data.quantity);
@@ -394,6 +399,17 @@
 
     $('#materialForm').on('submit', function(e) {
         e.preventDefault();
+        
+        // Debug: Check if form is being submitted
+        console.log('Form submit triggered');
+        
+        // Basic form validation
+        if (!this.checkValidity()) {
+            // If HTML5 validation fails, trigger browser validation UI
+            this.reportValidity();
+            return false;
+        }
+        
         let formData = $(this).serialize();
         let id = $('#materialId').val();
         let url = storeUrl;
@@ -402,9 +418,14 @@
 
         if (id) {
             url = updateUrlTemplate.replace(':id', id);
-            method = 'PUT';
+            // Add _method field for Laravel method spoofing
+            formData += '&_method=PUT';
+            method = 'POST'; // Always use POST with _method field
             successMessage = 'Data berhasil diupdate';
         }
+
+        // Disable submit button to prevent double submission
+        $('#submitMaterialBtn').prop('disabled', true).text('Menyimpan...');
 
         $.ajax({
             url: url,
@@ -414,14 +435,24 @@
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
             success: function(response) {
+                console.log('Update successful:', response);
                 $('#materialModal').addClass('hidden');
-                $('#materialsTable').DataTable().ajax.reload();
+                
+                // Reload DataTable with a small delay to ensure server has processed the update
+                setTimeout(function() {
+                    $('#materialsTable').DataTable().ajax.reload(null, false); // false = keep current page
+                    console.log('DataTable reloaded');
+                }, 500);
+                
                 Swal.fire({
                     icon: 'success',
                     title: 'Berhasil',
                     text: successMessage,
                     confirmButtonColor: '#009B77'
                 });
+                // Reset form and re-enable button
+                $('#materialForm')[0].reset();
+                $('#submitMaterialBtn').prop('disabled', false).text('Simpan');
             },
             error: function(xhr) {
                 let errors = xhr.responseJSON.errors;
@@ -435,8 +466,40 @@
                     text: errorMessage,
                     confirmButtonColor: '#dc2626'
                 });
+                // Re-enable button on error
+                $('#submitMaterialBtn').prop('disabled', false).text('Simpan');
             }
         });
+    });
+
+    // Also add click handler as backup with confirmation
+    $('#submitMaterialBtn').on('click', function(e) {
+        e.preventDefault();
+        console.log('Submit button clicked');
+        
+        let id = $('#materialId').val();
+        let isEdit = id !== '';
+        
+        if (isEdit) {
+            // Show confirmation dialog for edit
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: 'Data material akan diperbarui. Pastikan data sudah benar.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#009B77',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, Simpan',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#materialForm').submit();
+                }
+            });
+        } else {
+            // Direct submit for new material
+            $('#materialForm').submit();
+        }
     });
 
     function deleteMaterial(id) {

@@ -3,8 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StoreAssetModelRequest extends FormRequest
 {
@@ -24,17 +22,13 @@ class StoreAssetModelRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'model_code' => 'nullable|string|max:50|unique:asset_models,model_code',
             'name' => 'required|string|max:255',
             'type' => 'required|string|max:100',
-            'material_id' => 'nullable|exists:asset_materials,id',
-            'manufactured_date' => 'nullable|date',
-            'condition' => 'required|in:Good,Repair,Damaged',
+            'material_id' => 'nullable|integer|exists:asset_materials,id',
+            'manufactured_date' => 'nullable|date|before_or_equal:today',
+            'condition' => 'required|string|in:Good,Repair,Damaged',
             'location' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            // File upload validation - Security hardening
-            'image' => 'nullable|file|max:5120|mimes:jpg,jpeg,png,webp,pdf',
-            'documents.*' => 'nullable|file|max:5120|mimes:jpg,jpeg,png,webp,pdf',
+            'description' => 'nullable|string|max:1000',
         ];
     }
 
@@ -46,31 +40,18 @@ class StoreAssetModelRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'model_code.unique' => 'Kode model sudah digunakan',
             'name.required' => 'Nama model wajib diisi',
+            'name.max' => 'Nama model maksimal 255 karakter',
             'type.required' => 'Tipe model wajib diisi',
+            'type.max' => 'Tipe model maksimal 100 karakter',
+            'material_id.integer' => 'Material harus berupa angka',
             'material_id.exists' => 'Material tidak ditemukan',
+            'manufactured_date.date' => 'Tanggal pembuatan harus berupa tanggal yang valid',
+            'manufactured_date.before_or_equal' => 'Tanggal pembuatan tidak boleh melebihi hari ini',
             'condition.required' => 'Kondisi wajib dipilih',
             'condition.in' => 'Kondisi tidak valid',
+            'location.max' => 'Lokasi maksimal 255 karakter',
+            'description.max' => 'Deskripsi maksimal 1000 karakter',
         ];
-    }
-
-    /**
-     * Handle a failed validation attempt.
-     *
-     * @param  \Illuminate\Contracts\Validation\Validator  $validator
-     * @return void
-     *
-     * @throws \Illuminate\Http\Exceptions\HttpResponseException
-     */
-    protected function failedValidation(Validator $validator): void
-    {
-        throw new HttpResponseException(
-            response()->json([
-                'success' => false,
-                'message' => 'Validasi gagal',
-                'errors' => $validator->errors(),
-            ], 422)
-        );
     }
 }
