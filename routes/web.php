@@ -5,6 +5,7 @@ use App\Http\Controllers\AssetModelController;
 use App\Http\Controllers\AssetToolController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
@@ -12,7 +13,7 @@ use App\Http\Controllers\ReportsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return auth()->check() ? redirect()->route('dashboard') : redirect()->route('login');
+    return \Illuminate\Support\Facades\Auth::check() ? redirect()->route('dashboard') : redirect()->route('login');
 });
 
 // Executive Dashboard
@@ -85,6 +86,19 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}', [RoleController::class, 'show'])->name('show');
         Route::put('/{id}', [RoleController::class, 'update'])->name('update');
         Route::delete('/{id}', [RoleController::class, 'destroy'])->name('destroy');
+    });
+
+    // User Management Routes
+    Route::prefix('users')->name('users.')->group(function () {
+        Route::get('/export', [UserController::class, 'export'])->name('export');
+        Route::get('/export-pdf', [UserController::class, 'exportPdf'])->name('export-pdf');
+        Route::get('/', [UserController::class, 'index'])->name('index');
+        Route::get('/data', [UserController::class, 'getData'])->name('data');
+        Route::post('/', [UserController::class, 'store'])->name('store');
+        Route::get('/{id}', [UserController::class, 'show'])->name('show');
+        Route::put('/{id}', [UserController::class, 'update'])->name('update');
+        Route::delete('/{id}', [UserController::class, 'destroy'])->name('destroy');
+        Route::patch('/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('toggle-status');
     });
 
     // Report Management Routes

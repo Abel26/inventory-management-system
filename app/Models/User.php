@@ -21,8 +21,10 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'username',
-        'email',
+        'email', // nullable
         'password',
+        'phone_number',
+        'is_active',
     ];
 
     /**
@@ -45,6 +47,59 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
+    }
+
+    /**
+     * Get user's full name with username.
+     */
+    public function getFullNameAttribute(): string
+    {
+        return "{$this->name} (@{$this->username})";
+    }
+
+    /**
+     * Scope to get only active users.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * Scope to get only inactive users.
+     */
+    public function scopeInactive($query)
+    {
+        return $query->where('is_active', false);
+    }
+
+    /**
+     * Get user's roles as a formatted string.
+     */
+    public function getRolesListAttribute(): string
+    {
+        return $this->roles->pluck('name')->implode(', ');
+    }
+
+    /**
+     * Check if user is Super Admin.
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->hasRole('Super Admin');
+    }
+
+    /**
+     * Get user's status badge HTML.
+     */
+    public function getStatusBadgeAttribute(): string
+    {
+        if ($this->is_active) {
+            return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span>';
+        }
+        
+        return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Inactive</span>';
     }
 }

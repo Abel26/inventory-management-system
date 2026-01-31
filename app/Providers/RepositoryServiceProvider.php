@@ -9,12 +9,15 @@ use App\Repositories\Contracts\AssetModelRepositoryInterface;
 use App\Repositories\Contracts\AssetRepositoryInterface;
 use App\Repositories\Contracts\RoleRepositoryInterface;
 use App\Repositories\Contracts\ReportRepositoryInterface;
+use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\AssetMaterialRepository;
 use App\Repositories\AssetToolRepository;
 use App\Repositories\AssetModelRepository;
 use App\Repositories\AssetRepository;
 use App\Repositories\RoleRepository;
 use App\Repositories\ReportRepository;
+use App\Repositories\UserRepository;
+use App\Services\UserService;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
@@ -37,7 +40,13 @@ class RepositoryServiceProvider extends ServiceProvider
         
         // Bind Role Repository
         $this->app->bind(RoleRepositoryInterface::class, RoleRepository::class);
-
+        
+        // Bind User Repository and Service
+        $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
+        $this->app->singleton(UserService::class, function ($app) {
+            return new UserService($app->make(UserRepositoryInterface::class));
+        });
+        
         // Bind Report Repository
         $this->app->bind(ReportRepositoryInterface::class, ReportRepository::class);
     }
