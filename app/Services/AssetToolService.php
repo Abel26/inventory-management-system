@@ -25,7 +25,7 @@ class AssetToolService
      */
     public function getAll(): \Illuminate\Database\Eloquent\Collection
     {
-        return $this->assetToolRepository->all();
+        return AssetTool::withoutTrashed()->get();
     }
 
     /**

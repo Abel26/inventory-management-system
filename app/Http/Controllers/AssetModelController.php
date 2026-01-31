@@ -42,15 +42,14 @@ class AssetModelController extends Controller
         try {
             $this->assetModelService->create($request->validated());
             
-            return response()->json([
-                'success' => true,
-                'message' => 'Model berhasil ditambahkan'
-            ]);
+            return redirect()
+                ->route('assets.models.index')
+                ->with('success', 'Model berhasil ditambahkan');
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menambahkan model: ' . $e->getMessage()
-            ], 500);
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Gagal menambahkan model: ' . $e->getMessage());
         }
     }
 
@@ -243,10 +242,10 @@ class AssetModelController extends Controller
 
         // Calculate stats
         $stats = [
-            'total' => AssetModel::count(),
-            'good' => AssetModel::where('condition', 'Good')->count(),
-            'repair' => AssetModel::where('condition', 'Repair')->count(),
-            'damaged' => AssetModel::where('condition', 'Damaged')->count(),
+            'totalModels' => AssetModel::count(),
+            'activeModels' => AssetModel::where('condition', 'Good')->count(),
+            'inactiveModels' => AssetModel::whereIn('condition', ['Repair', 'Damaged'])->count(),
+            'totalAssets' => 0, // This would need to be calculated based on actual asset data
         ];
 
         return response()->json([

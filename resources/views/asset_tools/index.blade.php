@@ -130,8 +130,12 @@
                         <i class="ph ph-x text-2xl"></i>
                     </button>
                 </div>
-                <form id="toolForm" class="p-6 space-y-4 overflow-y-auto flex-1">
+                <form id="toolForm" class="p-6 space-y-4 overflow-y-auto flex-1" novalidate>
                     <input type="hidden" id="toolId" name="id">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Kode Alat</label>
+                        <input type="text" id="tool_code" name="tool_code" required class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition" placeholder="Contoh: TL-001">
+                    </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Nama Alat</label>
                         <input type="text" id="name" name="name" required class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition">
@@ -140,10 +144,10 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
                         <select id="category" name="category" required class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition">
                             <option value="">Pilih Kategori</option>
-                            <option value="Mesin">Mesin</option>
-                            <option value="Tool">Tool</option>
-                            <option value="Peralatan">Peralatan</option>
-                            <option value="Lainnya">Lainnya</option>
+                            <option value="hand_tools">Alat Tangan</option>
+                            <option value="power_tools">Alat Listrik</option>
+                            <option value="measuring">Alat Ukur</option>
+                            <option value="other">Lainnya</option>
                         </select>
                     </div>
                     <x-ui.form-grid columns="2">
@@ -158,18 +162,24 @@
                     </x-ui.form-grid>
                     <x-ui.form-grid columns="2">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Tahun Pembelian</label>
-                            <input type="number" id="purchase_year" name="purchase_year" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition" placeholder="Contoh: 2023">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Pembelian</label>
+                            <input type="date" id="purchase_date" name="purchase_date" required class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Harga Beli</label>
+                            <input type="number" id="purchase_price" name="purchase_price" required min="0" step="0.01" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition" placeholder="Contoh: 1500000">
+                        </div>
+                    </x-ui.form-grid>
+                    <x-ui.form-grid columns="2">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Lokasi</label>
+                            <input type="text" id="location" name="location" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition" placeholder="Contoh: Gudang A">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah</label>
-                            <input type="number" id="quantity" name="quantity" required min="0" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition">
+                            <input type="number" id="quantity" name="quantity" required min="1" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition" placeholder="Contoh: 1">
                         </div>
                     </x-ui.form-grid>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Lokasi</label>
-                        <input type="text" id="location" name="location" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition" placeholder="Contoh: Gudang A">
-                    </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Kondisi</label>
                         <select id="condition" name="condition" required class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition">
@@ -184,11 +194,11 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
                         <textarea id="description" name="description" rows="3" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition"></textarea>
                     </div>
+                    <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-200">
+                        <button type="button" id="cancelBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition">Batal</button>
+                        <button type="button" id="submitToolBtn" class="bg-ebara-600 hover:bg-ebara-700 text-white font-medium py-2 px-4 rounded-lg transition">Simpan</button>
+                    </div>
                 </form>
-                <div class="flex flex-col sm:flex-row justify-end gap-3 p-6 border-t border-gray-200 flex-shrink-0">
-                    <button type="button" id="cancelBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition">Batal</button>
-                    <button type="submit" id="submitToolBtn" class="bg-ebara-600 hover:bg-ebara-700 text-white font-medium py-2 px-4 rounded-lg transition">Simpan</button>
-                </div>
             </div>
         </div>
     </div>
@@ -368,11 +378,13 @@
                     const data = response.data;
                     $('#modalTitle').text('Edit Alat');
                     $('#toolId').val(data.id);
+                    $('#tool_code').val(data.tool_code);
                     $('#name').val(data.name);
                     $('#category').val(data.category);
                     $('#brand').val(data.brand);
                     $('#type').val(data.type);
-                    $('#purchase_year').val(data.purchase_year);
+                    $('#purchase_date').val(data.purchase_date);
+                    $('#purchase_price').val(data.purchase_price);
                     $('#quantity').val(data.quantity);
                     $('#location').val(data.location);
                     $('#condition').val(data.condition);
@@ -398,19 +410,50 @@
         });
     }
  
-    $('#toolForm').on('submit', function(e) {
+    // Add click handler for submit button
+    $('#submitToolBtn').on('click', function(e) {
         e.preventDefault();
-        let formData = $(this).serialize();
+        console.log('Submit button clicked');
+        
+        let id = $('#toolId').val();
+        let isEdit = id !== '';
+        
+        // Always show confirmation dialog for both create and edit
+        let confirmTitle = isEdit ? 'Apakah Anda yakin?' : 'Apakah Anda yakin?';
+        let confirmText = isEdit ? 'Data alat akan diperbarui. Pastikan data sudah benar.' : 'Data alat akan ditambahkan. Pastikan data sudah benar.';
+        let successMessage = isEdit ? 'Data berhasil diupdate' : 'Data berhasil disimpan';
+        
+        Swal.fire({
+            title: confirmTitle,
+            text: confirmText,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#009B77',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Simpan',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                submitToolForm(successMessage);
+            }
+        });
+    });
+
+    function submitToolForm(successMessage = 'Data berhasil disimpan') {
+        let formData = $('#toolForm').serialize();
         let id = $('#toolId').val();
         let url = storeUrl;
         let method = 'POST';
-        let successMessage = 'Data berhasil disimpan';
- 
+        
         if (id) {
             url = updateUrlTemplate.replace(':id', id);
-            method = 'PUT';
-            successMessage = 'Data berhasil diupdate';
+            // Add _method field for Laravel method spoofing
+            formData += '&_method=PUT';
+            method = 'POST'; // Always use POST with _method field
         }
+ 
+        // Disable submit button to prevent double submission
+        $('#submitToolBtn').prop('disabled', true).text('Menyimpan...');
  
         $.ajax({
             url: url,
@@ -420,30 +463,63 @@
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
             success: function(response) {
+                console.log('Update successful:', response);
                 $('#toolModal').addClass('hidden');
-                $('#toolsTable').DataTable().ajax.reload();
+                
+                // Reload DataTable with a small delay to ensure server has processed update
+                setTimeout(function() {
+                    $('#toolsTable').DataTable().ajax.reload(null, false); // false = keep current page
+                    console.log('DataTable reloaded');
+                }, 500);
+                
                 Swal.fire({
                     icon: 'success',
                     title: 'Berhasil',
                     text: successMessage,
                     confirmButtonColor: '#009B77'
                 });
+                // Reset form and re-enable button
+                $('#toolForm')[0].reset();
+                $('#submitToolBtn').prop('disabled', false).text('Simpan');
             },
             error: function(xhr) {
-                let errors = xhr.responseJSON.errors;
-                let errorMessage = '';
-                for (let key in errors) {
-                    errorMessage += errors[key][0] + '\n';
+                let errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+                
+                if (xhr.responseJSON) {
+                    if (xhr.responseJSON.errors) {
+                        // Handle validation errors
+                        let errors = xhr.responseJSON.errors;
+                        let errorMessages = [];
+                        for (let key in errors) {
+                            errorMessages.push(errors[key][0]);
+                        }
+                        errorMessage = errorMessages.join('<br>');
+                    } else if (xhr.responseJSON.message) {
+                        // Handle single error message
+                        errorMessage = xhr.responseJSON.message;
+                    }
+                } else if (xhr.status === 422) {
+                    errorMessage = 'Validation error. Silakan periksa kembali input Anda.';
+                } else if (xhr.status === 403) {
+                    errorMessage = 'Anda tidak memiliki izin untuk melakukan aksi ini.';
+                } else if (xhr.status === 404) {
+                    errorMessage = 'Data tidak ditemukan.';
+                } else if (xhr.status === 500) {
+                    errorMessage = 'Terjadi kesalahan server. Silakan coba lagi.';
                 }
+                
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: errorMessage,
+                    html: errorMessage,
                     confirmButtonColor: '#dc2626'
                 });
+                // Re-enable button on error
+                $('#submitToolBtn').prop('disabled', false).text('Simpan');
             }
         });
-    });
+    }
+ 
  
     function deleteTool(id) {
         Swal.fire({
@@ -471,6 +547,26 @@
                             text: 'Data berhasil dihapus',
                             confirmButtonColor: '#009B77'
                         });
+                    },
+                    error: function(xhr) {
+                        let errorMessage = 'Gagal menghapus data';
+                        
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        } else if (xhr.status === 404) {
+                            errorMessage = 'Data tidak ditemukan';
+                        } else if (xhr.status === 403) {
+                            errorMessage = 'Anda tidak memiliki izin untuk menghapus data ini';
+                        } else if (xhr.status === 500) {
+                            errorMessage = 'Terjadi kesalahan server. Silakan coba lagi.';
+                        }
+                        
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: errorMessage,
+                            confirmButtonColor: '#dc2626'
+                        });
                     }
                 });
             }
@@ -481,10 +577,31 @@
         $.ajax({
             url: qrCodeUrlTemplate.replace(':id', id),
             method: 'GET',
-            success: function(data) {
-                $('#qrCodeContainer').html(data.qrCode);
-                $('#qrCodeText').text(data.toolCode);
-                $('#qrModal').removeClass('hidden');
+            success: function(response) {
+                if (response.success) {
+                    $('#qrCodeContainer').html(response.qrCode);
+                    $('#qrCodeText').text('QR Code untuk: ' + response.toolCode);
+                    $('#qrModal').removeClass('hidden');
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message || 'Gagal generate QR Code',
+                        confirmButtonColor: '#dc2626'
+                    });
+                }
+            },
+            error: function(xhr) {
+                let errorMessage = 'Gagal memuat QR Code';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: errorMessage,
+                    confirmButtonColor: '#dc2626'
+                });
             }
         });
     }

@@ -28,11 +28,13 @@ class StoreAssetToolRequest extends FormRequest
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'category' => 'required|in:hand_tools,power_tools,measuring,other',
-            'status' => 'required|in:available,in_use,maintenance,broken',
+            'brand' => 'nullable|string|max:255',
+            'type' => 'nullable|string|max:255',
             'purchase_date' => 'required|date',
             'purchase_price' => 'required|numeric|min:0',
-            'supplier' => 'nullable|string|max:255',
+            'quantity' => 'required|integer|min:1',
             'location' => 'nullable|string|max:255',
+            'condition' => 'required|in:Good,Repair,Damaged,Disposed',
             'last_maintenance' => 'nullable|date',
             'next_maintenance' => 'nullable|date|after_or_equal:last_maintenance',
             'notes' => 'nullable|string',
@@ -55,32 +57,21 @@ class StoreAssetToolRequest extends FormRequest
             'name.required' => 'Tool name is required',
             'category.required' => 'Category is required',
             'category.in' => 'Invalid category selected',
-            'status.required' => 'Status is required',
-            'status.in' => 'Invalid status selected',
+            'brand.max' => 'Brand may not be greater than 255 characters',
+            'type.max' => 'Type may not be greater than 255 characters',
+            'condition.required' => 'Condition is required',
+            'condition.in' => 'Invalid condition selected',
             'purchase_date.required' => 'Purchase date is required',
             'purchase_date.date' => 'Purchase date must be a valid date',
             'purchase_price.required' => 'Purchase price is required',
             'purchase_price.numeric' => 'Purchase price must be a number',
+            'quantity.required' => 'Quantity is required',
+            'quantity.integer' => 'Quantity must be a number',
+            'quantity.min' => 'Quantity must be at least 1',
             'next_maintenance.after_or_equal' => 'Next maintenance date must be after or equal to last maintenance date',
         ];
     }
 
-    /**
-     * Handle a failed validation attempt.
-     *
-     * @param  \Illuminate\Contracts\Validation\Validator  $validator
-     * @return void
-     *
-     * @throws \Illuminate\Http\Exceptions\HttpResponseException
-     */
-    protected function failedValidation(Validator $validator): void
-    {
-        throw new HttpResponseException(
-            response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422)
-        );
-    }
+    // Remove failedValidation method to let Laravel handle redirects naturally
+    // This is better for HTML forms while still working with AJAX
 }

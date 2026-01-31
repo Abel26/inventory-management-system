@@ -22,6 +22,8 @@ class AssetTool extends Model
         'category',
         'brand',
         'type',
+        'purchase_date',
+        'purchase_price',
         'purchase_year',
         'quantity',
         'location',
@@ -38,6 +40,8 @@ class AssetTool extends Model
     protected function casts(): array
     {
         return [
+            'purchase_date' => 'date',
+            'purchase_price' => 'decimal:2',
             'purchase_year' => 'integer',
             'quantity' => 'integer',
             'condition' => 'string',

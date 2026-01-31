@@ -41,15 +41,9 @@ class AssetToolController extends Controller
         try {
             $this->assetToolService->create($request->validated());
             
-            return response()->json([
-                'success' => true,
-                'message' => 'Alat berhasil ditambahkan'
-            ]);
+            return redirect()->route('assets.tools.index')->with('success', 'Data peralatan berhasil disimpan');
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menambahkan alat: ' . $e->getMessage()
-            ], 500);
+            return redirect()->route('assets.tools.index')->with('error', 'Gagal menyimpan data peralatan: ' . $e->getMessage());
         }
     }
 
@@ -77,7 +71,9 @@ class AssetToolController extends Controller
                     'category' => $tool->category,
                     'brand' => $tool->brand,
                     'type' => $tool->type,
-                    'purchase_year' => $tool->purchase_year,
+                    'purchase_date' => $tool->purchase_date ? $tool->purchase_date->format('Y-m-d') : '',
+                    'purchase_price' => $tool->purchase_price,
+                    'purchase_year' => $tool->purchase_date ? $tool->purchase_date->format('Y') : ($tool->purchase_year ?? ''),
                     'quantity' => $tool->quantity,
                     'location' => $tool->location,
                     'condition' => $tool->condition,
@@ -101,21 +97,12 @@ class AssetToolController extends Controller
             $updated = $this->assetToolService->update($id, $request->validated());
             
             if (!$updated) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Alat tidak ditemukan'
-                ], 404);
+                return redirect()->route('assets.tools.index')->with('error', 'Data peralatan tidak ditemukan');
             }
             
-            return response()->json([
-                'success' => true,
-                'message' => 'Alat berhasil diperbarui'
-            ]);
+            return redirect()->route('assets.tools.index')->with('success', 'Data peralatan berhasil diperbarui');
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal memperbarui alat: ' . $e->getMessage()
-            ], 500);
+            return redirect()->route('assets.tools.index')->with('error', 'Gagal memperbarui data peralatan: ' . $e->getMessage());
         }
     }
 
@@ -128,21 +115,36 @@ class AssetToolController extends Controller
             $deleted = $this->assetToolService->delete($id);
             
             if (!$deleted) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Alat tidak ditemukan'
-                ], 404);
+                // For AJAX requests, return JSON response
+                if (request()->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Data peralatan tidak ditemukan'
+                    ], 404);
+                }
+                
+                return redirect()->route('assets.tools.index')->with('error', 'Data peralatan tidak ditemukan');
             }
             
-            return response()->json([
-                'success' => true,
-                'message' => 'Alat berhasil dihapus'
-            ]);
+            // For AJAX requests, return JSON response
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Data peralatan berhasil dihapus'
+                ]);
+            }
+            
+            return redirect()->route('assets.tools.index')->with('success', 'Data peralatan berhasil dihapus');
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menghapus alat: ' . $e->getMessage()
-            ], 500);
+            // For AJAX requests, return JSON response
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal menghapus data peralatan: ' . $e->getMessage()
+                ], 500);
+            }
+            
+            return redirect()->route('assets.tools.index')->with('error', 'Gagal menghapus data peralatan: ' . $e->getMessage());
         }
     }
 
@@ -203,8 +205,8 @@ class AssetToolController extends Controller
         $length = $request->get('length');
         $search = $request->get('search')['value'] ?? '';
 
-        // Get all tools
-        $query = AssetTool::query();
+        // Get all tools (excluding soft-deleted)
+        $query = AssetTool::withoutTrashed();
 
         // Apply search
         if ($search) {
@@ -234,7 +236,7 @@ class AssetToolController extends Controller
                 'category' => $tool->category,
                 'brand' => $tool->brand ?? '-',
                 'type' => $tool->type ?? '-',
-                'purchase_year' => $tool->purchase_year ?? '-',
+                'purchase_year' => $tool->purchase_date ? $tool->purchase_date->format('Y') : ($tool->purchase_year ?? '-'),
                 'quantity' => $tool->quantity,
                 'condition' => $tool->condition,
                 'condition_label' => $tool->condition_label,
