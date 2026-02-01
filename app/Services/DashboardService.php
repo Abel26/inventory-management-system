@@ -89,6 +89,7 @@ class DashboardService
             'charts' => $this->getChartsData(),
             'activity' => $this->getRecentActivity(),
             'critical' => $this->getCriticalItems(),
+            'resolvedTrend' => $this->getResolvedTrend(),
         ];
     }
 
@@ -378,6 +379,34 @@ class DashboardService
                     'data' => $data,
                 ]
             ]
+        ];
+    }
+
+    /**
+     * Get resolved trend data (last 7 days for dashboard)
+     */
+    public function getResolvedTrend(): array
+    {
+        $categories = [];
+        $totalReports = [];
+        $resolvedReports = [];
+        
+        // Generate last 7 days
+        for ($i = 6; $i >= 0; $i--) {
+            $date = now()->subDays($i);
+            $categories[] = $date->locale('id')->format('D');
+            
+            $total = Report::whereDate('created_at', $date->format('Y-m-d'))->count();
+            $resolved = Report::whereDate('resolved_at', $date->format('Y-m-d'))->count();
+            
+            $totalReports[] = $total;
+            $resolvedReports[] = $resolved;
+        }
+
+        return [
+            'categories' => $categories,
+            'total' => $totalReports,
+            'resolved' => $resolvedReports,
         ];
     }
 

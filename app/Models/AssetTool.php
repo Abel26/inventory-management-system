@@ -26,7 +26,10 @@ class AssetTool extends Model
         'purchase_price',
         'purchase_year',
         'quantity',
+        'unit',
         'location',
+        'supplier',
+        'warranty_expiry',
         'condition',
         'description',
         'qr_code_path',
@@ -44,7 +47,9 @@ class AssetTool extends Model
             'purchase_price' => 'decimal:2',
             'purchase_year' => 'integer',
             'quantity' => 'integer',
+            'warranty_expiry' => 'date',
             'condition' => 'string',
+            'unit_price' => 'decimal:2',
         ];
     }
 
@@ -61,13 +66,13 @@ class AssetTool extends Model
      */
     public function getConditionLabelAttribute(): string
     {
-        $labels = [
+        return match($this->condition) {
             'Good' => 'Baik',
             'Repair' => 'Perbaikan',
             'Damaged' => 'Rusak',
             'Disposed' => 'Dibuang',
-        ];
-        return $labels[$this->condition] ?? $this->condition;
+            default => 'Tidak Diketahui',
+        };
     }
 
     /**
@@ -82,5 +87,19 @@ class AssetTool extends Model
             'Disposed' => 'gray',
         ];
         return $colors[$this->condition] ?? 'gray';
+    }
+
+    /**
+     * Get condition status for search results
+     */
+    public function getConditionStatusAttribute(): string
+    {
+        return match($this->condition) {
+            'Good' => 'in_stock',
+            'Repair' => 'maintenance',
+            'Damaged' => 'damaged',
+            'Disposed' => 'disposed',
+            default => 'unknown',
+        };
     }
 }

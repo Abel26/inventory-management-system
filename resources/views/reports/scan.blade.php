@@ -29,6 +29,7 @@
             border-radius: 1.5rem;
             overflow: hidden;
             position: relative;
+            background: #f8fafc;
         }
 
         #reader video {
@@ -151,6 +152,47 @@
                 opacity: 1;
             }
         }
+
+        /* HTTP Mode Indicator */
+        .http-mode-indicator {
+            background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
+            border: 1px solid #fbbf24;
+            color: #92400e;
+        }
+
+        /* HTTPS Mode Indicator */
+        .https-mode-indicator {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border: 1px solid #34d399;
+            color: #065f46;
+        }
+
+        /* File input styling */
+        .file-input-button {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input-button input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #009B77;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
     @endpush
 
@@ -167,13 +209,18 @@
                 </p>
             </div>
 
+            <!-- Mode Indicator -->
+            <div id="modeIndicator" class="mb-6 rounded-xl p-4 text-center font-medium">
+                <!-- Will be populated by JavaScript -->
+            </div>
+
             <!-- Main Content Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <!-- Left Column: Scanner -->
                 <div class="glass-card rounded-3xl shadow-2xl p-8">
                     <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
                         <i class="ph ph-camera text-ebara-600"></i>
-                        <span>Camera Scanner</span>
+                        <span>QR Scanner</span>
                     </h2>
 
                     <!-- Error Toast -->
@@ -187,13 +234,24 @@
                         </div>
                     </div>
 
+                    <!-- Success Toast -->
+                    <div id="successToast" class="hidden toast mb-6 bg-green-50 border border-green-200 rounded-xl p-4">
+                        <div class="flex items-start gap-3">
+                            <i class="ph ph-check-circle text-2xl text-green-600 flex-shrink-0 mt-0.5"></i>
+                            <div>
+                                <p class="font-semibold text-green-900">Berhasil</p>
+                                <p id="successMessage" class="text-green-700 text-sm mt-1"></p>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Camera Viewfinder -->
                     <div id="reader" class="mb-6">
                         <!-- Placeholder (Inactive State) -->
                         <div id="cameraPlaceholder" class="camera-placeholder">
                             <i class="ph ph-camera text-6xl text-gray-400 mb-4"></i>
-                            <p class="text-gray-500 font-medium">Menunggu akses kamera...</p>
-                            <p class="text-gray-400 text-sm mt-2">Klik tombol di bawah untuk memulai</p>
+                            <p class="text-gray-500 font-medium">Menyiapkan scanner...</p>
+                            <p class="text-gray-400 text-sm mt-2">Mohon tunggu sebentar</p>
                         </div>
 
                         <!-- Scanning Frame Overlay -->
@@ -206,20 +264,29 @@
                         </div>
                     </div>
 
-                    <!-- Camera Controls -->
+                    <!-- Hidden File Input for HTTP Mode -->
+                    <input 
+                        type="file" 
+                        id="qr-input-file" 
+                        accept="image/*" 
+                        capture="environment" 
+                        hidden
+                    >
+
+                    <!-- Scanner Controls -->
                     <div class="flex gap-3">
                         <button
                             type="button"
-                            id="startCameraBtn"
+                            id="startScanBtn"
                             class="flex-1 bg-ebara-600 text-white hover:bg-ebara-700 font-semibold py-4 px-6 rounded-xl text-lg flex items-center justify-center gap-2 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
                         >
-                            <i class="ph ph-play-circle text-2xl"></i>
+                            <i class="ph ph-qr-code text-2xl"></i>
                             <span>Mulai Scan</span>
                         </button>
 
                         <button
                             type="button"
-                            id="stopCameraBtn"
+                            id="stopScanBtn"
                             class="flex-1 bg-red-600 text-white hover:bg-red-700 font-semibold py-4 px-6 rounded-xl text-lg flex items-center justify-center gap-2 hidden transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
                         >
                             <i class="ph ph-stop-circle text-2xl"></i>
@@ -305,7 +372,7 @@
                             </li>
                             <li class="flex items-start gap-2 text-sm text-gray-600">
                                 <i class="ph ph-check-circle text-green-600 flex-shrink-0 mt-0.5"></i>
-                                <span>Gunakan manual input jika kamera gagal</span>
+                                <span>Gunakan manual input jika scan gagal</span>
                             </li>
                         </ul>
                     </div>
@@ -317,9 +384,11 @@
     @push('scripts')
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script>
+        // Global variables
         let html5QrcodeScanner = null;
         let isScanning = false;
-        let isRedirecting = false; // Semaphore to prevent double-firing
+        let isRedirecting = false;
+        let scannerMode = 'unknown'; // 'https' or 'http'
 
         // Audio context for beep sound
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -354,33 +423,55 @@
             }, 5000);
         }
 
-        // On scan success - FIRE AND FORGET STRATEGY
+        // Show success toast
+        function showSuccess(message) {
+            const toast = document.getElementById('successToast');
+            const msgEl = document.getElementById('successMessage');
+            msgEl.textContent = message;
+            toast.classList.remove('hidden');
+
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Unified success handler for both HTTP and HTTPS modes
         function onScanSuccess(decodedText, decodedResult) {
-            // 1. Block multiple triggers
+            // Block multiple triggers
             if (isRedirecting) return;
             isRedirecting = true;
 
-            // 2. Get Clean Data
+            // Get clean data
             const scannedCode = decodedText.trim();
             console.log("✅ QR CAPTURED:", scannedCode);
 
-            // 3. Construct URL
-            // We send it to the 'scan' controller method, which validates the asset
-            // and then redirects to the 'create' form.
+            // Play success sound
+            playBeep();
+
+            // Show success message
+            showSuccess(`QR Code berhasil terbaca: ${scannedCode}`);
+
+            // Construct URL
             const baseUrl = "{{ route('reports.scan') }}";
             const targetUrl = `${baseUrl}?code=${encodeURIComponent(scannedCode)}`;
 
-            console.log("🚀 FORCING NAVIGATION TO:", targetUrl);
+            console.log("🚀 NAVIGATING TO:", targetUrl);
 
-            // 4. STOP SCANNER (Best effort, don't wait)
-            // We try to clear it to stop the camera light, but we don't wait for the callback
-            if (html5QrcodeScanner) {
-                try { html5QrcodeScanner.clear(); } catch (e) { console.warn("Failed to clear scanner", e); }
+            // Stop scanner if running
+            if (html5QrcodeScanner && isScanning) {
+                try {
+                    if (scannerMode === 'https') {
+                        html5QrcodeScanner.stop();
+                    }
+                } catch (e) {
+                    console.warn("Failed to stop scanner", e);
+                }
             }
 
-            // 5. EXECUTE REDIRECT
-            // This happens IMMEDIATELY, before any other code can run
-            window.location.href = targetUrl;
+            // Execute redirect after a short delay to show success message
+            setTimeout(() => {
+                window.location.href = targetUrl;
+            }, 1000);
         }
 
         // On scan failure (called frequently, ignore silently)
@@ -390,23 +481,86 @@
             // console.debug('Scan failed:', error);
         }
 
-        // Initialize Scanner on DOM ready
-        document.addEventListener('DOMContentLoaded', function() {
-            // Start camera button
-            document.getElementById('startCameraBtn').addEventListener('click', async function() {
-                const reader = document.getElementById('reader');
+        // Update mode indicator
+        function updateModeIndicator(mode) {
+            const indicator = document.getElementById('modeIndicator');
+            const placeholder = document.getElementById('cameraPlaceholder');
+            const startBtn = document.getElementById('startScanBtn');
+            
+            if (mode === 'https') {
+                indicator.className = 'https-mode-indicator mb-6 rounded-xl p-4 text-center font-medium';
+                indicator.innerHTML = `
+                    <i class="ph ph-shield-check text-2xl mr-2"></i>
+                    <span>Mode Kamera Live (HTTPS) - Kamera real-time tersedia</span>
+                `;
+                
+                placeholder.innerHTML = `
+                    <i class="ph ph-camera text-6xl text-green-500 mb-4"></i>
+                    <p class="text-green-600 font-medium">Kamera Live Siap</p>
+                    <p class="text-green-500 text-sm mt-2">Klik "Mulai Scan" untuk memulai</p>
+                `;
+                
+                startBtn.innerHTML = `
+                    <i class="ph ph-camera text-2xl"></i>
+                    <span>Mulai Scan Live</span>
+                `;
+            } else {
+                indicator.className = 'http-mode-indicator mb-6 rounded-xl p-4 text-center font-medium';
+                indicator.innerHTML = `
+                    <i class="ph ph-image text-2xl mr-2"></i>
+                    <span>Mode Kamera Standar (HTTP) - Scan via foto/gambar</span>
+                `;
+                
+                placeholder.innerHTML = `
+                    <i class="ph ph-image text-6xl text-amber-500 mb-4"></i>
+                    <p class="text-amber-600 font-medium">Scan via Foto</p>
+                    <p class="text-amber-500 text-sm mt-2">Klik "Mulai Scan" untuk ambil foto</p>
+                `;
+                
+                startBtn.innerHTML = `
+                    <i class="ph ph-camera text-2xl"></i>
+                    <span>Ambil Foto QR</span>
+                `;
+            }
+        }
+
+        // Initialize scanner based on protocol
+        function initScanner() {
+            const isSecureContext = location.protocol === 'https:' || 
+                                   location.hostname === 'localhost' || 
+                                   location.hostname === '127.0.0.1';
+            
+            scannerMode = isSecureContext ? 'https' : 'http';
+            
+            console.log(`🔍 Initializing scanner in ${scannerMode.toUpperCase()} mode`);
+            
+            // Update UI based on mode
+            updateModeIndicator(scannerMode);
+            
+            // Setup event listeners based on mode
+            if (scannerMode === 'https') {
+                setupHttpsMode();
+            } else {
+                setupHttpMode();
+            }
+        }
+
+        // Setup HTTPS mode (live camera)
+        function setupHttpsMode() {
+            const startBtn = document.getElementById('startScanBtn');
+            const stopBtn = document.getElementById('stopScanBtn');
+            
+            startBtn.addEventListener('click', async function() {
                 const placeholder = document.getElementById('cameraPlaceholder');
                 const scanningFrame = document.getElementById('scanningFrame');
-                const startBtn = this;
-                const stopBtn = document.getElementById('stopCameraBtn');
-
+                
                 try {
                     if (!isScanning) {
-                        console.log('📷 Starting camera...');
-
+                        console.log('📷 Starting live camera...');
+                        
                         // Initialize scanner
                         html5QrcodeScanner = new Html5Qrcode("reader");
-
+                        
                         await html5QrcodeScanner.start(
                             { facingMode: "environment" },
                             {
@@ -416,49 +570,52 @@
                             onScanSuccess,
                             onScanFailure
                         );
-
+                        
                         // Show scanning state
                         placeholder.classList.add('hidden');
                         scanningFrame.classList.add('active');
                         startBtn.classList.add('hidden');
                         stopBtn.classList.remove('hidden');
                         isScanning = true;
-                        isRedirecting = false; // Reset flag when starting new scan
-
-                        console.log('✅ Camera started successfully');
+                        isRedirecting = false;
+                        
+                        console.log('✅ Live camera started successfully');
                     }
                 } catch (err) {
                     console.error('❌ Camera error:', err);
-
+                    
                     let errorMsg = 'Gagal membuka kamera. Silakan coba lagi.';
-
+                    
                     if (err.name === 'NotAllowedError') {
-                        errorMsg = 'Kamera tidak diizinkan. Silakan berikan izin akses kamera di browser Anda.';
+                        errorMsg = 'Izin kamera ditolak. Silakan berikan izin akses kamera di browser Anda.';
                     } else if (err.name === 'NotFoundError') {
                         errorMsg = 'Kamera tidak ditemukan. Pastikan perangkat Anda memiliki kamera.';
                     } else if (err.name === 'NotReadableError') {
                         errorMsg = 'Kamera sedang digunakan oleh aplikasi lain.';
                     } else if (err.name === 'OverconstrainedError') {
-                        errorMsg = 'Kamera tidak mendukung fitur yang dibutuhkan.';
+                        errorMsg = 'Kamera tidak memenuhi persyaratan yang dibutuhkan.';
                     }
-
+                    
                     showError(errorMsg);
+                    
+                    // Fallback to HTTP mode if camera fails
+                    console.log('🔄 Auto-falling back to HTTP mode...');
+                    scannerMode = 'http';
+                    updateModeIndicator('http');
+                    setupHttpMode();
                 }
             });
-
+            
             // Stop camera button
-            document.getElementById('stopCameraBtn').addEventListener('click', async function() {
-                const reader = document.getElementById('reader');
+            stopBtn.addEventListener('click', async function() {
                 const placeholder = document.getElementById('cameraPlaceholder');
                 const scanningFrame = document.getElementById('scanningFrame');
-                const startBtn = document.getElementById('startCameraBtn');
-                const stopBtn = this;
-
+                
                 if (html5QrcodeScanner && isScanning) {
                     console.log('🛑 Stopping camera...');
-
+                    
                     await html5QrcodeScanner.stop();
-
+                    
                     // Reset UI state
                     placeholder.classList.remove('hidden');
                     scanningFrame.classList.remove('active');
@@ -466,10 +623,73 @@
                     stopBtn.classList.add('hidden');
                     isScanning = false;
                     isRedirecting = false;
-
+                    
                     console.log('✅ Camera stopped successfully');
                 }
             });
+        }
+
+        // Setup HTTP mode (file upload)
+        function setupHttpMode() {
+            const startBtn = document.getElementById('startScanBtn');
+            const fileInput = document.getElementById('qr-input-file');
+            
+            startBtn.addEventListener('click', function() {
+                console.log('📷 Triggering file capture...');
+                fileInput.click();
+            });
+            
+            fileInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                console.log('📸 File selected:', file.name);
+                
+                // Show loading state
+                const placeholder = document.getElementById('cameraPlaceholder');
+                placeholder.innerHTML = `
+                    <div class="flex flex-col items-center">
+                        <div class="spinner mb-4"></div>
+                        <p class="text-gray-600 font-medium">Memproses gambar...</p>
+                        <p class="text-gray-500 text-sm mt-2">Membaca QR code dari foto</p>
+                    </div>
+                `;
+                
+                // Create scanner instance for file processing
+                const html5QrCode = new Html5Qrcode("reader");
+                
+                // Process the image
+                html5QrCode.scanFileV2(file, true)
+                    .then(decodedText => {
+                        console.log('✅ QR Code found in image:', decodedText);
+                        onScanSuccess(decodedText, null);
+                    })
+                    .catch(err => {
+                        console.error('❌ Failed to scan QR code from image:', err);
+                        
+                        let errorMsg = 'Tidak dapat membaca QR code dari gambar.';
+                        
+                        if (err.includes('No QR code found')) {
+                            errorMsg = 'QR code tidak ditemukan dalam gambar. Pastikan QR code terlihat jelas.';
+                        } else if (err.includes('Unable to start decoding')) {
+                            errorMsg = 'Gagal memproses gambar. Silakan coba dengan gambar lain.';
+                        }
+                        
+                        showError(errorMsg);
+                        
+                        // Reset placeholder
+                        updateModeIndicator('http');
+                    })
+                    .finally(() => {
+                        // Clear file input
+                        fileInput.value = '';
+                    });
+            });
+        }
+
+        // Initialize scanner on DOM ready
+        document.addEventListener('DOMContentLoaded', function() {
+            initScanner();
         });
     </script>
     @endpush

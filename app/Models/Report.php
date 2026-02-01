@@ -61,4 +61,12 @@ class Report extends Model
     {
         return $this->belongsTo(User::class, 'resolved_by');
     }
+
+    /**
+     * Get all reports for this material (polymorphic relationship).
+     */
+    public function reports(): MorphMany
+    {
+        return $this->morphMany(Report::class, 'reportable');
+    }
 }
