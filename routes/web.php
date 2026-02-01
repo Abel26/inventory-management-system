@@ -4,6 +4,7 @@ use App\Http\Controllers\AssetManagementController;
 use App\Http\Controllers\AssetModelController;
 use App\Http\Controllers\AssetToolController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GlobalSearchController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
@@ -27,6 +28,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/filter', [DashboardController::class, 'filter'])->name('dashboard.filter');
         Route::get('/export/pdf', [DashboardController::class, 'exportPdf'])->name('dashboard.export-pdf');
         Route::get('/export/excel', [DashboardController::class, 'exportExcel'])->name('dashboard.export-excel');
+        Route::get('/reports/by-date', [DashboardController::class, 'getReportsByDate'])->name('dashboard.reports-by-date');
+        Route::get('/assets/by-type', [DashboardController::class, 'getAssetsByType'])->name('dashboard.assets-by-type');
+    });
+
+    // Global Search API Endpoints
+    Route::prefix('api')->group(function () {
+        Route::post('/global-search', [GlobalSearchController::class, 'search'])->name('api.global-search');
+        Route::post('/asset-detail', [GlobalSearchController::class, 'getDetail'])->name('api.asset-detail');
+        Route::get('/search-suggestions', [GlobalSearchController::class, 'getSuggestions'])->name('api.search-suggestions');
     });
 });
 

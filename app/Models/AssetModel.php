@@ -16,7 +16,19 @@ class AssetModel extends Model
      *
      * @var list<string>
      */
-    protected $guarded = ['id'];
+    protected $fillable = [
+        'model_code',
+        'name',
+        'type',
+        'quantity',
+        'location',
+        'supplier',
+        'manufacture_date',
+        'description',
+        'qr_code_path',
+        'condition',
+        'unit_price',
+    ];
 
     /**
      * The attributes that should be cast.
@@ -26,8 +38,10 @@ class AssetModel extends Model
     protected function casts(): array
     {
         return [
-            'manufactured_date' => 'date',
+            'manufacture_date' => 'date',
             'condition' => 'string',
+            'quantity' => 'integer',
+            'unit_price' => 'decimal:2',
         ];
     }
 
@@ -70,6 +84,19 @@ class AssetModel extends Model
             'Repair' => 'warning',
             'Damaged' => 'danger',
             default => 'secondary',
+        };
+    }
+
+    /**
+     * Get condition status for search results
+     */
+    public function getConditionStatusAttribute(): string
+    {
+        return match($this->condition) {
+            'Good' => 'in_stock',
+            'Repair' => 'maintenance',
+            'Damaged' => 'damaged',
+            default => 'unknown',
         };
     }
 }
