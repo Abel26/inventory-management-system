@@ -3,6 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use Database\Seeders\AssetModelSeeder;
+use Database\Seeders\AssetMaterialSeeder;
+use Database\Seeders\GedungSeeder;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -16,9 +19,18 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Run RoleAndUserSeeder first
-        $this->call(RoleAndUserSeeder::class);
+        // $this->call(RoleAndUserSeeder::class);
         
         // Run RolePermissionSeeder
-        $this->call(RolePermissionSeeder::class);
+        // $this->call(RolePermissionSeeder::class);
+        
+        // Run GedungSeeder first (gedungs needed by materials)
+        $this->call(GedungSeeder::class);
+        
+        // Run AssetMaterialSeeder first (materials needed by models)
+        $this->call(AssetMaterialSeeder::class);
+        
+        // Run AssetModelSeeder
+        // $this->call(AssetModelSeeder::class);
     }
 }

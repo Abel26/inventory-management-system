@@ -30,7 +30,8 @@ class AssetToolController extends Controller
      */
     public function index(): View
     {
-        return view('asset_tools.index');
+        $gedungs = \App\Models\Gedung::orderBy('nama')->get();
+        return view('asset_tools.index', compact('gedungs'));
     }
 
     /**
@@ -76,6 +77,7 @@ class AssetToolController extends Controller
                     'purchase_year' => $tool->purchase_date ? $tool->purchase_date->format('Y') : ($tool->purchase_year ?? ''),
                     'quantity' => $tool->quantity,
                     'location' => $tool->location,
+                    'gedung_id' => $tool->gedung_id,
                     'condition' => $tool->condition,
                     'description' => $tool->description,
                 ]

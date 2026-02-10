@@ -171,10 +171,7 @@
                         </div>
                     </x-ui.form-grid>
                     <x-ui.form-grid columns="2">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Lokasi</label>
-                            <input type="text" id="location" name="location" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition" placeholder="Contoh: Gudang A">
-                        </div>
+                        <x-ui.lokasi-gedung-select label="Lokasi" name="location" id="location" :gedungs="$gedungs" />
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah</label>
                             <input type="number" id="quantity" name="quantity" required min="1" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition" placeholder="Contoh: 1">

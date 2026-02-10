@@ -28,6 +28,7 @@ class AssetMaterial extends Model
         'entry_date',
         'expiry_date',
         'location',
+        'gedung_id',
         'description',
         'unit_price',
         'qr_code_path',

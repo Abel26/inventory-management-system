@@ -4,8 +4,10 @@ use App\Http\Controllers\AssetManagementController;
 use App\Http\Controllers\AssetModelController;
 use App\Http\Controllers\AssetToolController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GedungController;
 use App\Http\Controllers\GlobalSearchController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SatuanController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
@@ -82,6 +84,29 @@ Route::middleware('auth')->group(function () {
         Route::put('models/{id}', [AssetModelController::class, 'update'])->name('models.update');
         Route::delete('models/{id}', [AssetModelController::class, 'destroy'])->name('models.destroy');
         Route::get('models/{id}/qr-code', [AssetModelController::class, 'qrCode'])->name('models.qr-code');
+    });
+    
+    // Master Data Routes
+    Route::prefix('master-data')->name('master-data.')->middleware(['auth', 'verified'])->group(function () {
+        // Gedungs
+        Route::get('gedungs', [GedungController::class, 'index'])->name('gedungs.index');
+        Route::get('gedungs/create', [GedungController::class, 'create'])->name('gedungs.create');
+        Route::get('gedungs/data', [GedungController::class, 'getData'])->name('gedungs.data');
+        Route::get('gedungs/{id}', [GedungController::class, 'show'])->name('gedungs.show');
+        Route::get('gedungs/{id}/edit', [GedungController::class, 'edit'])->name('gedungs.edit');
+        Route::post('gedungs', [GedungController::class, 'store'])->name('gedungs.store');
+        Route::put('gedungs/{id}', [GedungController::class, 'update'])->name('gedungs.update');
+        Route::delete('gedungs/{id}', [GedungController::class, 'destroy'])->name('gedungs.destroy');
+        
+        // Satuans
+        Route::get('satuans', [SatuanController::class, 'index'])->name('satuans.index');
+        Route::get('satuans/create', [SatuanController::class, 'create'])->name('satuans.create');
+        Route::get('satuans/data', [SatuanController::class, 'getData'])->name('satuans.data');
+        Route::get('satuans/{id}', [SatuanController::class, 'show'])->name('satuans.show');
+        Route::get('satuans/{id}/edit', [SatuanController::class, 'edit'])->name('satuans.edit');
+        Route::post('satuans', [SatuanController::class, 'store'])->name('satuans.store');
+        Route::put('satuans/{id}', [SatuanController::class, 'update'])->name('satuans.update');
+        Route::delete('satuans/{id}', [SatuanController::class, 'destroy'])->name('satuans.destroy');
     });
     
     // Role Management Routes

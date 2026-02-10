@@ -619,8 +619,30 @@
     </div>
 
 
-    <!-- ApexCharts CDN -->
+    <!-- ApexCharts CDN with fallback -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+        // Fallback check for ApexCharts
+        window.addEventListener('load', function() {
+            if (typeof ApexCharts === 'undefined') {
+                console.warn('ApexCharts CDN failed to load, attempting fallback...');
+                // Try to load from another CDN
+                const script = document.createElement('script');
+                script.src = 'https://unpkg.com/apexcharts';
+                script.onload = function() {
+                    console.log('ApexCharts loaded from fallback CDN');
+                    // Re-initialize charts if they failed initially
+                    if (typeof initializeCharts === 'function') {
+                        initializeCharts();
+                    }
+                };
+                script.onerror = function() {
+                    console.error('Failed to load ApexCharts from all sources');
+                };
+                document.head.appendChild(script);
+            }
+        });
+    </script>
 
     @push('scripts')
     <script>
@@ -698,6 +720,82 @@
         // Chart data from server
         const trendData = @json($chartData['trend']);
         const compositionData = @json($chartData['composition']);
+
+        // Initialize charts function
+        function initializeCharts() {
+            // Check if ApexCharts is available
+            if (typeof ApexCharts === 'undefined') {
+                console.error('ApexCharts library is not loaded');
+                return;
+            }
+
+            // Initialize chart variables
+            let healthTrendChart, compositionChart, sparklineValue, sparklineCritical, sparklineStock, sparklineUsers;
+
+            try {
+                // Main Charts
+                const healthTrendElement = document.querySelector('#healthTrendChart');
+                if (healthTrendElement) {
+                    healthTrendChart = new ApexCharts(healthTrendElement, healthTrendOptions);
+                    healthTrendChart.render();
+                }
+
+                const compositionElement = document.querySelector('#compositionChart');
+                if (compositionElement) {
+                    compositionChart = new ApexCharts(compositionElement, compositionOptions);
+                    compositionChart.render();
+                }
+
+                // Sparklines
+                const sparklineValueElement = document.querySelector('#sparkline-value');
+                if (sparklineValueElement) {
+                    sparklineValue = new ApexCharts(sparklineValueElement, sparklineOptions);
+                    sparklineValue.render();
+                }
+
+                const sparklineCriticalElement = document.querySelector('#sparkline-critical');
+                if (sparklineCriticalElement) {
+                    sparklineCritical = new ApexCharts(sparklineCriticalElement, { ...sparklineOptions, colors: [colors.danger] });
+                    sparklineCritical.render();
+                }
+
+                const sparklineStockElement = document.querySelector('#sparkline-stock');
+                if (sparklineStockElement) {
+                    sparklineStock = new ApexCharts(sparklineStockElement, { ...sparklineOptions, colors: [colors.warning] });
+                    sparklineStock.render();
+                }
+
+                const sparklineUsersElement = document.querySelector('#sparkline-users');
+                if (sparklineUsersElement) {
+                    sparklineUsers = new ApexCharts(sparklineUsersElement, { ...sparklineOptions, colors: [colors.info] });
+                    sparklineUsers.render();
+                }
+
+                // Handle window resize with null checks
+                window.addEventListener('resize', function() {
+                    if (healthTrendChart && typeof healthTrendChart.resize === 'function') {
+                        healthTrendChart.resize();
+                    }
+                    if (compositionChart && typeof compositionChart.resize === 'function') {
+                        compositionChart.resize();
+                    }
+                    if (sparklineValue && typeof sparklineValue.resize === 'function') {
+                        sparklineValue.resize();
+                    }
+                    if (sparklineCritical && typeof sparklineCritical.resize === 'function') {
+                        sparklineCritical.resize();
+                    }
+                    if (sparklineStock && typeof sparklineStock.resize === 'function') {
+                        sparklineStock.resize();
+                    }
+                    if (sparklineUsers && typeof sparklineUsers.resize === 'function') {
+                        sparklineUsers.resize();
+                    }
+                });
+            } catch (error) {
+                console.error('Error initializing charts:', error);
+            }
+        }
 
         // Chart 1: Asset Health Trends (Gradient Line Chart)
         const healthTrendOptions = {
@@ -875,35 +973,7 @@
 
         // Initialize charts when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
-            // Main Charts
-            const healthTrendChart = new ApexCharts(document.querySelector('#healthTrendChart'), healthTrendOptions);
-            healthTrendChart.render();
-
-            const compositionChart = new ApexCharts(document.querySelector('#compositionChart'), compositionOptions);
-            compositionChart.render();
-
-            // Sparklines
-            const sparklineValue = new ApexCharts(document.querySelector('#sparkline-value'), sparklineOptions);
-            sparklineValue.render();
-
-            const sparklineCritical = new ApexCharts(document.querySelector('#sparkline-critical'), { ...sparklineOptions, colors: [colors.danger] });
-            sparklineCritical.render();
-
-            const sparklineStock = new ApexCharts(document.querySelector('#sparkline-stock'), { ...sparklineOptions, colors: [colors.warning] });
-            sparklineStock.render();
-
-            const sparklineUsers = new ApexCharts(document.querySelector('#sparkline-users'), { ...sparklineOptions, colors: [colors.info] });
-            sparklineUsers.render();
-
-            // Handle window resize
-            window.addEventListener('resize', function() {
-                healthTrendChart.resize();
-                compositionChart.resize();
-                sparklineValue.resize();
-                sparklineCritical.resize();
-                sparklineStock.resize();
-                sparklineUsers.resize();
-            });
+            initializeCharts();
         });
     </script>
     @endpush

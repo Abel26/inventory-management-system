@@ -181,10 +181,7 @@
                             <input type="date" id="expiry_date" name="expiry_date" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition" placeholder="Opsional">
                         </div>
                     </x-ui.form-grid>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Lokasi</label>
-                        <input type="text" id="location" name="location" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition" placeholder="Opsional">
-                    </div>
+                    <x-ui.lokasi-gedung-select label="Lokasi" name="location" id="location" :gedungs="$gedungs" />
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
                         <textarea id="description" name="description" rows="3" class="w-full rounded-lg border-gray-300 shadow-sm border p-2.5 focus:ring-2 focus:ring-ebara-500 focus:border-transparent transition"></textarea>
