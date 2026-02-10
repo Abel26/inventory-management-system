@@ -31,8 +31,9 @@ class AssetManagementController extends Controller
     public function index(): View
     {
         $materials = $this->assetMaterialService->getAll();
+        $gedungs = \App\Models\Gedung::orderBy('nama')->get();
         
-        return view('asset_materials.index', compact('materials'));
+        return view('asset_materials.index', compact('materials', 'gedungs'));
     }
 
     /**
@@ -85,6 +86,7 @@ class AssetManagementController extends Controller
                     'entry_date' => $material->entry_date ? $material->entry_date->format('Y-m-d') : null,
                     'expiry_date' => $material->expiry_date ? $material->expiry_date->format('Y-m-d') : null,
                     'location' => $material->location,
+                    'gedung_id' => $material->gedung_id,
                     'description' => $material->description,
                 ]
             ]);

@@ -183,7 +183,13 @@
                             @enderror
                         </div>
                     </div>
-                    <x-ui.lokasi-gedung-select label="Lokasi" name="location" id="location" :gedungs="$gedungs" />
+                    <div>
+                        <label for="location" class="block text-sm font-medium text-gray-700 mb-1.5">Lokasi</label>
+                        <input type="text" id="location" name="location" value="{{ old('location') }}" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-ebara-500 focus:ring-ebara-500 sm:text-sm py-2.5" placeholder="Contoh: Gudang A, Ruang Produksi">
+                        @error('location')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
                     <div>
                         <label for="description" class="block text-sm font-medium text-gray-700 mb-1.5">Deskripsi</label>
                         <textarea id="description" name="description" rows="3" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-ebara-500 focus:ring-ebara-500 sm:text-sm py-2.5">{{ old('description') }}</textarea>
@@ -197,6 +203,7 @@
                     <button type="submit" form="modelForm" class="bg-ebara-600 hover:bg-ebara-700 text-white font-medium py-2.5 px-4 rounded-xl transition" tabindex="0" role="button" aria-label="Simpan data">Simpan</button>
                 </div>
             </div>
+        </div>
         </div>
       
         <!-- QR Code Modal -->
@@ -217,7 +224,7 @@
             </div>
         </div>
       
-    @push('styles')
+        @push('styles')
     <style>
         #modelModal {
             display: none !important;
@@ -294,7 +301,6 @@
     var updateUrlTemplate = "{{ route('assets.models.update', ':id') }}";
     var destroyUrlTemplate = "{{ route('assets.models.destroy', ':id') }}";
     var qrCodeUrlTemplate = "{{ route('assets.models.qr-code', ':id') }}";
-    var dataUrl = "{{ route('assets.models.data') }}";
  
     // Global functions - define outside document ready
     window.showModal = function() {
@@ -369,15 +375,44 @@
             $('#modelModal').show().removeClass('hide hidden').addClass('show');
         }
     }
- 
+
+
+    // Debug: Check if global functions are available
+    console.log('Global functions available:', {
+        showModal: typeof window.showModal,
+        hideModal: typeof window.hideModal,
+        handleCreateNewModel: typeof window.handleCreateNewModel,
+        handleInlineSubmit: typeof window.handleInlineSubmit
+    });
+
     $(document).ready(function() {
         console.log('Document ready, initializing modal handlers...');
+        
+        // Test if elements exist
+        console.log('Create button exists:', !!document.getElementById('createNewModel'));
+        console.log('Close button exists:', !!document.getElementById('closeModalBtn'));
+        console.log('Cancel button exists:', !!document.getElementById('cancelBtn'));
+        console.log('Submit button exists:', !!document.getElementById('submitModelBtn'));
+        console.log('Modal exists:', !!document.getElementById('modelModal'));
+        
+        // Test button clickability
+        setTimeout(function() {
+            console.log('Testing button clickability...');
+            const buttons = ['createNewModel', 'closeModalBtn', 'cancelBtn', 'submitModelBtn'];
+            buttons.forEach(function(id) {
+                const btn = document.getElementById(id);
+                if (btn) {
+                    console.log(`${id} is clickable:`, !btn.disabled);
+                    console.log(`${id} has pointer events:`, window.getComputedStyle(btn).pointerEvents);
+                }
+            });
+        }, 1000);
         
         let table = $('#modelsTable').DataTable({
             processing: true,
             serverSide: true,
             responsive: true,
-            ajax: dataUrl,
+            ajax: '{{ route('assets.models.data') }}',
             createdRow: function(row, data, dataIndex) {
                 // Add group class and smooth hover effect to rows
                 $(row).addClass('group hover:bg-gray-50 transition-colors duration-200');
@@ -485,9 +520,10 @@
         });
  
 
-        // Create button handler (jQuery)
-        $('#createNewModel').on('click', function() {
-            console.log('Create button clicked (jQuery)'); // Debug log
+        // Create button handler
+        $('#createNewModel').on('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
             handleCreateNewModel();
         });
  
@@ -599,6 +635,8 @@
                 }
             }
         });
+
+
     });
 
     function editModel(id) {

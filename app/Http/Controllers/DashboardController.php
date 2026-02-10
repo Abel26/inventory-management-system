@@ -10,25 +10,69 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
     /**
-     * Display the dashboard
+     * Display dashboard
      */
     public function index(): View
     {
-        $stats = $this->getStats();
-        $chartData = [
-            'trend' => $this->getTrendData(),
-            'composition' => $this->getCompositionData(),
-        ];
-        $activity = $this->getRecentActivity();
-        $critical = $this->getCriticalItems();
-        $greeting = $this->getGreeting();
+        try {
+            $stats = $this->getStats();
+            $chartData = [
+                'trend' => $this->getTrendData(),
+                'composition' => $this->getCompositionData(),
+            ];
+            $activity = $this->getRecentActivity();
+            $critical = $this->getCriticalItems();
+            $greeting = $this->getGreeting();
 
-        return view('dashboard', compact('stats', 'chartData', 'activity', 'critical', 'greeting'));
+            return view('dashboard', compact('stats', 'chartData', 'activity', 'critical', 'greeting'));
+        } catch (\Exception $e) {
+            // Log error and provide fallback data
+            Log::error('Dashboard error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            // Fallback data to prevent errors
+            $stats = [
+                'totalAssetValue' => 0,
+                'valueBreakdown' => ['material' => 0, 'tool' => 0, 'model' => 0],
+                'totalCriticalIssues' => 0,
+                'lowStockAlerts' => 0,
+                'activeUsers' => 0,
+                'totalMaterials' => 0,
+                'totalTools' => 0,
+                'totalModels' => 0,
+                'totalReports' => 0,
+            ];
+            
+            $chartData = [
+                'trend' => [
+                    'dates' => [],
+                    'categories' => [],
+                    'series' => [
+                        ['name' => 'Total Laporan', 'data' => []],
+                        ['name' => 'Laporan Selesai', 'data' => []]
+                    ]
+                ],
+                'composition' => [
+                    'labels' => ['Materials', 'Tools', 'Models'],
+                    'counts' => [0, 0, 0],
+                    'percentages' => [0, 0, 0],
+                    'series' => [0, 0, 0]
+                ]
+            ];
+            
+            $activity = [];
+            $critical = [];
+            $greeting = $this->getGreeting();
+
+            return view('dashboard', compact('stats', 'chartData', 'activity', 'critical', 'greeting'));
+        }
     }
 
     /**
@@ -55,31 +99,47 @@ class DashboardController extends Controller
      */
     private function getStats(): array
     {
-        // Cache statistics for 5 minutes to improve performance
-        return Cache::remember('dashboard.stats', now()->timezone('Asia/Jakarta')->addMinutes(5), function () {
-            // Calculate total asset value from materials, tools, and models
-            $materialValue = AssetMaterial::selectRaw('SUM(unit_price * quantity) as total')->first()->total ?? 0;
-            $toolValue = AssetTool::selectRaw('SUM(purchase_price * quantity) as total')->first()->total ?? 0;
-            // AssetModels don't have price field, so we'll count them as quantity units
-            $modelValue = AssetModel::count() * 1000000; // Estimated value per model
-            $totalAssetValue = $materialValue + $toolValue + $modelValue;
-            
+        try {
+            // Cache statistics for 5 minutes to improve performance
+            return Cache::remember('dashboard.stats', now()->timezone('Asia/Jakarta')->addMinutes(5), function () {
+                // Calculate total asset value from materials, tools, and models
+                $materialValue = AssetMaterial::selectRaw('SUM(unit_price * quantity) as total')->first()->total ?? 0;
+                $toolValue = AssetTool::selectRaw('SUM(purchase_price * quantity) as total')->first()->total ?? 0;
+                // AssetModels don't have price field, so we'll count them as quantity units
+                $modelValue = AssetModel::count() * 1000000; // Estimated value per model
+                $totalAssetValue = $materialValue + $toolValue + $modelValue;
+                
+                return [
+                    'totalAssetValue' => $totalAssetValue,
+                    'valueBreakdown' => [
+                        'material' => $materialValue,
+                        'tool' => $toolValue,
+                        'model' => $modelValue
+                    ],
+                    'totalCriticalIssues' => Report::where('priority', 'Critical')->where('status', '!=', 'Resolved')->count(),
+                    'lowStockAlerts' => AssetMaterial::whereColumn('quantity', '<=', 'min_threshold')->where('quantity', '>', 0)->count(),
+                    'activeUsers' => User::whereNotNull('email_verified_at')->where('created_at', '>=', now()->timezone('Asia/Jakarta')->subDays(30))->count(),
+                    'totalMaterials' => AssetMaterial::count(),
+                    'totalTools' => AssetTool::count(),
+                    'totalModels' => AssetModel::count(),
+                    'totalReports' => Report::count(),
+                ];
+            });
+        } catch (\Exception $e) {
+            Log::error('Error getting dashboard stats: ' . $e->getMessage());
+            // Return fallback data
             return [
-                'totalAssetValue' => $totalAssetValue,
-                'valueBreakdown' => [
-                    'material' => $materialValue,
-                    'tool' => $toolValue,
-                    'model' => $modelValue
-                ],
-                'totalCriticalIssues' => Report::where('priority', 'Critical')->where('status', '!=', 'Resolved')->count(),
-                'lowStockAlerts' => AssetMaterial::whereColumn('quantity', '<=', 'min_threshold')->where('quantity', '>', 0)->count(),
-                'activeUsers' => User::whereNotNull('email_verified_at')->where('created_at', '>=', now()->timezone('Asia/Jakarta')->subDays(30))->count(),
-                'totalMaterials' => AssetMaterial::count(),
-                'totalTools' => AssetTool::count(),
-                'totalModels' => AssetModel::count(),
-                'totalReports' => Report::count(),
+                'totalAssetValue' => 0,
+                'valueBreakdown' => ['material' => 0, 'tool' => 0, 'model' => 0],
+                'totalCriticalIssues' => 0,
+                'lowStockAlerts' => 0,
+                'activeUsers' => 0,
+                'totalMaterials' => 0,
+                'totalTools' => 0,
+                'totalModels' => 0,
+                'totalReports' => 0,
             ];
-        });
+        }
     }
 
     /**
@@ -87,23 +147,28 @@ class DashboardController extends Controller
      */
     private function getRecentActivity(int $limit = 5): array
     {
-        // Cache recent activity for 3 minutes
-        return Cache::remember("dashboard.activity.{$limit}", now()->timezone('Asia/Jakarta')->addMinutes(3), function () use ($limit) {
-            $reports = Report::with(['user', 'reportable'])
-                ->latest()
-                ->take($limit)
-                ->get();
+        try {
+            // Cache recent activity for 3 minutes
+            return Cache::remember("dashboard.activity.{$limit}", now()->timezone('Asia/Jakarta')->addMinutes(3), function () use ($limit) {
+                $reports = Report::with(['user', 'reportable'])
+                    ->latest()
+                    ->take($limit)
+                    ->get();
 
-            return $reports->map(function ($report) {
-                return [
-                    'message' => $this->formatReportActivity($report),
-                    'time' => $report->created_at->diffForHumans(),
-                    'icon' => $this->getActivityIcon($report->issue_type->value ?? 'general', 'report'),
-                    'color' => $this->getActivityColor($report->priority->value ?? 'normal', 'priority'),
-                    'user' => $report->user->name ?? 'System',
-                ];
-            })->toArray();
-        });
+                return $reports->map(function ($report) {
+                    return [
+                        'message' => $this->formatReportActivity($report),
+                        'time' => $report->created_at->diffForHumans(),
+                        'icon' => $this->getActivityIcon($report->issue_type->value ?? 'general', 'report'),
+                        'color' => $this->getActivityColor($report->priority->value ?? 'normal', 'priority'),
+                        'user' => $report->user->name ?? 'System',
+                    ];
+                })->toArray();
+            });
+        } catch (\Exception $e) {
+            Log::error('Error getting recent activity: ' . $e->getMessage());
+            return [];
+        }
     }
 
     /**
@@ -111,62 +176,67 @@ class DashboardController extends Controller
      */
     private function getCriticalItems(int $limit = 10): array
     {
-        // Cache critical items for 5 minutes
-        return Cache::remember("dashboard.critical.{$limit}", now()->timezone('Asia/Jakarta')->addMinutes(5), function () use ($limit) {
-            // Fetch critical/unresolved reports
-            $criticalReports = Report::with(['reportable'])
-                ->where('priority', 'Critical')
-                ->where('status', '!=', 'Resolved')
-                ->take($limit)
-                ->get();
-                
-            // Map to a unified structure
-            $items = $criticalReports->map(function ($report) {
-                $assetName = $report->reportable->name ?? 'Unknown Asset';
-                $assetCode = $report->reportable->material_code ?? $report->reportable->tool_code ?? $report->reportable->model_code ?? '-';
-                
-                // Determine detailed URL based on asset type (basic mapping)
-                // Ideally should use polymorphic route helper or check instance type
-                $actionUrl = '#'; // Default
-                 if ($report->reportable_type === \App\Models\AssetMaterial::class) {
-                    $actionUrl = route('assets.materials.show', $report->reportable_id);
-                } elseif ($report->reportable_type === \App\Models\AssetTool::class) {
-                    $actionUrl = route('assets.tools.show', $report->reportable_id);
-                } elseif ($report->reportable_type === \App\Models\AssetModel::class) {
-                    $actionUrl = route('assets.models.show', $report->reportable_id);
+        try {
+            // Cache critical items for 5 minutes
+            return Cache::remember("dashboard.critical.{$limit}", now()->timezone('Asia/Jakarta')->addMinutes(5), function () use ($limit) {
+                // Fetch critical/unresolved reports
+                $criticalReports = Report::with(['reportable'])
+                    ->where('priority', 'Critical')
+                    ->where('status', '!=', 'Resolved')
+                    ->take($limit)
+                    ->get();
+                    
+                // Map to a unified structure
+                $items = $criticalReports->map(function ($report) {
+                    $assetName = $report->reportable->name ?? 'Unknown Asset';
+                    $assetCode = $report->reportable->material_code ?? $report->reportable->tool_code ?? $report->reportable->model_code ?? '-';
+                    
+                    // Determine detailed URL based on asset type (basic mapping)
+                    // Ideally should use polymorphic route helper or check instance type
+                    $actionUrl = '#'; // Default
+                     if ($report->reportable_type === \App\Models\AssetMaterial::class) {
+                        $actionUrl = route('assets.materials.show', $report->reportable_id);
+                    } elseif ($report->reportable_type === \App\Models\AssetTool::class) {
+                        $actionUrl = route('assets.tools.show', $report->reportable_id);
+                    } elseif ($report->reportable_type === \App\Models\AssetModel::class) {
+                        $actionUrl = route('assets.models.show', $report->reportable_id);
+                    }
+
+                    return [
+                        'name' => $assetName,
+                        'code' => $assetCode,
+                        'status' => 'critical',
+                        'status_display' => 'Kritis',
+                        'action_url' => $actionUrl,
+                        'priority' => 'Critical'
+                    ];
+                });
+
+                // Add low stock items if space permits
+                if ($items->count() < $limit) {
+                    $lowStock = AssetMaterial::where('quantity', '<=', 5)
+                        ->take($limit - $items->count())
+                        ->get()
+                        ->map(function ($item) {
+                            return [
+                                'name' => $item->name,
+                                'code' => $item->material_code,
+                                'status' => 'low_stock',
+                                'status_display' => 'Stok Menipis',
+                                'action_url' => route('assets.materials.show', $item->id),
+                                'priority' => 'High'
+                            ];
+                        });
+                    
+                    $items = $items->merge($lowStock);
                 }
 
-                return [
-                    'name' => $assetName,
-                    'code' => $assetCode,
-                    'status' => 'critical',
-                    'status_display' => 'Kritis',
-                    'action_url' => $actionUrl,
-                    'priority' => 'Critical'
-                ];
+                return $items->toArray();
             });
-
-            // Add low stock items if space permits
-            if ($items->count() < $limit) {
-                $lowStock = AssetMaterial::where('quantity', '<=', 5)
-                    ->take($limit - $items->count())
-                    ->get()
-                    ->map(function ($item) {
-                        return [
-                            'name' => $item->name,
-                            'code' => $item->material_code,
-                            'status' => 'low_stock',
-                            'status_display' => 'Stok Menipis',
-                            'action_url' => route('assets.materials.show', $item->id),
-                            'priority' => 'High'
-                        ];
-                    });
-                
-                $items = $items->merge($lowStock);
-            }
-
-            return $items->toArray();
-        });
+        } catch (\Exception $e) {
+            Log::error('Error getting critical items: ' . $e->getMessage());
+            return [];
+        }
     }
 
     /**
@@ -174,40 +244,53 @@ class DashboardController extends Controller
      */
     private function getTrendData(): array
     {
-        // Cache trend data for 10 minutes
-        return Cache::remember('dashboard.trend', now()->timezone('Asia/Jakarta')->addMinutes(10), function () {
-            $dates = [];
-            $totalReports = [];
-            $resolvedReports = [];
-            
-            for ($i = 6; $i >= 0; $i--) {
-                $date = now()->timezone('Asia/Jakarta')->subDays($i)->format('Y-m-d');
-                $dates[] = $date;
+        try {
+            // Cache trend data for 10 minutes
+            return Cache::remember('dashboard.trend', now()->timezone('Asia/Jakarta')->addMinutes(10), function () {
+                $dates = [];
+                $totalReports = [];
+                $resolvedReports = [];
                 
-                // Total reports for the day
-                $totalReports[] = Report::whereDate('created_at', $date)->count();
-                
-                // Resolved reports for the day
-                $resolvedReports[] = Report::whereDate('resolved_at', $date)->count();
-            }
+                for ($i = 6; $i >= 0; $i--) {
+                    $date = now()->timezone('Asia/Jakarta')->subDays($i)->format('Y-m-d');
+                    $dates[] = $date;
+                    
+                    // Total reports for the day
+                    $totalReports[] = Report::whereDate('created_at', $date)->count();
+                    
+                    // Resolved reports for the day
+                    $resolvedReports[] = Report::whereDate('resolved_at', $date)->count();
+                }
 
-            return [
-                'dates' => $dates,
-                'categories' => collect($dates)->map(function($date) {
-                    return \Carbon\Carbon::parse($date)->format('D'); // Mon, Tue, etc.
-                })->toArray(),
-                'series' => [
-                    [
-                        'name' => 'Total Laporan',
-                        'data' => $totalReports
-                    ],
-                    [
-                        'name' => 'Laporan Selesai',
-                        'data' => $resolvedReports
+                return [
+                    'dates' => $dates,
+                    'categories' => collect($dates)->map(function($date) {
+                        return \Carbon\Carbon::parse($date)->format('D'); // Mon, Tue, etc.
+                    })->toArray(),
+                    'series' => [
+                        [
+                            'name' => 'Total Laporan',
+                            'data' => $totalReports
+                        ],
+                        [
+                            'name' => 'Laporan Selesai',
+                            'data' => $resolvedReports
+                        ]
                     ]
+                ];
+            });
+        } catch (\Exception $e) {
+            Log::error('Error getting trend data: ' . $e->getMessage());
+            // Return fallback data
+            return [
+                'dates' => [],
+                'categories' => [],
+                'series' => [
+                    ['name' => 'Total Laporan', 'data' => []],
+                    ['name' => 'Laporan Selesai', 'data' => []]
                 ]
             ];
-        });
+        }
     }
 
     /**
@@ -215,30 +298,41 @@ class DashboardController extends Controller
      */
     private function getCompositionData(): array
     {
-        // Cache composition data for 15 minutes
-        return Cache::remember('dashboard.composition', now()->timezone('Asia/Jakarta')->addMinutes(15), function () {
-            $materialCount = AssetMaterial::count();
-            $toolCount = AssetTool::count();
-            $modelCount = AssetModel::count();
-            
-            $total = $materialCount + $toolCount + $modelCount;
-            
-            $percentages = [];
-            if ($total > 0) {
-                $percentages[] = round(($materialCount / $total) * 100, 1);
-                $percentages[] = round(($toolCount / $total) * 100, 1);
-                $percentages[] = round(($modelCount / $total) * 100, 1);
-            } else {
-                $percentages = [0, 0, 0];
-            }
+        try {
+            // Cache composition data for 15 minutes
+            return Cache::remember('dashboard.composition', now()->timezone('Asia/Jakarta')->addMinutes(15), function () {
+                $materialCount = AssetMaterial::count();
+                $toolCount = AssetTool::count();
+                $modelCount = AssetModel::count();
+                
+                $total = $materialCount + $toolCount + $modelCount;
+                
+                $percentages = [];
+                if ($total > 0) {
+                    $percentages[] = round(($materialCount / $total) * 100, 1);
+                    $percentages[] = round(($toolCount / $total) * 100, 1);
+                    $percentages[] = round(($modelCount / $total) * 100, 1);
+                } else {
+                    $percentages = [0, 0, 0];
+                }
 
+                return [
+                    'labels' => ['Materials', 'Tools', 'Models'],
+                    'counts' => [$materialCount, $toolCount, $modelCount],
+                    'percentages' => $percentages,
+                    'series' => [$materialCount, $toolCount, $modelCount]
+                ];
+            });
+        } catch (\Exception $e) {
+            Log::error('Error getting composition data: ' . $e->getMessage());
+            // Return fallback data
             return [
                 'labels' => ['Materials', 'Tools', 'Models'],
-                'counts' => [$materialCount, $toolCount, $modelCount],
-                'percentages' => $percentages,
-                'series' => [$materialCount, $toolCount, $modelCount]
+                'counts' => [0, 0, 0],
+                'percentages' => [0, 0, 0],
+                'series' => [0, 0, 0]
             ];
-        });
+        }
     }
 
     /**

@@ -22,6 +22,7 @@ class AssetModel extends Model
         'type',
         'quantity',
         'location',
+        'gedung_id',
         'supplier',
         'manufacture_date',
         'description',

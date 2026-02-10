@@ -31,7 +31,8 @@ class AssetModelController extends Controller
     public function index(): View
     {
         $materials = \App\Models\AssetMaterial::all();
-        return view('asset_models.index', compact('materials'));
+        $gedungs = \App\Models\Gedung::orderBy('nama')->get();
+        return view('asset_models.index', compact('materials', 'gedungs'));
     }
 
     /**
@@ -76,9 +77,10 @@ class AssetModelController extends Controller
                     'name' => $model->name,
                     'type' => $model->type,
                     'material_id' => $model->material_id,
-                    'manufactured_date' => $model->manufactured_date ? $model->manufactured_date->format('Y-m-d') : null,
+                    'manufactured_date' => $model->manufacture_date ? $model->manufacture_date->format('Y-m-d') : null,
                     'condition' => $model->condition,
                     'location' => $model->location,
+                    'gedung_id' => $model->gedung_id,
                     'description' => $model->description,
                 ]
             ]);
@@ -230,7 +232,7 @@ class AssetModelController extends Controller
                 'name' => $model->name,
                 'type' => $model->type,
                 'material_name' => $model->material?->name ?? '-',
-                'manufactured_date' => $model->manufactured_date ? $model->manufactured_date->format('d/m/Y') : '-',
+                'manufactured_date' => $model->manufacture_date ? $model->manufacture_date->format('d/m/Y') : '-',
                 'condition' => $model->condition,
                 'condition_label' => $model->condition_label,
                 'condition_color' => $model->condition_color,

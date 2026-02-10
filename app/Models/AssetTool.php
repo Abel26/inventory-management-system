@@ -28,6 +28,7 @@ class AssetTool extends Model
         'quantity',
         'unit',
         'location',
+        'gedung_id',
         'supplier',
         'warranty_expiry',
         'condition',
