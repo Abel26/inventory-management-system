@@ -1,9 +1,6 @@
 import './bootstrap';
 
-// Phosphor Icons CSS (loaded via Vite bundle — CSS-only, no timing issue)
-import '@phosphor-icons/web/regular';
-import '@phosphor-icons/web/bold';
-import '@phosphor-icons/web/fill';
+// Phosphor Icons CSS now loaded via app.css import
 
 // NOTE: jQuery, DataTables, SweetAlert2, ApexCharts, html5-qrcode are loaded
 // as synchronous <script> tags from public/vendor/ in app.blade.php.

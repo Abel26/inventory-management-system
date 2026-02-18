@@ -3,6 +3,9 @@
 /* Import landing page styles */
 @import './landing.css';
 
+/* Import Phosphor Icons */
+@import './phosphor-icons.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
