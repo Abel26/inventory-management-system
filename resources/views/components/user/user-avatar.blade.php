@@ -9,5 +9,5 @@
 @endphp
 
 <div class="{{ $sizeClasses }} rounded-full bg-ebara-100 text-ebara-600 flex items-center justify-center font-medium">
-    {{ strtoupper(substr($user->name, 0, 1)) }}
+    {{ strtoupper(substr(optional($user)->name ?? 'G', 0, 1)) }}
 </div>

@@ -19,6 +19,25 @@
 
     <!-- Right Actions -->
     <div class="flex items-center space-x-3">
+        <!-- Language Switcher -->
+        <div class="relative" x-data="{ open: false }">
+            <button @click="open = !open" class="inline-flex items-center px-2 py-1 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition ease-in-out duration-150">
+                <i class="ph ph-translate mr-1"></i>
+                <span class="text-xs">{{ strtoupper(app()->getLocale()) }}</span>
+            </button>
+            
+            <div x-show="open" @click.away="open = false" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                <div class="py-1">
+                    <a href="{{ route('lang.switch', 'id') }}" class="{{ app()->getLocale() === 'id' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }} block px-4 py-2 text-sm">
+                        🇮🇩 ID
+                    </a>
+                    <a href="{{ route('lang.switch', 'en') }}" class="{{ app()->getLocale() === 'en' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }} block px-4 py-2 text-sm">
+                        🇬🇧 EN
+                    </a>
+                </div>
+            </div>
+        </div>
+        
         <!-- Notifications -->
         <x-user.notification-bell :count="$pendingReportCount ?? 0" :notifications="$latestNotifications ?? null" />
 
@@ -28,7 +47,7 @@
                     class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition"
                     aria-label="User menu">
                 <div class="w-8 h-8 rounded-full bg-ebara-600 flex items-center justify-center">
-                    <span class="text-white font-bold text-sm">{{ auth()->user()->name ? substr(auth()->user()->name, 0, 1) : 'U' }}</span>
+                    <span class="text-white font-bold text-sm">{{ \Illuminate\Support\Facades\Auth::user()?->name ? substr(\Illuminate\Support\Facades\Auth::user()->name, 0, 1) : 'U' }}</span>
                 </div>
             </button>
 
@@ -43,15 +62,15 @@
                  x-transition:leave-end="opacity-0 scale-95"
                  class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                 <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-gray-100">
-                    Profil
-                </a>
-                <hr class="my-1 border-gray-200">
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
-                        Logout
-                    </button>
-                </form>
+                   {{ __('menu.profile') }}
+               </a>
+               <hr class="my-1 border-gray-200">
+               <form method="POST" action="{{ route('logout') }}">
+                   @csrf
+                   <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                       {{ __('menu.logout') }}
+                   </button>
+               </form>
             </div>
         </div>
     </div>

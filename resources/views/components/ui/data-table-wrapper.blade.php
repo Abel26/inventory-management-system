@@ -7,7 +7,7 @@
 ])
 
 <div class="{{ $className }}">
-    <div class="overflow-x-auto w-full">
+    <div class="datatable-scroll-container overflow-x-auto w-full -mx-2 px-2 sm:mx-0 sm:px-0">
         {{ $slot }}
     </div>
 </div>
@@ -121,7 +121,6 @@
     }
 
     .dataTables_wrapper table {
-        width: 100% !important;
         margin-bottom: 0 !important;
     }
 
@@ -173,6 +172,113 @@
             justify-content: center;
             flex-wrap: wrap;
         }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            padding: 8px 14px;
+            min-width: 36px;
+            text-align: center;
+        }
+
+        .dataTables_wrapper .dataTables_info {
+            text-align: center;
+            font-size: 0.75rem;
+        }
+
+        /* Force horizontal scroll for tables on mobile */
+        .datatable-scroll-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .dataTables_wrapper table {
+            min-width: 700px;
+        }
+
+        /* DataTables scroll wrapper fix */
+        .dataTables_wrapper .dataTables_scroll .dataTables_scrollBody {
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch;
+        }
+    }
+
+    /* DataTables Responsive - Child row styling (collapsed columns on mobile) */
+    table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control,
+    table.dataTable.dtr-inline.collapsed > tbody > tr > th.dtr-control {
+        position: relative;
+        padding-left: 30px;
+        cursor: pointer;
+    }
+
+    table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control::before,
+    table.dataTable.dtr-inline.collapsed > tbody > tr > th.dtr-control::before {
+        content: '+';
+        display: inline-block;
+        position: absolute;
+        left: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 18px;
+        height: 18px;
+        line-height: 18px;
+        text-align: center;
+        font-size: 14px;
+        font-weight: bold;
+        color: white;
+        background-color: #009B77;
+        border-radius: 50%;
+    }
+
+    table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td.dtr-control::before,
+    table.dataTable.dtr-inline.collapsed > tbody > tr.parent > th.dtr-control::before {
+        content: '-';
+        background-color: #dc2626;
+    }
+
+    /* Child row details list */
+    table.dataTable > tbody > tr.child ul.dtr-details {
+        display: block;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    table.dataTable > tbody > tr.child ul.dtr-details li {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 8px 12px;
+        border-bottom: 1px solid #f1f5f9;
+        gap: 12px;
+    }
+
+    table.dataTable > tbody > tr.child ul.dtr-details li:last-child {
+        border-bottom: none;
+    }
+
+    table.dataTable > tbody > tr.child ul.dtr-details li .dtr-title {
+        font-weight: 600;
+        font-size: 0.75rem;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+        white-space: nowrap;
+        flex-shrink: 0;
+        min-width: 100px;
+    }
+
+    table.dataTable > tbody > tr.child ul.dtr-details li .dtr-data {
+        font-size: 0.875rem;
+        color: #1f2937;
+        text-align: right;
+        word-break: break-word;
+    }
+
+    table.dataTable > tbody > tr.child td.child {
+        padding: 0;
+    }
+
+    table.dataTable > tbody > tr.child:hover {
+        background-color: transparent !important;
     }
 </style>
 @endpush

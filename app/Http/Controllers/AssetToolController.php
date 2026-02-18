@@ -28,10 +28,39 @@ class AssetToolController extends Controller
     /**
      * Display asset tools page.
      */
-    public function index(): View
+    public function index(Request $request): View|\Illuminate\Http\JsonResponse
     {
+        if ($request->ajax()) {
+            // Handle AJAX request for DataTables
+            return $this->getData($request);
+        }
+        
         $gedungs = \App\Models\Gedung::orderBy('nama')->get();
         return view('asset_tools.index', compact('gedungs'));
+    }
+
+    /**
+     * Show the form for creating a new asset tool.
+     */
+    public function create(): View
+    {
+        $gedungs = \App\Models\Gedung::orderBy('nama')->get();
+        return view('asset_tools.create', compact('gedungs'));
+    }
+
+    /**
+     * Show the form for editing the specified asset tool.
+     */
+    public function edit(int $id): View
+    {
+        $tool = $this->assetToolService->find($id);
+        $gedungs = \App\Models\Gedung::orderBy('nama')->get();
+        
+        if (!$tool) {
+            abort(404, 'Alat tidak ditemukan');
+        }
+        
+        return view('asset_tools.edit', compact('tool', 'gedungs'));
     }
 
     /**
@@ -51,10 +80,18 @@ class AssetToolController extends Controller
     /**
      * Show single asset tool.
      */
-    public function show(int $id)
+    public function show($id)
     {
         try {
-            $tool = $this->assetToolService->find($id);
+            // Convert to integer if it's numeric, otherwise try to find by tool_code
+            $toolId = is_numeric($id) ? (int) $id : null;
+            
+            if ($toolId) {
+                $tool = $this->assetToolService->find($toolId);
+            } else {
+                // Try to find by tool_code if ID is not numeric
+                $tool = $this->assetToolService->getByToolCode($id);
+            }
             
             if (!$tool) {
                 return response()->json([

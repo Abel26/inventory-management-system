@@ -1,35 +1,90 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LandingController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\AssetManagementController;
 use App\Http\Controllers\AssetModelController;
 use App\Http\Controllers\AssetToolController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\GedungController;
-use App\Http\Controllers\GlobalSearchController;
-use App\Http\Controllers\RoleController;
-use App\Http\Controllers\SatuanController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\ProductController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\GedungController;
+use App\Http\Controllers\SatuanController;
+use App\Http\Controllers\MoldModificationController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\GlobalSearchController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReportsController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\ErrorController;
 
-Route::get('/', function () {
-    return \Illuminate\Support\Facades\Auth::check() ? redirect()->route('dashboard') : redirect()->route('login');
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "web" middleware group. Make something great!
+|
+*/
+
+// =============================================================================
+// LANGUAGE SWITCHING ROUTE (Public Access)
+// =============================================================================
+Route::get('lang/{locale}', [LanguageController::class, 'switch'])->name('lang.switch');
+
+// =============================================================================
+// PUBLIC ROUTES (Accessible without authentication)
+// =============================================================================
+
+// Landing Page - Root route
+Route::get('/', [LandingController::class, 'index'])->name('landing');
+
+// Public API Routes
+Route::prefix('api')->name('api.')->group(function () {
+    Route::get('/public-search', [LandingController::class, 'search'])->name('public.search');
 });
 
-// Executive Dashboard
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+// =============================================================================
+// GUEST ROUTES (Accessible only to unauthenticated users)
+// =============================================================================
+
+Route::middleware(['guest'])->group(function () {
+    Route::get('/login', [LoginController::class, 'create'])->name('login');
+    Route::post('/login', [LoginController::class, 'store'])->name('login.store');
+    Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
+    Route::post('/register', [RegisteredUserController::class, 'store'])->name('register.store');
+});
+
+// =============================================================================
+// AUTHENTICATED ROUTES (Require authentication and email verification)
+// =============================================================================
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    
+    // -------------------------------------------------------------------------
+    // DASHBOARD ROUTES
+    // -------------------------------------------------------------------------
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+    
+    // Dashboard Export Routes
+    Route::get('/dashboard/export/excel', [DashboardController::class, 'exportExcel'])->name('dashboard.export-excel');
+    
     // Dashboard API Endpoints
     Route::prefix('api/dashboard')->group(function () {
         Route::get('/data', [DashboardController::class, 'getData'])->name('dashboard.data');
         Route::post('/search', [DashboardController::class, 'search'])->name('dashboard.search');
         Route::post('/filter', [DashboardController::class, 'filter'])->name('dashboard.filter');
         Route::get('/export/pdf', [DashboardController::class, 'exportPdf'])->name('dashboard.export-pdf');
-        Route::get('/export/excel', [DashboardController::class, 'exportExcel'])->name('dashboard.export-excel');
+        Route::get('/export/excel', [DashboardController::class, 'exportExcel'])->name('api.dashboard.export-excel');
         Route::get('/reports/by-date', [DashboardController::class, 'getReportsByDate'])->name('dashboard.reports-by-date');
         Route::get('/assets/by-type', [DashboardController::class, 'getAssetsByType'])->name('dashboard.assets-by-type');
     });
@@ -37,20 +92,41 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Global Search API Endpoints
     Route::prefix('api')->group(function () {
         Route::post('/global-search', [GlobalSearchController::class, 'search'])->name('api.global-search');
-        Route::post('/asset-detail', [GlobalSearchController::class, 'getDetail'])->name('api.asset-detail');
+        Route::post('/asset-detail', [GlobalSearchController::class, 'getAssetDetail'])->name('api.asset-detail');
         Route::get('/search-suggestions', [GlobalSearchController::class, 'getSuggestions'])->name('api.search-suggestions');
     });
-});
-
-Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-
-Route::middleware('auth')->group(function () {
-    // Profile Routes
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     
-    // Asset Management Routes
+    // -------------------------------------------------------------------------
+    // PROFILE & SETTINGS ROUTES
+    // -------------------------------------------------------------------------
+    Route::prefix('profile')->name('profile.')->group(function () {
+        Route::get('/', [ProfileController::class, 'edit'])->name('edit');
+        Route::put('/', [ProfileController::class, 'update'])->name('update');
+        Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
+    });
+    
+    Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+    
+    // -------------------------------------------------------------------------
+    // REPORTS ROUTES
+    // -------------------------------------------------------------------------
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/', [ReportController::class, 'index'])->name('index');
+        Route::get('/create', [ReportController::class, 'create'])->name('create');
+        Route::post('/', [ReportController::class, 'store'])->name('store');
+        Route::get('/scan', [ReportController::class, 'scan'])->name('scan');
+        Route::get('/{id}', [ReportController::class, 'show'])->name('show');
+        Route::put('/{id}/status', [ReportController::class, 'updateStatus'])->name('update-status');
+        Route::get('/by-status/{status}', [ReportController::class, 'getByStatus'])->name('by-status');
+
+        // Inventory & Transaction Reports (ReportsController)
+        Route::get('/inventory', [ReportsController::class, 'inventory'])->name('inventory');
+        Route::get('/transactions', [ReportsController::class, 'transactions'])->name('transactions');
+    });
+    
+    // -------------------------------------------------------------------------
+    // ASSET MANAGEMENT ROUTES
+    // -------------------------------------------------------------------------
     Route::prefix('assets')->name('assets.')->group(function () {
         // Materials
         Route::get('materials', [AssetManagementController::class, 'index'])->name('materials.index');
@@ -84,87 +160,183 @@ Route::middleware('auth')->group(function () {
         Route::put('models/{id}', [AssetModelController::class, 'update'])->name('models.update');
         Route::delete('models/{id}', [AssetModelController::class, 'destroy'])->name('models.destroy');
         Route::get('models/{id}/qr-code', [AssetModelController::class, 'qrCode'])->name('models.qr-code');
+        Route::get('models/{id}/history', [AssetModelController::class, 'history'])->name('models.history');
     });
     
-    // Master Data Routes
-    Route::prefix('master-data')->name('master-data.')->middleware(['auth', 'verified'])->group(function () {
+    // -------------------------------------------------------------------------
+    // MASTER DATA ROUTES
+    // -------------------------------------------------------------------------
+    Route::prefix('master-data')->name('master-data.')->group(function () {
         // Gedungs
-        Route::get('gedungs', [GedungController::class, 'index'])->name('gedungs.index');
-        Route::get('gedungs/create', [GedungController::class, 'create'])->name('gedungs.create');
-        Route::get('gedungs/data', [GedungController::class, 'getData'])->name('gedungs.data');
-        Route::get('gedungs/{id}', [GedungController::class, 'show'])->name('gedungs.show');
-        Route::get('gedungs/{id}/edit', [GedungController::class, 'edit'])->name('gedungs.edit');
-        Route::post('gedungs', [GedungController::class, 'store'])->name('gedungs.store');
-        Route::put('gedungs/{id}', [GedungController::class, 'update'])->name('gedungs.update');
-        Route::delete('gedungs/{id}', [GedungController::class, 'destroy'])->name('gedungs.destroy');
+        Route::prefix('gedungs')->name('gedungs.')->group(function () {
+            Route::get('/', [GedungController::class, 'index'])->name('index');
+            Route::get('/create', [GedungController::class, 'create'])->name('create');
+            Route::post('/', [GedungController::class, 'store'])->name('store');
+            Route::get('/data', [GedungController::class, 'getData'])->name('data');
+            Route::get('/{id}', [GedungController::class, 'show'])->name('show');
+            Route::get('/{id}/edit', [GedungController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [GedungController::class, 'update'])->name('update');
+            Route::delete('/{id}', [GedungController::class, 'destroy'])->name('destroy');
+        });
         
         // Satuans
-        Route::get('satuans', [SatuanController::class, 'index'])->name('satuans.index');
-        Route::get('satuans/create', [SatuanController::class, 'create'])->name('satuans.create');
-        Route::get('satuans/data', [SatuanController::class, 'getData'])->name('satuans.data');
-        Route::get('satuans/{id}', [SatuanController::class, 'show'])->name('satuans.show');
-        Route::get('satuans/{id}/edit', [SatuanController::class, 'edit'])->name('satuans.edit');
-        Route::post('satuans', [SatuanController::class, 'store'])->name('satuans.store');
-        Route::put('satuans/{id}', [SatuanController::class, 'update'])->name('satuans.update');
-        Route::delete('satuans/{id}', [SatuanController::class, 'destroy'])->name('satuans.destroy');
+        Route::prefix('satuans')->name('satuans.')->group(function () {
+            Route::get('/', [SatuanController::class, 'index'])->name('index');
+            Route::get('/create', [SatuanController::class, 'create'])->name('create');
+            Route::post('/', [SatuanController::class, 'store'])->name('store');
+            Route::get('/data', [SatuanController::class, 'getData'])->name('data');
+            Route::get('/{id}', [SatuanController::class, 'show'])->name('show');
+            Route::get('/{id}/edit', [SatuanController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [SatuanController::class, 'update'])->name('update');
+            Route::delete('/{id}', [SatuanController::class, 'destroy'])->name('destroy');
+        });
     });
     
-    // Role Management Routes
+    // -------------------------------------------------------------------------
+    // USER MANAGEMENT ROUTES
+    // -------------------------------------------------------------------------
+    Route::prefix('users')->name('users.')->group(function () {
+        Route::get('/', [UserController::class, 'index'])->name('index');
+        Route::get('/create', [UserController::class, 'create'])->name('create');
+        Route::post('/', [UserController::class, 'store'])->name('store');
+        Route::get('/data', [UserController::class, 'getData'])->name('data');
+        Route::get('/export', [UserController::class, 'export'])->name('export');
+        Route::get('/export-pdf', [UserController::class, 'exportPdf'])->name('export-pdf');
+        Route::get('/{id}', [UserController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [UserController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [UserController::class, 'update'])->name('update');
+        Route::delete('/{id}', [UserController::class, 'destroy'])->name('destroy');
+        Route::patch('/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('toggle-status');
+    });
+    
+    // -------------------------------------------------------------------------
+    // ROLE MANAGEMENT ROUTES
+    // -------------------------------------------------------------------------
     Route::prefix('roles')->name('roles.')->group(function () {
         // Custom routes must come before parameterized routes
+        Route::get('/', [RoleController::class, 'index'])->name('index');
+        Route::get('/data', [RoleController::class, 'getData'])->name('data');
+        Route::get('/debug-endpoint', function() {
+            try {
+                echo "<h1>🔍 ROLES API ENDPOINT DEBUG</h1>";
+                echo "<hr>";
+                
+                echo "<h2>1. Database Check:</h2>";
+                $rolesCount = \Spatie\Permission\Models\Role::count();
+                $permissionsCount = \Spatie\Permission\Models\Permission::count();
+                echo "Roles in DB: <strong>{$rolesCount}</strong><br>";
+                echo "Permissions in DB: <strong>{$permissionsCount}</strong><br><br>";
+                
+                if ($rolesCount === 0) {
+                    echo "<div style='color:red'>❌ NO ROLES FOUND! Run: <code>php artisan db:seed --class=FreshRolePermissionSeeder</code></div><br>";
+                }
+                
+                echo "<h2>2. Sample Roles:</h2>";
+                $roles = \Spatie\Permission\Models\Role::withCount('permissions')->limit(3)->get();
+                foreach ($roles as $role) {
+                    echo "• ID: {$role->id}, Name: {$role->name}, Permissions: {$role->permissions_count}<br>";
+                }
+                
+                echo "<br><h2>3. API Test (Direct Call):</h2>";
+                $request = new \Illuminate\Http\Request([
+                    'draw' => 1,
+                    'start' => 0,
+                    'length' => 10,
+                    'search' => ['value' => '']
+                ]);
+                
+                $controller = app(\App\Http\Controllers\RoleController::class);
+                $response = $controller->getData($request);
+                $responseData = json_decode($response->getContent(), true);
+                
+                echo "Status: <strong>{$response->getStatusCode()}</strong><br>";
+                echo "Records Total: <strong>" . ($responseData['recordsTotal'] ?? 'N/A') . "</strong><br>";
+                echo "Records Filtered: <strong>" . ($responseData['recordsFiltered'] ?? 'N/A') . "</strong><br>";
+                echo "Data Count: <strong>" . count($responseData['data'] ?? []) . "</strong><br>";
+                
+                if (isset($responseData['error'])) {
+                    echo "<div style='color:red'>Error: {$responseData['error']}</div>";
+                }
+                
+                echo "<br><h2>4. Full API Response:</h2>";
+                echo "<pre style='background:#f1f1f1;padding:10px;'>" . json_encode($responseData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "</pre>";
+                
+                echo "<br><h2>5. Test AJAX Call (JavaScript):</h2>";
+                echo "<button onclick='testAjax()'>Test AJAX Call</button>";
+                echo "<div id='ajaxResult'></div>";
+                
+                echo "<script>
+                function testAjax() {
+                    fetch('/roles/data?draw=1&start=0&length=10&search[value]=')
+                        .then(response => response.json())
+                        .then(data => {
+                            document.getElementById('ajaxResult').innerHTML = 
+                                '<h3>AJAX Result:</h3>' +
+                                '<pre style=\"background:#e8f5e8;padding:10px;\">' + 
+                                JSON.stringify(data, null, 2) + 
+                                '</pre>';
+                        })
+                        .catch(error => {
+                            document.getElementById('ajaxResult').innerHTML = 
+                                '<h3 style=\"color:red\">AJAX Error:</h3>' +
+                                '<pre style=\"background:#f5e8e8;padding:10px;\">' + 
+                                error.toString() + 
+                                '</pre>';
+                        });
+                }
+                </script>";
+                
+            } catch (Exception $e) {
+                echo "<div style='color:red'>Exception: " . $e->getMessage() . "</div>";
+                echo "<pre>" . $e->getTraceAsString() . "</pre>";
+            }
+        })->name('debug-endpoint');
         Route::get('/export', [RoleController::class, 'export'])->name('export');
         Route::get('/export-pdf', [RoleController::class, 'exportPdf'])->name('export-pdf');
-        Route::get('/', [RoleController::class, 'index'])->name('index');
         Route::post('/', [RoleController::class, 'store'])->name('store');
-        // Custom routes must come before parameterized routes
         Route::get('/permissions/by-module', [RoleController::class, 'getPermissionsByModule'])->name('permissions.by-module');
         Route::get('/{id}', [RoleController::class, 'show'])->name('show');
         Route::put('/{id}', [RoleController::class, 'update'])->name('update');
         Route::delete('/{id}', [RoleController::class, 'destroy'])->name('destroy');
     });
-
-    // User Management Routes
-    Route::prefix('users')->name('users.')->group(function () {
-        Route::get('/export', [UserController::class, 'export'])->name('export');
-        Route::get('/export-pdf', [UserController::class, 'exportPdf'])->name('export-pdf');
-        Route::get('/', [UserController::class, 'index'])->name('index');
-        Route::get('/data', [UserController::class, 'getData'])->name('data');
-        Route::post('/', [UserController::class, 'store'])->name('store');
-        Route::get('/{id}', [UserController::class, 'show'])->name('show');
-        Route::put('/{id}', [UserController::class, 'update'])->name('update');
-        Route::delete('/{id}', [UserController::class, 'destroy'])->name('destroy');
-        Route::patch('/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('toggle-status');
+    
+    // -------------------------------------------------------------------------
+    // MOLD MODIFICATIONS ROUTES
+    // -------------------------------------------------------------------------
+    Route::prefix('mold-modifications')->name('mold-modifications.')->group(function () {
+        Route::get('/', [MoldModificationController::class, 'index'])->name('index');
+        Route::post('/', [MoldModificationController::class, 'store'])->name('store');
+        Route::put('/{id}', [MoldModificationController::class, 'update'])->name('update');
+        Route::delete('/{id}', [MoldModificationController::class, 'destroy'])->name('destroy');
+        Route::put('/{id}/status', [MoldModificationController::class, 'updateStatus'])->name('update.status');
     });
-
-    // Report Management Routes
-    Route::prefix('reports')->name('reports.')->group(function () {
-        // Ticketing Reports (ReportController)
-        // Custom routes must come before parameterized routes
-        Route::get('/scan', [ReportController::class, 'scan'])->name('scan');
-        Route::get('/by-status/{status}', [ReportController::class, 'getByStatus'])->name('by-status');
-
-        Route::get('/', [ReportController::class, 'index'])->name('index');
-        Route::get('/create', [ReportController::class, 'create'])->name('create');
-        Route::post('/', [ReportController::class, 'store'])->name('store');
-        Route::get('/{id}', [ReportController::class, 'show'])->name('show');
-        Route::put('/{id}/status', [ReportController::class, 'updateStatus'])->name('update-status');
-
-        // Inventory & Transaction Reports (ReportsController)
-        Route::get('/inventory', [ReportsController::class, 'inventory'])->name('inventory');
-        Route::get('/transactions', [ReportsController::class, 'transactions'])->name('transactions');
-    });
-
-    // Inventory Routes (Placeholder - Controller to be implemented)
+    
+    // -------------------------------------------------------------------------
+    // INVENTORY ROUTES
+    // -------------------------------------------------------------------------
     Route::prefix('inventory')->name('inventory.')->group(function () {
         Route::get('/stock-in', function() { return view('inventory.stock-in'); })->name('stock-in');
         Route::get('/stock-out', function() { return view('inventory.stock-out'); })->name('stock-out');
         Route::get('/history', function() { return view('inventory.history'); })->name('history');
     });
+});
 
-    // Settings Routes (Placeholder - Controller to be implemented)
-    Route::prefix('settings')->name('settings.')->group(function () {
-        Route::get('/', function() { return view('settings.index'); })->name('index');
-    });
+// =============================================================================
+// ADDITIONAL PUBLIC ROUTES
+// =============================================================================
+
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+
+// =============================================================================
+// ERROR PAGES ROUTES (Public Access)
+// =============================================================================
+Route::prefix('error')->name('error.')->group(function () {
+    Route::get('/404', [ErrorController::class, 'notFound'])->name('404');
+    Route::get('/500', [ErrorController::class, 'serverError'])->name('500');
+    Route::get('/403', [ErrorController::class, 'forbidden'])->name('403');
+    Route::get('/419', [ErrorController::class, 'pageExpired'])->name('419');
+    Route::get('/429', [ErrorController::class, 'tooManyRequests'])->name('429');
+    Route::get('/{code}', [ErrorController::class, 'customError'])->name('custom');
 });
 
 require __DIR__.'/auth.php';

@@ -37,6 +37,14 @@ class AssetToolService
     }
 
     /**
+     * Find asset tool by tool code.
+     */
+    public function getByToolCode(string $code): ?AssetTool
+    {
+        return $this->assetToolRepository->findByCode($code);
+    }
+
+    /**
      * Create new asset tool.
      */
     public function create(array $data): AssetTool

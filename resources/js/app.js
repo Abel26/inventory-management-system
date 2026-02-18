@@ -1,5 +1,15 @@
 import './bootstrap';
 
+// Phosphor Icons CSS (loaded via Vite bundle — CSS-only, no timing issue)
+import '@phosphor-icons/web/regular';
+import '@phosphor-icons/web/bold';
+import '@phosphor-icons/web/fill';
+
+// NOTE: jQuery, DataTables, SweetAlert2, ApexCharts, html5-qrcode are loaded
+// as synchronous <script> tags from public/vendor/ in app.blade.php.
+// This ensures they're available before inline scripts in blade templates run.
+// Vite modules (type="module") are deferred and would load AFTER inline scripts.
+
 import Alpine from 'alpinejs';
 import collapse from '@alpinejs/collapse';
 
@@ -17,6 +27,52 @@ Alpine.start();
  * @param {string} confirmTitle - Custom confirmation title (optional)
  * @param {string} confirmText - Custom confirmation text (optional)
  */
+import Flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.css';
+// Import Indonesian Locale
+import { Indonesian } from 'flatpickr/dist/l10n/id.js';
+
+window.Flatpickr = Flatpickr;
+
+// Initialize Flatpickr globally
+document.addEventListener('DOMContentLoaded', function() {
+    initDatePickers();
+});
+
+// Re-initialize on dynamic content (e.g., DataTables draw, Modal open)
+window.initDatePickers = function() {
+    Flatpickr('input[type="date"]', {
+        locale: Indonesian,
+        altInput: true,
+        altFormat: "j F Y",
+        dateFormat: "Y-m-d",
+        allowInput: true,
+        monthSelectorType: 'static',
+        yearSelectorType: 'static',
+        disableMobile: "true", // Force custom picker on mobile for consistency
+        onOpen: function(selectedDates, dateStr, instance) {
+            // Add custom class for styling if needed
+            instance.calendarContainer.classList.add('ebara-theme');
+        }
+    });
+
+    // Also support datetime-local if needed
+    Flatpickr('input[type="datetime-local"]', {
+        locale: Indonesian,
+        enableTime: true,
+        altInput: true,
+        altFormat: "j F Y H:i",
+        dateFormat: "Y-m-d H:i",
+        time_24hr: true,
+        disableMobile: "true"
+    });
+};
+
+// Expose initDatePickers to global scope so it can be called after AJAX
+window.initDatePickers = window.initDatePickers;
+
+// Universal AJAX Form Handler with SweetAlert2 Confirmation
+// ... (rest of the file)
 window.handleAjaxForm = function(formId, tableId, modalId, confirmTitle = 'Konfirmasi Simpan', confirmText = 'Apakah data yang dimasukkan sudah benar?') {
     // Prevent default form submission
     const form = document.getElementById(formId);
@@ -65,10 +121,21 @@ window.handleAjaxForm = function(formId, tableId, modalId, confirmTitle = 'Konfi
                         showConfirmButton: false
                     });
 
-                    // Hide modal
+                    // Hide modal with animation
                     if (modalId) {
                         const modal = document.getElementById(modalId);
-                        if (modal) modal.classList.add('hidden');
+                        if (modal) {
+                            var content = modal.querySelector('.modal-content');
+                            if (content) {
+                                content.classList.remove('modal-active');
+                                setTimeout(function() {
+                                    modal.classList.add('hidden');
+                                    modal.style.display = 'none';
+                                }, 300);
+                            } else {
+                                modal.classList.add('hidden');
+                            }
+                        }
                     }
 
                     // Reload DataTable
@@ -79,6 +146,7 @@ window.handleAjaxForm = function(formId, tableId, modalId, confirmTitle = 'Konfi
 
                     // Reset form
                     form.reset();
+                    // Re-init datepickers on reset if needed (usually handled by flatpickr)
                 } else {
                     // Error: Show SweetAlert2 error
                     Swal.fire({
@@ -101,3 +169,4 @@ window.handleAjaxForm = function(formId, tableId, modalId, confirmTitle = 'Konfi
         }
     });
 };
+

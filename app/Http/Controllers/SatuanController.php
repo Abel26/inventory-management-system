@@ -235,13 +235,6 @@ class SatuanController extends Controller
                     ->orWhere('kode', 'like', "%{$search}%");
             }
 
-            Log::info('Satuan query parameters:', [
-                'draw' => $draw,
-                'start' => $start,
-                'length' => $length,
-                'search' => $search
-            ]);
-
             $totalRecords = $query->count();
             $satuans = $query->offset($start)
                 ->limit($length)
@@ -259,12 +252,6 @@ class SatuanController extends Controller
                     'updated_at' => $satuan->formatted_updated_at,
                 ];
             }
-
-            Log::info('Satuan data result:', [
-                'totalRecords' => $totalRecords,
-                'dataCount' => count($data),
-                'firstData' => $data[0] ?? null
-            ]);
 
             return response()->json([
                 'draw' => $draw,

@@ -28,12 +28,41 @@ class AssetManagementController extends Controller
     /**
      * Display asset materials page.
      */
-    public function index(): View
+    public function index(Request $request): View|\Illuminate\Http\JsonResponse
     {
+        if ($request->ajax()) {
+            // Handle AJAX request for DataTables
+            return $this->getData($request);
+        }
+        
         $materials = $this->assetMaterialService->getAll();
         $gedungs = \App\Models\Gedung::orderBy('nama')->get();
         
         return view('asset_materials.index', compact('materials', 'gedungs'));
+    }
+
+    /**
+     * Show the form for creating a new asset material.
+     */
+    public function create(): View
+    {
+        $gedungs = \App\Models\Gedung::orderBy('nama')->get();
+        return view('asset_materials.create', compact('gedungs'));
+    }
+
+    /**
+     * Show the form for editing the specified asset material.
+     */
+    public function edit(int $id): View
+    {
+        $material = $this->assetMaterialService->find($id);
+        $gedungs = \App\Models\Gedung::orderBy('nama')->get();
+        
+        if (!$material) {
+            abort(404, 'Material tidak ditemukan');
+        }
+        
+        return view('asset_materials.edit', compact('material', 'gedungs'));
     }
 
     /**
@@ -59,10 +88,18 @@ class AssetManagementController extends Controller
     /**
      * Show single asset material.
      */
-    public function show(int $id)
+    public function show($id)
     {
         try {
-            $material = $this->assetMaterialService->find($id);
+            // Convert to integer if it's numeric, otherwise try to find by material_code
+            $materialId = is_numeric($id) ? (int) $id : null;
+            
+            if ($materialId) {
+                $material = $this->assetMaterialService->find($materialId);
+            } else {
+                // Try to find by material_code if ID is not numeric
+                $material = $this->assetMaterialService->getByMaterialCode($id);
+            }
             
             if (!$material) {
                 return response()->json([
