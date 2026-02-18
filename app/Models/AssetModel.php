@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AssetModel extends Model
@@ -29,6 +30,7 @@ class AssetModel extends Model
         'qr_code_path',
         'condition',
         'unit_price',
+        'material_id', // Added missing field
     ];
 
     /**
@@ -60,6 +62,30 @@ class AssetModel extends Model
     public function reports(): MorphMany
     {
         return $this->morphMany(Report::class, 'reportable');
+    }
+
+    /**
+     * Get all mold modifications for this model.
+     */
+    public function moldModifications(): HasMany
+    {
+        return $this->hasMany(MoldModification::class);
+    }
+
+    /**
+     * Get pending mold modifications for this model.
+     */
+    public function pendingMoldModifications(): HasMany
+    {
+        return $this->moldModifications()->pending();
+    }
+
+    /**
+     * Get critical mold modifications (H-7 warning) for this model.
+     */
+    public function criticalMoldModifications(): HasMany
+    {
+        return $this->moldModifications()->critical();
     }
 
     /**
@@ -99,5 +125,21 @@ class AssetModel extends Model
             'Damaged' => 'damaged',
             default => 'unknown',
         };
+    }
+
+    /**
+     * Check if this model has critical mold modifications.
+     */
+    public function hasCriticalModifications(): bool
+    {
+        return $this->criticalMoldModifications()->exists();
+    }
+
+    /**
+     * Get count of pending modifications.
+     */
+    public function getPendingModificationsCountAttribute(): int
+    {
+        return $this->pendingMoldModifications()->count();
     }
 }

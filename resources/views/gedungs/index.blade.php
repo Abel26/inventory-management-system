@@ -1,36 +1,36 @@
 <x-app-layout>
-    <x-slot name="title">Data Gedung</x-slot>
+    <x-slot name="title">{{ __('modules.gedungs.title') }}</x-slot>
     
     <div class="space-y-6">
         
         <!-- Header -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">Data Gedung</h1>
-                <p class="text-gray-600 mt-1">Kelola data gedung dan lokasi aset</p>
+                <h1 class="text-2xl font-bold text-gray-900">{{ __('modules.gedungs.title') }}</h1>
+                <p class="text-gray-600 mt-1">{{ __('modules.gedungs.subtitle') }}</p>
             </div>
             <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
                 <!-- Export Dropdown -->
                 <div x-data="{ open: false }" class="relative w-full md:w-auto">
                     <button @click="open = !open" @click.outside="open = false" class="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 px-4 rounded-xl inline-flex items-center justify-center gap-2 transition-colors">
                         <i class="ph ph-download-simple text-lg"></i>
-                        <span>Ekspor</span>
+                        <span>{{ __('modules.common.export') }}</span>
                         <i class="ph ph-caret-down text-sm" x-show="open" x-transition></i>
                     </button>
                     <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
                         <div class="flex items-center gap-2 px-4 py-3 text-gray-400">
                             <i class="ph ph-microsoft-excel-logo text-lg text-green-600"></i>
-                            <span class="text-sm font-medium">Ekspor ke Excel (Coming Soon)</span>
+                            <span class="text-sm font-medium">{{ __('modules.common.export_excel') }} (Coming Soon)</span>
                         </div>
                         <div class="flex items-center gap-2 px-4 py-3 text-gray-400 border-t border-gray-100">
                             <i class="ph ph-file-pdf text-lg text-red-600"></i>
-                            <span class="text-sm font-medium">Ekspor ke PDF (Coming Soon)</span>
+                            <span class="text-sm font-medium">{{ __('modules.common.export_pdf') }} (Coming Soon)</span>
                         </div>
                     </div>
                 </div>
                 <button type="button" id="createNewGedung" class="w-full md:w-auto bg-ebara-600 hover:bg-ebara-700 text-white font-medium py-2.5 px-4 rounded-xl inline-flex items-center justify-center gap-2 transition-colors">
                     <i class="ph ph-plus text-lg"></i>
-                    <span>Tambah Data</span>
+                    <span>{{ __('modules.common.add_data') }}</span>
                 </button>
             </div>
         </div>
@@ -40,7 +40,7 @@
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-gray-500">Total Gedung</p>
+                        <p class="text-sm text-gray-500">{{ __('modules.gedungs.total_buildings') }}</p>
                         <h5 class="text-2xl font-bold text-gray-900 mt-1" id="totalGedungs">0</h5>
                     </div>
                     <div class="w-12 h-12 bg-ebara-100 rounded-lg flex items-center justify-center">
@@ -51,7 +51,7 @@
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-gray-500">Total Aset di Gedung</p>
+                        <p class="text-sm text-gray-500">{{ __('modules.gedungs.total_assets_in_building') }}</p>
                         <h5 class="text-2xl font-bold text-gray-900 mt-1" id="totalAssets">0</h5>
                     </div>
                     <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -66,19 +66,19 @@
             <!-- Controls Header -->
             <div class="p-5 border-b border-gray-100 bg-white flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div class="flex-1">
-                    <input type="text" id="searchInput" placeholder="Cari gedung..." class="pl-10 pr-4 py-2.5 bg-gray-50 border-transparent focus:bg-white focus:border-ebara-500 focus:ring-0 rounded-xl text-sm w-full md:w-72 transition-all">
+                    <input type="text" id="searchInput" placeholder="{{ __('modules.gedungs.search_placeholder') }}" class="pl-10 pr-4 py-2.5 bg-gray-50 border-transparent focus:bg-white focus:border-ebara-500 focus:ring-0 rounded-xl text-sm w-full md:w-72 transition-all">
                 </div>
             </div>
             <table id="gedungsTable" class="w-full">
                 <thead>
                     <tr class="bg-gray-50/80 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Kode Gedung</th>
-                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Nama Gedung</th>
-                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Total Model</th>
-                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Total Material</th>
-                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Total Tool</th>
-                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Total Aset</th>
-                        <th class="px-6 py-4 text-center font-semibold whitespace-nowrap">Aksi</th>
+                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">{{ __('modules.gedungs.building_code') }}</th>
+                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">{{ __('modules.gedungs.building_name') }}</th>
+                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">{{ __('modules.gedungs.total_models') }}</th>
+                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">{{ __('modules.gedungs.total_materials') }}</th>
+                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">{{ __('modules.gedungs.total_tools') }}</th>
+                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">{{ __('modules.gedungs.total_assets') }}</th>
+                        <th class="px-6 py-4 text-center font-semibold whitespace-nowrap">{{ __('modules.common.actions') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
@@ -89,7 +89,7 @@
             <!-- Empty State -->
             <div id="emptyState" class="p-12 text-center flex flex-col items-center justify-center hidden">
                 <i class="ph ph-buildings text-5xl mb-4 text-gray-300"></i>
-                <p class="text-sm text-gray-500">Belum ada data gedung ditemukan.</p>
+                <p class="text-sm text-gray-500">{{ __('modules.gedungs.empty_state') }}</p>
             </div>
         </div>
     </div>
@@ -106,11 +106,11 @@
                                 <i class="ph ph-buildings text-2xl"></i>
                             </div>
                             <div>
-                                <h3 class="text-xl font-bold" id="modalTitle">Tambah Gedung</h3>
-                                <p class="text-ebara-100 text-sm">Isi informasi gedung baru</p>
+                                <h3 class="text-xl font-bold" id="modalTitle">{{ __('modules.gedungs.add_title') }}</h3>
+                                <p class="text-ebara-100 text-sm">{{ __('modules.gedungs.add_subtitle') }}</p>
                             </div>
                         </div>
-                        <button type="button" id="closeModalBtn" class="text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 p-2 rounded-lg" tabindex="0" role="button" aria-label="Tutup modal">
+                        <button type="button" id="closeModalBtn" class="text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 p-2 rounded-lg" tabindex="0" role="button" aria-label="{{ __('modules.common.close_modal') }}">
                             <i class="ph ph-x text-xl"></i>
                         </button>
                     </div>
@@ -125,7 +125,7 @@
                     <div class="space-y-2">
                         <label for="gedung_id_field" class="flex items-center text-sm font-semibold text-gray-700">
                             <i class="ph ph-hash text-ebara-600 mr-2"></i>
-                            Kode Gedung
+                            {{ __('modules.gedungs.building_code') }}
                             <span class="text-red-500 ml-1">*</span>
                         </label>
                         <div class="relative">
@@ -134,7 +134,7 @@
                                    name="gedung_id"
                                    required
                                    class="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-ebara-500 focus:ring-2 focus:ring-ebara-500/20 transition-all duration-200 text-sm font-medium placeholder-gray-400"
-                                   placeholder="Contoh: GDG-001"
+                                   placeholder="{{ __('modules.gedungs.code_placeholder') }}"
                                    autocomplete="off">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class="ph ph-tag text-gray-400"></i>
@@ -152,7 +152,7 @@
                     <div class="space-y-2">
                         <label for="nama" class="flex items-center text-sm font-semibold text-gray-700">
                             <i class="ph ph-building text-ebara-600 mr-2"></i>
-                            Nama Gedung
+                            {{ __('modules.gedungs.building_name') }}
                             <span class="text-red-500 ml-1">*</span>
                         </label>
                         <div class="relative">
@@ -161,7 +161,7 @@
                                    name="nama"
                                    required
                                    class="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-ebara-500 focus:ring-2 focus:ring-ebara-500/20 transition-all duration-200 text-sm font-medium placeholder-gray-400"
-                                   placeholder="Contoh: Gedung Produksi A"
+                                   placeholder="{{ __('modules.gedungs.name_placeholder') }}"
                                    autocomplete="off">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class="ph ph-text-align-left text-gray-400"></i>
@@ -182,9 +182,9 @@
                                 <i class="ph ph-info text-ebara-600 text-lg"></i>
                             </div>
                             <div class="flex-1">
-                                <h4 class="text-sm font-semibold text-ebara-900">Informasi Penting</h4>
+                                <h4 class="text-sm font-semibold text-ebara-900">{{ __('modules.gedungs.info_title') }}</h4>
                                 <p class="text-xs text-ebara-700 mt-1">
-                                    Kode gedung bersifat unik dan tidak dapat diubah setelah disimpan. Pastikan kode gedung mengikuti format standar perusahaan.
+                                    {{ __('modules.gedungs.info_description') }}
                                 </p>
                             </div>
                         </div>
@@ -195,11 +195,11 @@
                 <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 rounded-b-2xl flex flex-col sm:flex-row justify-end gap-3">
                     <button type="button" id="cancelBtn" class="order-2 sm:order-1 w-full sm:w-auto bg-white hover:bg-gray-50 text-gray-700 font-medium py-3 px-6 rounded-xl border border-gray-300 transition-all duration-200 flex items-center justify-center">
                         <i class="ph ph-x mr-2"></i>
-                        Batal
+                        {{ __('modules.common.cancel') }}
                     </button>
                     <button type="submit" form="gedungForm" class="order-1 sm:order-2 w-full sm:w-auto bg-gradient-to-r from-ebara-600 to-ebara-700 hover:from-ebara-700 hover:to-ebara-800 text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                         <i class="ph ph-check-circle mr-2"></i>
-                        Simpan Gedung
+                        {{ __('modules.gedungs.save_building') }}
                     </button>
                 </div>
             </div>
@@ -428,9 +428,9 @@
             const modalContent = modal.querySelector('.modal-content');
             
             if (title) {
-                title.textContent = 'Tambah Gedung';
+                title.textContent = '{{ __('modules.gedungs.add_title') }}';
                 const subtitle = title.nextElementSibling;
-                if (subtitle) subtitle.textContent = 'Isi informasi gedung baru';
+                if (subtitle) subtitle.textContent = '{{ __('modules.gedungs.add_subtitle') }}';
             }
             if (form) form.reset();
             if (idField) idField.value = '';
@@ -507,10 +507,10 @@
                     render: function(data, type, row) {
                         return `
                             <div class="flex items-center justify-center gap-2">
-                                <button onclick="editGedung(${row.id})" class="text-gray-400 hover:text-ebara-600 hover:bg-ebara-50 p-2 rounded-lg transition" title="Edit">
+                                <button onclick="editGedung(${row.id})" class="text-gray-400 hover:text-ebara-600 hover:bg-ebara-50 p-2 rounded-lg transition" title="{{ __('modules.common.edit') }}">
                                     <i class="ph ph-pencil-simple text-xl"></i>
                                 </button>
-                                <button onclick="deleteGedung(${row.id})" class="text-gray-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition" title="Hapus">
+                                <button onclick="deleteGedung(${row.id})" class="text-gray-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition" title="{{ __('modules.common.delete') }}">
                                     <i class="ph ph-trash text-xl"></i>
                                 </button>
                             </div>
@@ -519,22 +519,22 @@
                 }
             ],
             language: {
-                search: "Cari:",
-                lengthMenu: "Tampilkan _MENU_ data",
-                info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
-                infoEmpty: "Tidak ada data yang tersedia",
-                infoFiltered: "(difilter dari _MAX_ total data)",
-                zeroRecords: "Tidak ada data yang cocok",
-                emptyTable: "Tidak ada data tersedia di tabel",
+                search: "{{ __('modules.datatable.search') }}",
+                lengthMenu: "{{ __('modules.datatable.length_menu') }}",
+                info: "{{ __('modules.datatable.info') }}",
+                infoEmpty: "{{ __('modules.datatable.info_empty') }}",
+                infoFiltered: "{{ __('modules.datatable.info_filtered') }}",
+                zeroRecords: "{{ __('modules.datatable.zero_records') }}",
+                emptyTable: "{{ __('modules.datatable.empty_table') }}",
                 paginate: {
-                    first: "Pertama",
-                    last: "Terakhir",
-                    next: "Selanjutnya",
-                    previous: "Sebelumnya"
+                    first: "{{ __('modules.datatable.first') }}",
+                    last: "{{ __('modules.datatable.last') }}",
+                    next: "{{ __('modules.datatable.next') }}",
+                    previous: "{{ __('modules.datatable.previous') }}"
                 },
                 aria: {
-                    sortAscending: ": aktifkan untuk mengurutkan kolom secara ascending",
-                    sortDescending: ": aktifkan untuk mengurutkan kolom secara descending"
+                    sortAscending: "{{ __('modules.datatable.sort_ascending') }}",
+                    sortDescending: "{{ __('modules.datatable.sort_descending') }}"
                 }
             },
             dom: '<"flex flex-col sm:flex-row justify-between items-center gap-4 mb-4"lf>rt<"flex flex-col sm:flex-row justify-between items-center gap-4 mt-4"ip>',
@@ -585,12 +585,12 @@
             const id = $('#gedungId').val();
             let url = storeUrl;
             let method = 'POST';
-            let successMessage = 'Data berhasil disimpan';
+            let successMessage = '{{ __('modules.swal.data_saved') }}';
  
             if (id) {
                 url = updateUrlTemplate.replace(':id', id);
                 method = 'PUT';
-                successMessage = 'Data berhasil diupdate';
+                successMessage = '{{ __('modules.swal.data_updated') }}';
                 // Add method override for PUT requests
                 formData.append('_method', 'PUT');
             }
@@ -611,14 +611,14 @@
                     $('#gedungsTable').DataTable().ajax.reload();
                     Swal.fire({
                         icon: 'success',
-                        title: 'Berhasil',
+                        title: '{{ __('modules.swal.success') }}',
                         text: successMessage,
                         confirmButtonColor: '#009B77'
                     });
                 },
                 error: function(xhr) {
                     console.error('Error:', xhr);
-                    let errorMessage = 'Terjadi kesalahan saat menyimpan data';
+                    let errorMessage = '{{ __('modules.gedungs.save_error') }}';
                     if (xhr.responseJSON && xhr.responseJSON.message) {
                         errorMessage = xhr.responseJSON.message;
                     }
@@ -665,9 +665,9 @@
                     
                     // Update title and subtitle
                     if (title) {
-                        title.textContent = 'Edit Gedung';
+                        title.textContent = '{{ __('modules.gedungs.edit_title') }}';
                         const subtitle = title.nextElementSibling;
-                        if (subtitle) subtitle.textContent = 'Perbarui informasi gedung';
+                        if (subtitle) subtitle.textContent = '{{ __('modules.gedungs.update_subtitle') }}';
                     }
                     
                     // Fill form data
@@ -708,7 +708,7 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Gagal mengambil data gedung',
+                    text: '{{ __('modules.gedungs.fetch_error') }}',
                     confirmButtonColor: '#dc2626'
                 });
             }
@@ -717,14 +717,14 @@
  
     function deleteGedung(id) {
         Swal.fire({
-            title: 'Apakah Anda yakin?',
-            text: 'Data yang dihapus tidak dapat dikembalikan',
+            title: '{{ __('modules.swal.confirm_title') }}',
+            text: '{{ __('modules.swal.delete_warning') }}',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#dc2626',
             cancelButtonColor: '#009B77',
-            confirmButtonText: 'Ya, hapus',
-            cancelButtonText: 'Batal'
+            confirmButtonText: '{{ __('modules.swal.yes_delete') }}',
+            cancelButtonText: '{{ __('modules.swal.cancel') }}'
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
@@ -737,13 +737,13 @@
                         $('#gedungsTable').DataTable().ajax.reload();
                         Swal.fire({
                             icon: 'success',
-                            title: 'Berhasil',
-                            text: 'Data berhasil dihapus',
+                            title: '{{ __('modules.swal.success') }}',
+                            text: '{{ __('modules.swal.data_deleted') }}',
                             confirmButtonColor: '#009B77'
                         });
                     },
                     error: function(xhr) {
-                        let errorMessage = 'Gagal menghapus data';
+                        let errorMessage = '{{ __('modules.swal.delete_error') }}';
                         if (xhr.responseJSON && xhr.responseJSON.message) {
                             errorMessage = xhr.responseJSON.message;
                         }

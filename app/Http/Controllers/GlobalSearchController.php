@@ -496,4 +496,107 @@ class GlobalSearchController extends Controller
             'data' => array_values($suggestions),
         ]);
     }
+
+    /**
+     * Get detailed asset information
+     */
+    public function getAssetDetail(Request $request): JsonResponse
+    {
+        $request->validate([
+            'type' => 'required|string|in:material,tool,model',
+            'id' => 'required|integer',
+        ]);
+
+        $type = $request->input('type');
+        $id = $request->input('id');
+
+        try {
+            $asset = null;
+            
+            switch ($type) {
+                case 'material':
+                    $asset = AssetMaterial::with(['gedung', 'reports' => function($query) {
+                        $query->latest()->limit(5);
+                    }])->findOrFail($id);
+                    break;
+                case 'tool':
+                    $asset = AssetTool::with(['reports' => function($query) {
+                        $query->latest()->limit(5);
+                    }])->findOrFail($id);
+                    break;
+                case 'model':
+                    $asset = AssetModel::with(['reports' => function($query) {
+                        $query->latest()->limit(5);
+                    }])->findOrFail($id);
+                    break;
+            }
+
+            if (!$asset) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Asset tidak ditemukan'
+                ], 404);
+            }
+
+            // Format response data
+            $data = [
+                'id' => $asset->id,
+                'type' => $type,
+                'name' => $asset->name,
+                'code' => $asset->{"{$type}_code"},
+                'description' => $asset->description ?? '-',
+                'location' => $asset->location ?? '-',
+                'condition' => $asset->condition_status ?? 'unknown',
+                'created_at' => $asset->created_at->format('Y-m-d H:i:s'),
+                'updated_at' => $asset->updated_at->format('Y-m-d H:i:s'),
+            ];
+
+            // Add type-specific fields
+            if ($type === 'material') {
+                $data['type_field'] = $asset->type;
+                $data['quantity'] = $asset->quantity;
+                $data['unit'] = $asset->unit;
+                $data['min_threshold'] = $asset->min_threshold;
+                $data['supplier'] = $asset->supplier ?? '-';
+                $data['unit_price'] = $asset->unit_price ?? 0;
+                $data['gedung'] = $asset->gedung ? [
+                    'id' => $asset->gedung->id,
+                    'name' => $asset->gedung->nama,
+                ] : null;
+            } elseif ($type === 'tool') {
+                $data['category'] = $asset->category ?? '-';
+                $data['quantity'] = $asset->quantity;
+                $data['condition'] = $asset->condition_status ?? 'unknown';
+                $data['purchase_date'] = $asset->purchase_date?->format('Y-m-d') ?? '-';
+                $data['warranty_expiry'] = $asset->warranty_expiry?->format('Y-m-d') ?? '-';
+            } elseif ($type === 'model') {
+                $data['category'] = $asset->category ?? '-';
+                $data['quantity'] = $asset->quantity;
+                $data['unit_price'] = $asset->unit_price ?? 0;
+            }
+
+            // Add recent reports
+            $data['reports'] = $asset->reports->map(function($report) {
+                return [
+                    'id' => $report->id,
+                    'issue_type' => $report->issue_type,
+                    'priority' => $report->priority,
+                    'status' => $report->status,
+                    'description' => $report->description,
+                    'created_at' => $report->created_at->format('Y-m-d H:i:s'),
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil detail asset: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

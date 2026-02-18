@@ -28,11 +28,42 @@ class AssetModelController extends Controller
     /**
      * Display asset models page.
      */
-    public function index(): View
+    public function index(Request $request): View|\Illuminate\Http\JsonResponse
     {
+        if ($request->ajax()) {
+            // Handle AJAX request for DataTables
+            return $this->getData($request);
+        }
+        
         $materials = \App\Models\AssetMaterial::all();
         $gedungs = \App\Models\Gedung::orderBy('nama')->get();
         return view('asset_models.index', compact('materials', 'gedungs'));
+    }
+
+    /**
+     * Show the form for creating a new asset model.
+     */
+    public function create(): View
+    {
+        $materials = \App\Models\AssetMaterial::all();
+        $gedungs = \App\Models\Gedung::orderBy('nama')->get();
+        return view('asset_models.create', compact('materials', 'gedungs'));
+    }
+
+    /**
+     * Show the form for editing the specified asset model.
+     */
+    public function edit(int $id): View
+    {
+        $model = $this->assetModelService->find($id);
+        $materials = \App\Models\AssetMaterial::all();
+        $gedungs = \App\Models\Gedung::orderBy('nama')->get();
+        
+        if (!$model) {
+            abort(404, 'Model tidak ditemukan');
+        }
+        
+        return view('asset_models.edit', compact('model', 'materials', 'gedungs'));
     }
 
     /**
@@ -57,10 +88,18 @@ class AssetModelController extends Controller
     /**
      * Show single asset model.
      */
-    public function show(int $id)
+    public function show($id)
     {
         try {
-            $model = $this->assetModelService->find($id);
+            // Convert to integer if it's numeric, otherwise try to find by model_code
+            $modelId = is_numeric($id) ? (int) $id : null;
+            
+            if ($modelId) {
+                $model = $this->assetModelService->find($modelId);
+            } else {
+                // Try to find by model_code if ID is not numeric
+                $model = $this->assetModelService->getByModelCode($id);
+            }
             
             if (!$model) {
                 return response()->json([
@@ -257,5 +296,45 @@ class AssetModelController extends Controller
             'data' => $data,
             'stats' => $stats,
         ]);
+    }
+
+    /**
+     * Display model history page.
+     */
+    public function history($id)
+    {
+        try {
+            $model = $this->assetModelService->find($id);
+            
+            if (!$model) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Model tidak ditemukan'
+                ], 404);
+            }
+            
+            // You can customize this method to return the appropriate view or data
+            // For now, we'll return a JSON response with the model data
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $model->id,
+                    'model_code' => $model->model_code,
+                    'name' => $model->name,
+                    'type' => $model->type,
+                    'material_name' => $model->material?->name ?? '-',
+                    'manufactured_date' => $model->manufacture_date ? $model->manufacture_date->format('d/m/Y') : '-',
+                    'condition' => $model->condition,
+                    'condition_label' => $model->condition_label,
+                    'location' => $model->location ?? '-',
+                    'created_at' => $model->created_at->format('d/m/Y H:i'),
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data history model: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

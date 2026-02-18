@@ -15,6 +15,13 @@
             <span class="text-lg font-semibold text-white whitespace-nowrap">EBARA IMS</span>
         </a>
 
+        <!-- Mobile Close Button (X) — visible only on mobile -->
+        <button @click="$dispatch('toggle-sidebar')"
+                class="flex lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+                aria-label="Close sidebar">
+            <i class="ph ph-x text-xl"></i>
+        </button>
+
         <!-- Desktop Collapse Button -->
         <button @click="$dispatch('toggle-sidebar')"
                 class="hidden lg:flex p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
@@ -32,7 +39,7 @@
         <a href="{{ route('dashboard') }}"
            class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-all duration-200 group {{ request()->routeIs('dashboard') ? 'bg-ebara-600 text-white' : '' }}">
             <i class="ph ph-squares-four text-lg flex-shrink-0 mr-3"></i>
-            <span class="flex-1 text-left truncate">Dashboard</span>
+            <span class="flex-1 text-left truncate">{{ __('sidebar.dashboard') }}</span>
         </a>
 
         <!-- Assets Dropdown Group -->
@@ -41,7 +48,7 @@
             <button @click="open = !open"
                     class="w-full flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-all duration-200 group">
                 <i class="ph ph-cube text-lg flex-shrink-0 mr-3"></i>
-                <span class="flex-1 text-left truncate">Assets</span>
+                <span class="flex-1 text-left truncate">{{ __('sidebar.assets') }}</span>
                 <i class="ph ph-caret-down transition-transform duration-200" :class="{ 'rotate-180': open }"></i>
             </button>
 
@@ -54,7 +61,7 @@
                     <span class="w-6 h-6 flex items-center justify-center mr-3">
                         <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('assets.materials*') ? 'bg-ebara-400' : 'bg-slate-600 group-hover:bg-slate-400' }}"></span>
                     </span>
-                    <span class="truncate">Materials</span>
+                    <span class="truncate">{{ __('sidebar.materials') }}</span>
                 </a>
 
                 <!-- Tools -->
@@ -64,7 +71,7 @@
                     <span class="w-6 h-6 flex items-center justify-center mr-3">
                         <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('assets.tools*') ? 'bg-ebara-400' : 'bg-slate-600 group-hover:bg-slate-400' }}"></span>
                     </span>
-                    <span class="truncate">Peralatan</span>
+                    <span class="truncate">{{ __('sidebar.tools') }}</span>
                 </a>
 
                 <!-- Models -->
@@ -74,7 +81,7 @@
                     <span class="w-6 h-6 flex items-center justify-center mr-3">
                         <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('assets.models*') ? 'bg-ebara-400' : 'bg-slate-600 group-hover:bg-slate-400' }}"></span>
                     </span>
-                    <span class="truncate">Model / Cetakan</span>
+                    <span class="truncate">{{ __('sidebar.models') }}</span>
                 </a>
             </div>
         </div>
@@ -85,7 +92,7 @@
             <button @click="open = !open"
                     class="w-full flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-all duration-200 group">
                 <i class="ph ph-database text-lg flex-shrink-0 mr-3"></i>
-                <span class="flex-1 text-left truncate">Master Data</span>
+                <span class="flex-1 text-left truncate">{{ __('sidebar.master_data') }}</span>
                 <i class="ph ph-caret-down transition-transform duration-200" :class="{ 'rotate-180': open }"></i>
             </button>
             
@@ -98,7 +105,7 @@
                        <span class="w-6 h-6 flex items-center justify-center mr-3">
                            <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('master-data.gedungs*') ? 'bg-ebara-400' : 'bg-slate-600 group-hover:bg-slate-400' }}"></span>
                        </span>
-                       <span class="truncate">Data Gedung</span>
+                       <span class="truncate">{{ __('sidebar.gedung') }}</span>
                    </a>
                 <!-- Satuan -->
                 <a href="{{ route('master-data.satuans.index') }}"
@@ -107,7 +114,7 @@
                        <span class="w-6 h-6 flex items-center justify-center mr-3">
                            <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('master-data.satuans*') ? 'bg-ebara-400' : 'bg-slate-600 group-hover:bg-slate-400' }}"></span>
                        </span>
-                       <span class="truncate">Data Satuan</span>
+                       <span class="truncate">{{ __('sidebar.satuan') }}</span>
                    </a>
                </div>
         </div>
@@ -118,7 +125,7 @@
             <button @click="open = !open"
                     class="w-full flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-all duration-200 group">
                 <i class="ph ph-gear text-lg flex-shrink-0 mr-3"></i>
-                <span class="flex-1 text-left truncate">Pengaturan Akses</span>
+                <span class="flex-1 text-left truncate">{{ __('sidebar.access_settings') }}</span>
                 <i class="ph ph-caret-down transition-transform duration-200" :class="{ 'rotate-180': open }"></i>
             </button>
 
@@ -131,7 +138,7 @@
                     <span class="w-6 h-6 flex items-center justify-center mr-3">
                         <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('users.*') ? 'bg-ebara-400' : 'bg-slate-600 group-hover:bg-slate-400' }}"></span>
                     </span>
-                    <span class="truncate">Manajemen User</span>
+                    <span class="truncate">{{ __('sidebar.user_management') }}</span>
                 </a>
 
                 <!-- Manajemen Role -->
@@ -141,7 +148,7 @@
                     <span class="w-6 h-6 flex items-center justify-center mr-3">
                         <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('roles.*') ? 'bg-ebara-400' : 'bg-slate-600 group-hover:bg-slate-400' }}"></span>
                     </span>
-                    <span class="truncate">Manajemen Role</span>
+                    <span class="truncate">{{ __('sidebar.role_management') }}</span>
                 </a>
             </div>
         </div>
@@ -152,7 +159,7 @@
             <button @click="open = !open"
                     class="w-full flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-all duration-200 group">
                 <i class="ph ph-clipboard-text text-lg flex-shrink-0 mr-3"></i>
-                <span class="flex-1 text-left truncate">Laporan Masalah</span>
+                <span class="flex-1 text-left truncate">{{ __('sidebar.reports') }}</span>
                 <i class="ph ph-caret-down transition-transform duration-200" :class="{ 'rotate-180': open }"></i>
             </button>
 
@@ -165,7 +172,7 @@
                     <span class="w-6 h-6 flex items-center justify-center mr-3">
                         <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('reports.index') || request()->routeIs('reports.show') ? 'bg-ebara-400' : 'bg-slate-600 group-hover:bg-slate-400' }}"></span>
                     </span>
-                    <span class="truncate">Daftar Laporan</span>
+                    <span class="truncate">{{ __('sidebar.report_list') }}</span>
                 </a>
 
                 <!-- Scan QR Code -->
@@ -175,7 +182,7 @@
                     <span class="w-6 h-6 flex items-center justify-center mr-3">
                         <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('reports.scan') ? 'bg-ebara-400' : 'bg-slate-600 group-hover:bg-slate-400' }}"></span>
                     </span>
-                    <span class="truncate">Scan QR Code</span>
+                    <span class="truncate">{{ __('sidebar.scan_qr') }}</span>
                 </a>
             </div>
         </div>

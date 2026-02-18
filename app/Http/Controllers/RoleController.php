@@ -6,7 +6,9 @@ use App\Exports\RolesExport;
 use App\Http\Controllers\Controller;
 use App\Services\RoleService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 use Spatie\Permission\Models\Role;
@@ -94,7 +96,7 @@ class RoleController extends Controller
                     'id' => $role->id,
                     'name' => $role->name,
                     'guard_name' => $role->guard_name,
-                    'permissions' => $role->permissions->pluck('name')->toArray(),
+                    'permissions' => $role->permissions->pluck('id')->toArray(),
                 ]
             ]);
         } catch (\Exception $e) {
@@ -201,5 +203,96 @@ class RoleController extends Controller
             ->setOption(['defaultFont' => 'Arial']);
         
         return $pdf->download('roles_export_' . date('Y-m-d_H-i') . '.pdf');
+    }
+
+    /**
+     * Get data for DataTables.
+     */
+    public function getData(Request $request): JsonResponse
+    {
+        try {
+            $draw = (int) $request->get('draw', 1);
+            $start = (int) $request->get('start', 0);
+            $length = (int) $request->get('length', 10);
+            $search = $request->get('search');
+            $searchValue = $search['value'] ?? '';
+
+            // Base query
+            $baseQuery = Role::withCount('permissions');
+            
+            // Get total records WITHOUT filters for pagination
+            $totalRecords = Role::count();
+
+            // Build filtered query
+            $query = $baseQuery->clone();
+            
+            // Apply search filter if provided
+            if (!empty($searchValue)) {
+                $query->where(function ($q) use ($searchValue) {
+                    $q->where('name', 'like', "%{$searchValue}%")
+                      ->orWhere('guard_name', 'like', "%{$searchValue}%");
+                });
+            }
+
+            // Get filtered records count
+            $filteredRecords = $query->count();
+
+            // Apply sorting
+            $orderBy = 'created_at';
+            $orderDir = 'DESC';
+            
+            if ($request->has('order') && is_array($request->get('order'))) {
+                $orderArray = $request->get('order')[0] ?? null;
+                if ($orderArray) {
+                    $columnIndex = $orderArray['column'] ?? 0;
+                    $dir = strtoupper($orderArray['dir'] ?? 'ASC');
+                    
+                    // Map column index to field name
+                    $columns = ['name', 'guard_name', 'permissions_count', 'id'];
+                    if (isset($columns[$columnIndex])) {
+                        $orderBy = $columns[$columnIndex];
+                        $orderDir = in_array($dir, ['ASC', 'DESC']) ? $dir : 'ASC';
+                    }
+                }
+            }
+
+            // Apply pagination and ordering
+            $roles = $query->orderBy($orderBy, $orderDir)
+                ->offset($start)
+                ->limit($length)
+                ->get();
+
+            // Transform data for DataTables
+            $data = $roles->map(function ($role) {
+                return [
+                    'id' => $role->id,
+                    'name' => htmlspecialchars($role->name, ENT_QUOTES, 'UTF-8'),
+                    'guard_name' => htmlspecialchars($role->guard_name, ENT_QUOTES, 'UTF-8'),
+                    'permissions_count' => (int) $role->permissions_count,
+                ];
+            })->toArray();
+
+            // Return proper DataTables response
+            return response()->json([
+                'draw' => $draw,
+                'recordsTotal' => $totalRecords,
+                'recordsFiltered' => $filteredRecords,
+                'data' => $data,
+            ], 200, [], JSON_UNESCAPED_UNICODE);
+            
+        } catch (\Exception $e) {
+            Log::error('RoleController@getData Error:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            
+            return response()->json([
+                'draw' => $request->get('draw', 1),
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+                'data' => [],
+                'error' => env('APP_DEBUG') ? $e->getMessage() : 'Gagal mengambil data',
+            ], 500, [], JSON_UNESCAPED_UNICODE);
+        }
     }
 }

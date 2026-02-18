@@ -11,21 +11,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Icons: Phosphor Icons -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
-    <!-- jQuery CDN -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <!-- DataTables CSS for Tailwind -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.0/css/dataTables.tailwindcss.css">
-
-    <!-- DataTables JS -->
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.tailwindcss.min.js"></script>
-
-    <!-- SweetAlert2 CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Vendor Libraries (synchronous, from npm packages in public/vendor/) -->
+    <!-- Must load BEFORE Vite bundle because Vite modules are deferred and inline scripts depend on these globals -->
+    <script src="{{ asset('vendor/jquery.min.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('vendor/jquery.dataTables.min.css') }}">
+    <script src="{{ asset('vendor/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('vendor/dataTables.dataTables.min.js') }}"></script>
+    <script src="{{ asset('vendor/sweetalert2.min.js') }}"></script>
+    <script src="{{ asset('vendor/apexcharts.min.js') }}"></script>
+    <script src="{{ asset('vendor/html5-qrcode.min.js') }}"></script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -72,6 +66,28 @@
 
                 <!-- Right Actions -->
                 <div class="flex items-center space-x-4">
+                    <!-- Language Switcher -->
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open" class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition ease-in-out duration-150">
+                            <i class="ph ph-translate mr-2"></i>
+                            <span>{{ strtoupper(app()->getLocale()) }}</span>
+                            <svg class="ml-1 -mr-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                        
+                        <div x-show="open" @click.away="open = false" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                            <div class="py-1">
+                                <a href="{{ route('lang.switch', 'id') }}" class="{{ app()->getLocale() === 'id' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }} block px-4 py-2 text-sm">
+                                    🇮🇩 Bahasa Indonesia
+                                </a>
+                                <a href="{{ route('lang.switch', 'en') }}" class="{{ app()->getLocale() === 'en' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }} block px-4 py-2 text-sm">
+                                    🇬🇧 English
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- Notifications -->
                     <x-user.notification-bell :count="$pendingReportCount ?? 0" :notifications="$latestNotifications ?? null" />
 
@@ -81,7 +97,7 @@
                                 class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition"
                                 aria-label="User menu">
                             <div class="w-8 h-8 rounded-full bg-ebara-600 flex items-center justify-center">
-                                <span class="text-white font-bold text-sm">{{ auth()->user()->name ? substr(auth()->user()->name, 0, 1) : 'U' }}</span>
+                                <span class="text-white font-bold text-sm">{{ \Illuminate\Support\Facades\Auth::user()?->name ? substr(\Illuminate\Support\Facades\Auth::user()->name, 0, 1) : 'U' }}</span>
                             </div>
                             <i class="ph ph-caret-down text-slate-600"></i>
                         </button>
@@ -97,15 +113,15 @@
                              x-transition:leave-end="opacity-0 scale-95"
                              class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                             <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-gray-100">
-                                Profil
-                            </a>
-                            <hr class="my-1 border-gray-200">
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
-                                    Logout
-                                </button>
-                            </form>
+                               {{ __('menu.profile') }}
+                           </a>
+                           <hr class="my-1 border-gray-200">
+                           <form method="POST" action="{{ route('logout') }}">
+                               @csrf
+                               <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                                   {{ __('menu.logout') }}
+                               </button>
+                           </form>
                         </div>
                     </div>
                 </div>

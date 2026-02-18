@@ -7,11 +7,14 @@ use App\Models\AssetTool;
 use App\Models\AssetModel;
 use App\Models\Report;
 use App\Models\User;
+use App\Models\MoldModification;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\DashboardExport;
 
 class DashboardController extends Controller
 {
@@ -21,6 +24,14 @@ class DashboardController extends Controller
     public function index(): View
     {
         try {
+            // Ensure user is authenticated
+            if (!\Illuminate\Support\Facades\Auth::check()) {
+                Log::error('Dashboard accessed without authentication');
+                abort(401, 'Unauthorized access');
+            }
+            
+            Log::info('Dashboard accessed by user: ' . \Illuminate\Support\Facades\Auth::user()->id);
+            
             $stats = $this->getStats();
             $chartData = [
                 'trend' => $this->getTrendData(),
@@ -29,8 +40,10 @@ class DashboardController extends Controller
             $activity = $this->getRecentActivity();
             $critical = $this->getCriticalItems();
             $greeting = $this->getGreeting();
+            $moldModifications = $this->getMoldModifications();
+            $assetModels = AssetModel::select('id', 'name')->orderBy('name')->get() ?? collect();
 
-            return view('dashboard', compact('stats', 'chartData', 'activity', 'critical', 'greeting'));
+            return view('dashboard', compact('stats', 'chartData', 'activity', 'critical', 'greeting', 'moldModifications', 'assetModels'));
         } catch (\Exception $e) {
             // Log error and provide fallback data
             Log::error('Dashboard error: ' . $e->getMessage(), [
@@ -55,8 +68,8 @@ class DashboardController extends Controller
                     'dates' => [],
                     'categories' => [],
                     'series' => [
-                        ['name' => 'Total Laporan', 'data' => []],
-                        ['name' => 'Laporan Selesai', 'data' => []]
+                        ['name' => __('dashboard.charts.total_reports'), 'data' => []],
+                        ['name' => __('dashboard.charts.resolved_reports'), 'data' => []]
                     ]
                 ],
                 'composition' => [
@@ -70,8 +83,10 @@ class DashboardController extends Controller
             $activity = [];
             $critical = [];
             $greeting = $this->getGreeting();
+            $moldModifications = [];
+            $assetModels = collect();
 
-            return view('dashboard', compact('stats', 'chartData', 'activity', 'critical', 'greeting'));
+            return view('dashboard', compact('stats', 'chartData', 'activity', 'critical', 'greeting', 'moldModifications', 'assetModels'));
         }
     }
 
@@ -84,13 +99,13 @@ class DashboardController extends Controller
         $hour = now()->timezone('Asia/Jakarta')->format('H');
         
         if ($hour >= 5 && $hour < 11) {
-            return 'Selamat Pagi';
+            return __('dashboard.greeting_morning');
         } elseif ($hour >= 11 && $hour < 15) {
-            return 'Selamat Siang';
+            return __('dashboard.greeting_afternoon');
         } elseif ($hour >= 15 && $hour < 19) {
-            return 'Selamat Sore';
+            return __('dashboard.greeting_evening');
         } else {
-            return 'Selamat Malam';
+            return __('dashboard.greeting_night');
         }
     }
 
@@ -100,6 +115,9 @@ class DashboardController extends Controller
     private function getStats(): array
     {
         try {
+            // Clear cache to ensure fresh data
+            Cache::forget('dashboard.stats');
+            
             // Cache statistics for 5 minutes to improve performance
             return Cache::remember('dashboard.stats', now()->timezone('Asia/Jakarta')->addMinutes(5), function () {
                 // Calculate total asset value from materials, tools, and models
@@ -109,7 +127,7 @@ class DashboardController extends Controller
                 $modelValue = AssetModel::count() * 1000000; // Estimated value per model
                 $totalAssetValue = $materialValue + $toolValue + $modelValue;
                 
-                return [
+                $stats = [
                     'totalAssetValue' => $totalAssetValue,
                     'valueBreakdown' => [
                         'material' => $materialValue,
@@ -124,6 +142,8 @@ class DashboardController extends Controller
                     'totalModels' => AssetModel::count(),
                     'totalReports' => Report::count(),
                 ];
+                
+                return $stats;
             });
         } catch (\Exception $e) {
             Log::error('Error getting dashboard stats: ' . $e->getMessage());
@@ -206,7 +226,7 @@ class DashboardController extends Controller
                         'name' => $assetName,
                         'code' => $assetCode,
                         'status' => 'critical',
-                        'status_display' => 'Kritis',
+                        'status_display' => __('dashboard.status.critical'),
                         'action_url' => $actionUrl,
                         'priority' => 'Critical'
                     ];
@@ -222,7 +242,7 @@ class DashboardController extends Controller
                                 'name' => $item->name,
                                 'code' => $item->material_code,
                                 'status' => 'low_stock',
-                                'status_display' => 'Stok Menipis',
+                                'status_display' => __('dashboard.status.low_stock'),
                                 'action_url' => route('assets.materials.show', $item->id),
                                 'priority' => 'High'
                             ];
@@ -269,11 +289,11 @@ class DashboardController extends Controller
                     })->toArray(),
                     'series' => [
                         [
-                            'name' => 'Total Laporan',
+                            'name' => __('dashboard.charts.total_reports'),
                             'data' => $totalReports
                         ],
                         [
-                            'name' => 'Laporan Selesai',
+                            'name' => __('dashboard.charts.resolved_reports'),
                             'data' => $resolvedReports
                         ]
                     ]
@@ -286,8 +306,8 @@ class DashboardController extends Controller
                 'dates' => [],
                 'categories' => [],
                 'series' => [
-                    ['name' => 'Total Laporan', 'data' => []],
-                    ['name' => 'Laporan Selesai', 'data' => []]
+                    ['name' => __('dashboard.charts.total_reports'), 'data' => []],
+                    ['name' => __('dashboard.charts.resolved_reports'), 'data' => []]
                 ]
             ];
         }
@@ -345,10 +365,10 @@ class DashboardController extends Controller
         $asset = $report->reportable->name ?? 'Unknown Asset';
         
         if ($report->status->value === 'Resolved') {
-            return "$user menyelesaikan masalah pada $asset";
+            return "$user " . __('dashboard.activity_resolved') . " $asset";
         }
         
-        return "$user melaporkan $type pada $asset";
+        return "$user " . __('dashboard.activity_reported') . " $type " . __('dashboard.activity_on') . " $asset";
     }
 
     /**
@@ -441,5 +461,118 @@ class DashboardController extends Controller
             'data' => $assets,
             'total' => $assets->count(),
         ]);
+    }
+
+    /**
+     * Get mold modifications for dashboard
+     */
+    private function getMoldModifications(): array
+    {
+        try {
+            return Cache::remember('dashboard.mold_modifications', now()->addMinutes(5), function () {
+                return MoldModification::with('assetModel')
+                    ->orderBy('production_date', 'asc')
+                    ->take(10) // Limit to 10 for safety
+                    ->get()
+                    ->map(function ($modification) {
+                        return [
+                            'id' => $modification->id,
+                            'asset_model_id' => $modification->asset_model_id,
+                            'model_name' => $modification->model_name,
+                            'spec_before' => $modification->spec_before,
+                            'spec_after' => $modification->spec_after,
+                            'production_date' => $modification->production_date->format('Y-m-d'),
+                            'production_date_formatted' => $modification->production_date->format('d M Y'),
+                            'status' => $modification->status,
+                            'status_label' => $modification->status_label,
+                            'days_remaining' => $modification->days_remaining,
+                            'is_critical' => $modification->is_critical,
+                            'row_class' => $modification->row_class,
+                            'text_class' => $modification->text_class,
+                            'description' => $modification->description,
+                            'asset_model' => $modification->assetModel ? [
+                                'id' => $modification->assetModel->id,
+                                'name' => $modification->assetModel->name,
+                                'model_code' => $modification->assetModel->model_code
+                            ] : null
+                        ];
+                    })->toArray();
+            });
+        } catch (\Exception $e) {
+            Log::error('Error getting mold modifications: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Export dashboard data to Excel
+     */
+    public function exportExcel()
+    {
+        try {
+            $stats = $this->getStats();
+            $materials = AssetMaterial::with('gedung')->get();
+            $tools = AssetTool::all();
+            $models = AssetModel::all();
+            $reports = Report::with(['user', 'reportable'])->get();
+
+            $data = [
+                'stats' => $stats,
+                'materials' => $materials,
+                'tools' => $tools,
+                'models' => $models,
+                'reports' => $reports,
+                'export_date' => now()->format('Y-m-d H:i:s')
+            ];
+
+            // For now, return a simple CSV export since DashboardExport might not exist
+            $filename = 'dashboard-export-' . date('Y-m-d') . '.xlsx';
+            
+            // Create a simple collection for export
+            $exportData = collect([
+                ['Dashboard Export - ' . now()->format('Y-m-d H:i:s')],
+                [''],
+                ['Statistics'],
+                ['Total Asset Value', $stats['totalAssetValue'] ?? 0],
+                ['Materials Count', $stats['materialsCount'] ?? 0],
+                ['Tools Count', $stats['toolsCount'] ?? 0],
+                ['Models Count', $stats['modelsCount'] ?? 0],
+                ['Reports Count', $stats['reportsCount'] ?? 0],
+                [''],
+                ['Materials'],
+                ['ID', 'Code', 'Name', 'Type', 'Quantity', 'Unit', 'Location'],
+            ]);
+
+            // Add materials data
+            foreach ($materials as $material) {
+                $exportData->push([
+                    $material->id,
+                    $material->material_code,
+                    $material->name,
+                    $material->type,
+                    $material->quantity,
+                    $material->unit,
+                    $material->location ?? '-'
+                ]);
+            }
+
+            return Excel::download(new class($exportData) implements \Maatwebsite\Excel\Concerns\FromCollection {
+                protected $data;
+                
+                public function __construct($data)
+                {
+                    $this->data = $data;
+                }
+                
+                public function collection()
+                {
+                    return $this->data;
+                }
+            }, $filename);
+
+        } catch (\Exception $e) {
+            Log::error('Error exporting dashboard: ' . $e->getMessage());
+            return back()->with('error', __('dashboard.export_failed'));
+        }
     }
 }

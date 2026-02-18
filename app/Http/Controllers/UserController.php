@@ -130,7 +130,7 @@ class UserController extends Controller
     /**
      * Show user details.
      */
-    public function show(int $id): JsonResponse
+    public function show($id): JsonResponse
     {
         try {
             $user = $this->userService->find($id);
@@ -168,7 +168,7 @@ class UserController extends Controller
     /**
      * Update existing user.
      */
-    public function update(UpdateUserRequest $request, int $id): JsonResponse
+    public function update(UpdateUserRequest $request, $id): JsonResponse
     {
         try {
             $validated = $request->validated();
@@ -208,7 +208,7 @@ class UserController extends Controller
     /**
      * Delete user.
      */
-    public function destroy(int $id): JsonResponse
+    public function destroy($id): JsonResponse
     {
         try {
             $this->userService->delete($id);
@@ -230,7 +230,7 @@ class UserController extends Controller
     /**
      * Toggle user status.
      */
-    public function toggleStatus(int $id): JsonResponse
+    public function toggleStatus($id): JsonResponse
     {
         try {
             $this->userService->toggleStatus($id);

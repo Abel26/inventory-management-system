@@ -1,0 +1,378 @@
+/* Error Pages Specific Styles */
+.error-hero {
+    min-height: 80vh;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.error-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+    pointer-events: none;
+}
+
+.error-code {
+    font-size: clamp(4rem, 15vw, 12rem);
+    font-weight: 800;
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 40px rgba(59, 130, 246, 0.3);
+}
+
+.error-icon {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 2rem;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.error-icon:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.3);
+}
+
+.error-icon i {
+    font-size: 3rem;
+    color: #3b82f6;
+    transition: all 0.3s ease;
+}
+
+.error-content {
+    backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 3rem 2rem;
+    max-width: 600px;
+    margin: 0 auto;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    transition: all 0.3s ease;
+}
+
+.error-content:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.3);
+}
+
+.error-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.error-button {
+    padding: 0.75rem 2rem;
+    border-radius: 50px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 2px solid transparent;
+    cursor: pointer;
+    font-size: 0.875rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.error-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.error-button:hover::before {
+    left: 100%;
+}
+
+.error-button-primary {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    color: white;
+}
+
+.error-button-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.5);
+}
+
+.error-button-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.error-button-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.error-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.error-suggestions {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.suggestion-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.suggestion-link {
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    text-decoration: none;
+    color: white;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: block;
+    text-align: center;
+}
+
+.suggestion-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.3);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.countdown-timer {
+    font-family: 'Inter', monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #3b82f6;
+    transition: color 0.3s ease;
+}
+
+.particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    animation: float 20s infinite linear;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .error-hero {
+        min-height: 70vh;
+        padding: 1rem;
+    }
+    
+    .error-content {
+        padding: 2rem 1.5rem;
+        margin: 1rem;
+    }
+    
+    .error-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .error-button {
+        width: 100%;
+        max-width: 300px;
+        justify-content: center;
+    }
+    
+    .error-icon {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .error-icon i {
+        font-size: 2rem;
+    }
+    
+    .error-code {
+        font-size: clamp(3rem, 12vw, 8rem);
+    }
+    
+    .suggestion-links {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .error-content {
+        padding: 1.5rem 1rem;
+    }
+    
+    .error-hero h1 {
+        font-size: 1.5rem;
+    }
+    
+    .error-hero h2 {
+        font-size: 1.25rem;
+    }
+    
+    .error-hero p {
+        font-size: 0.875rem;
+    }
+    
+    .error-button {
+        padding: 0.625rem 1.5rem;
+        font-size: 0.8rem;
+    }
+    
+    .countdown-timer {
+        font-size: 1.25rem;
+    }
+}
+
+/* Tablet Styles */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .error-content {
+        padding: 2.5rem 2rem;
+        max-width: 500px;
+    }
+    
+    .suggestion-links {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Large Desktop Styles */
+@media (min-width: 1025px) {
+    .error-content {
+        padding: 3rem 2.5rem;
+        max-width: 600px;
+    }
+    
+    .error-icon {
+        width: 140px;
+        height: 140px;
+    }
+    
+    .error-icon i {
+        font-size: 3.5rem;
+    }
+}
+
+/* High DPI Displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .error-hero::before {
+        background-size: 20px 20px;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .error-hero {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(147, 51, 234, 0.15) 100%);
+    }
+    
+    .error-content {
+        background: rgba(255, 255, 255, 0.03);
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .particle,
+    .error-icon,
+    .error-content,
+    .error-button,
+    .suggestion-link {
+        animation: none;
+        transition: none;
+    }
+    
+    .error-button:hover::before {
+        display: none;
+    }
+}
+
+/* Print styles */
+@media print {
+    .error-hero {
+        background: white;
+        color: black;
+    }
+    
+    .error-content {
+        background: white;
+        border: 1px solid #ccc;
+        box-shadow: none;
+    }
+    
+    .error-actions,
+    .particles,
+    .navbar-landing,
+    footer {
+        display: none;
+    }
+    
+    .error-code {
+        background: #333;
+        -webkit-background-clip: unset;
+        -webkit-text-fill-color: white;
+        background-clip: unset;
+    }
+}

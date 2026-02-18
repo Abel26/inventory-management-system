@@ -1,83 +1,83 @@
 <x-app-layout>
-    <x-slot name="title">Model Aset</x-slot>
+    <x-slot name="title">{{ __('modules.asset_models.title') }}</x-slot>
     
     <div class="space-y-6">
         
         <!-- Header -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">Model Aset</h1>
-                <p class="text-gray-600 mt-1">Kelola model dan cetakan aset</p>
+                <h1 class="text-2xl font-bold text-gray-900">{{ __('modules.asset_models.title') }}</h1>
+                <p class="text-gray-600 mt-1">{{ __('modules.asset_models.subtitle') }}</p>
             </div>
             <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
                 <!-- Export Dropdown -->
                 <div x-data="{ open: false }" class="relative w-full md:w-auto">
                     <button @click="open = !open" @click.outside="open = false" class="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 px-4 rounded-xl inline-flex items-center justify-center gap-2 transition-colors">
                         <i class="ph ph-download-simple text-lg"></i>
-                        <span>Ekspor</span>
+                        <span>{{ __('modules.common.export') }}</span>
                         <i class="ph ph-caret-down text-sm" x-show="open" x-transition></i>
                     </button>
                     <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
                         <a href="{{ route('assets.models.export') }}" class="flex items-center gap-2 px-4 py-3 hover:bg-gray-100 transition">
                             <i class="ph ph-microsoft-excel-logo text-lg text-green-600"></i>
-                            <span class="text-sm font-medium">Ekspor ke Excel</span>
+                            <span class="text-sm font-medium">{{ __('modules.common.export_excel') }}</span>
                         </a>
                         <a href="{{ route('assets.models.export-pdf') }}" class="flex items-center gap-2 px-4 py-3 hover:bg-gray-100 transition border-t border-gray-100">
                             <i class="ph ph-file-pdf text-lg text-red-600"></i>
-                            <span class="text-sm font-medium">Ekspor ke PDF</span>
+                            <span class="text-sm font-medium">{{ __('modules.common.export_pdf') }}</span>
                         </a>
                     </div>
                 </div>
                 <button type="button" id="createNewModel" class="w-full md:w-auto bg-ebara-600 hover:bg-ebara-700 text-white font-medium py-2.5 px-4 rounded-xl inline-flex items-center justify-center gap-2 transition-colors">
                     <i class="ph ph-plus text-lg"></i>
-                    <span>Tambah Data</span>
+                    <span>{{ __('modules.common.add_data') }}</span>
                 </button>
             </div>
         </div>
  
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6 border border-gray-100">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-gray-500">Total Model</p>
-                        <h5 class="text-2xl font-bold text-gray-900 mt-1" id="totalModels">0</h5>
+                        <p class="text-sm text-gray-500">{{ __('modules.asset_models.total_models') }}</p>
+                        <h5 class="text-xl lg:text-2xl font-bold text-gray-900 mt-1" id="totalModels">0</h5>
                     </div>
-                    <div class="w-12 h-12 bg-ebara-100 rounded-lg flex items-center justify-center">
-                        <i class="ph ph-cube text-2xl text-ebara-600"></i>
+                    <div class="w-10 h-10 lg:w-12 lg:h-12 bg-ebara-100 rounded-lg flex items-center justify-center">
+                        <i class="ph ph-cube text-xl lg:text-2xl text-ebara-600"></i>
                     </div>
                 </div>
             </div>
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6 border border-gray-100">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-gray-500">Aktif</p>
-                        <h5 class="text-2xl font-bold text-green-600 mt-1" id="activeModels">0</h5>
+                        <p class="text-sm text-gray-500">{{ __('modules.asset_models.active') }}</p>
+                        <h5 class="text-xl lg:text-2xl font-bold text-green-600 mt-1" id="activeModels">0</h5>
                     </div>
-                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                        <i class="ph ph-check-circle text-2xl text-green-600"></i>
+                    <div class="w-10 h-10 lg:w-12 lg:h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="ph ph-check-circle text-xl lg:text-2xl text-green-600"></i>
                     </div>
                 </div>
             </div>
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6 border border-gray-100">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-gray-500">Non-Aktif</p>
-                        <h5 class="text-2xl font-bold text-yellow-600 mt-1" id="inactiveModels">0</h5>
+                        <p class="text-sm text-gray-500">{{ __('modules.asset_models.inactive') }}</p>
+                        <h5 class="text-xl lg:text-2xl font-bold text-yellow-600 mt-1" id="inactiveModels">0</h5>
                     </div>
-                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                        <i class="ph ph-clock text-2xl text-yellow-600"></i>
+                    <div class="w-10 h-10 lg:w-12 lg:h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <i class="ph ph-clock text-xl lg:text-2xl text-yellow-600"></i>
                     </div>
                 </div>
             </div>
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6 border border-gray-100">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-gray-500">Total Aset</p>
-                        <h5 class="text-2xl font-bold text-gray-900 mt-1" id="totalAssets">0</h5>
+                        <p class="text-sm text-gray-500">{{ __('modules.asset_models.total_assets') }}</p>
+                        <h5 class="text-xl lg:text-2xl font-bold text-gray-900 mt-1" id="totalAssets">0</h5>
                     </div>
-                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <i class="ph ph-package text-2xl text-blue-600"></i>
+                    <div class="w-10 h-10 lg:w-12 lg:h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="ph ph-package text-xl lg:text-2xl text-blue-600"></i>
                     </div>
                 </div>
             </div>
@@ -88,20 +88,20 @@
             <!-- Controls Header -->
             <div class="p-5 border-b border-gray-100 bg-white flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div class="flex-1">
-                    <input type="text" id="searchInput" placeholder="Cari model..." class="pl-10 pr-4 py-2.5 bg-gray-50 border-transparent focus:bg-white focus:border-ebara-500 focus:ring-0 rounded-xl text-sm w-full md:w-72 transition-all">
+                    <input type="text" id="searchInput" placeholder="{{ __('modules.asset_models.search_placeholder') }}" class="pl-10 pr-4 py-2.5 bg-gray-50 border-transparent focus:bg-white focus:border-ebara-500 focus:ring-0 rounded-xl text-sm w-full md:w-72 transition-all">
                 </div>
             </div>
             <table id="modelsTable" class="w-full">
                 <thead>
                     <tr class="bg-gray-50/80 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Kode</th>
-                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Nama Model</th>
-                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Tipe</th>
-                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Material</th>
-                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Tanggal Pembuatan</th>
-                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Kondisi</th>
-                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">Lokasi</th>
-                        <th class="px-6 py-4 text-center font-semibold whitespace-nowrap">Aksi</th>
+                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">{{ __('modules.common.code') }}</th>
+                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">{{ __('modules.asset_models.model_name') }}</th>
+                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">{{ __('modules.common.type') }}</th>
+                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">{{ __('modules.asset_models.material') }}</th>
+                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">{{ __('modules.asset_models.manufacture_date') }}</th>
+                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">{{ __('modules.common.condition') }}</th>
+                        <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">{{ __('modules.common.location') }}</th>
+                        <th class="px-6 py-4 text-center font-semibold whitespace-nowrap">{{ __('modules.common.actions') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
@@ -112,45 +112,73 @@
             <!-- Empty State -->
             <div id="emptyState" class="p-12 text-center flex flex-col items-center justify-center hidden">
                 <i class="ph ph-magnifying-glass text-5xl mb-4 text-gray-300"></i>
-                <p class="text-sm text-gray-500">Belum ada data Model Aset ditemukan.</p>
+                <p class="text-sm text-gray-500">{{ __('modules.asset_models.empty_state') }}</p>
             </div>
         </div>
  
     </div>
  
     <!-- Add/Edit Modal -->
-    <div id="modelModal" class="fixed inset-0 bg-gray-900/50 z-[9999] hidden p-4" style="display: none;" x-data="{ open: false }">
-        <div class="flex items-center justify-center min-h-full">
-            <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh] z-[10000] modal-content">
-                <div class="flex justify-between items-center p-6 border-b border-gray-200 flex-shrink-0">
-                    <h3 class="text-lg font-semibold text-gray-900" id="modalTitle">Tambah Model</h3>
-                    <button type="button" id="closeModalBtn" class="text-gray-400 hover:text-gray-600 transition p-1 rounded-lg hover:bg-gray-100" tabindex="0" role="button" aria-label="Tutup modal">
-                        <i class="ph ph-x text-2xl"></i>
-                    </button>
+    <div id="modelModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] hidden" style="display: none;">
+        <div class="flex items-center justify-center min-h-screen w-full p-4">
+            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl transform transition-all duration-300 scale-95 opacity-0 modal-content flex flex-col max-h-[90vh]">
+                <!-- Modal Header with Gradient -->
+                <div class="relative bg-gradient-to-r from-ebara-600 to-ebara-700 rounded-t-2xl p-6 text-white flex-shrink-0">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                                <i class="ph ph-cube text-2xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold" id="modalTitle">{{ __('modules.asset_models.add_title') }}</h3>
+                                <p class="text-ebara-100 text-sm" id="modalSubtitle">{{ __('modules.asset_models.add_subtitle') }}</p>
+                            </div>
+                        </div>
+                        <button type="button" id="closeModalBtn" class="text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 p-2 rounded-lg" tabindex="0" role="button" aria-label="{{ __('modules.common.close_modal') }}">
+                            <i class="ph ph-x text-xl"></i>
+                        </button>
+                    </div>
                 </div>
-                <form id="modelForm" class="p-6 space-y-6 overflow-y-auto flex-1" action="{{ route('assets.models.store') }}" method="POST">
+
+                <!-- Modal Body -->
+                <form id="modelForm" class="p-6 space-y-5 overflow-y-auto flex-1" action="{{ route('assets.models.store') }}" method="POST">
                     @csrf
                     <input type="hidden" id="modelId" name="id">
                     <input type="hidden" name="_method" id="formMethod" value="POST">
-                    <div>
-                        <label for="name" class="block text-sm font-medium text-gray-700 mb-1.5">Nama Model</label>
-                        <input type="text" id="name" name="name" required value="{{ old('name') }}" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-ebara-500 focus:ring-ebara-500 sm:text-sm py-2.5">
+
+                    <!-- Nama Model -->
+                    <div class="space-y-2">
+                        <label for="name" class="flex items-center text-sm font-semibold text-gray-700">
+                            <i class="ph ph-cube text-ebara-600 mr-2"></i>
+                            {{ __('modules.asset_models.model_name') }}
+                            <span class="text-red-500 ml-1">*</span>
+                        </label>
+                        <input type="text" id="name" name="name" required value="{{ old('name') }}" class="w-full py-3 px-4 border-2 border-gray-200 rounded-xl focus:border-ebara-500 focus:ring-2 focus:ring-ebara-500/20 transition-all duration-200 text-sm font-medium placeholder-gray-400">
                         @error('name')
                             <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div>
-                            <label for="type" class="block text-sm font-medium text-gray-700 mb-1.5">Tipe</label>
-                            <input type="text" id="type" name="type" required value="{{ old('type') }}" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-ebara-500 focus:ring-ebara-500 sm:text-sm py-2.5" placeholder="Contoh: Injection, CNC">
+
+                    <!-- Tipe & Material -->
+                    <x-ui.form-grid columns="2">
+                        <div class="space-y-2">
+                            <label for="type" class="flex items-center text-sm font-semibold text-gray-700">
+                                <i class="ph ph-tag text-ebara-600 mr-2"></i>
+                                {{ __('modules.common.type') }}
+                                <span class="text-red-500 ml-1">*</span>
+                            </label>
+                            <input type="text" id="type" name="type" required value="{{ old('type') }}" class="w-full py-3 px-4 border-2 border-gray-200 rounded-xl focus:border-ebara-500 focus:ring-2 focus:ring-ebara-500/20 transition-all duration-200 text-sm font-medium placeholder-gray-400" placeholder="{{ __('modules.asset_models.type_placeholder') }}">
                             @error('type')
                                 <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                             @enderror
                         </div>
-                        <div>
-                            <label for="material_id" class="block text-sm font-medium text-gray-700 mb-1.5">Material</label>
-                            <select id="material_id" name="material_id" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-ebara-500 focus:ring-ebara-500 sm:text-sm py-2.5">
-                                <option value="">Pilih Material</option>
+                        <div class="space-y-2">
+                            <label for="material_id" class="flex items-center text-sm font-semibold text-gray-700">
+                                <i class="ph ph-package text-ebara-600 mr-2"></i>
+                                {{ __('modules.asset_models.material') }}
+                            </label>
+                            <select id="material_id" name="material_id" class="w-full py-3 px-4 border-2 border-gray-200 rounded-xl focus:border-ebara-500 focus:ring-2 focus:ring-ebara-500/20 transition-all duration-200 text-sm font-medium">
+                                <option value="">{{ __('modules.common.select_material') }}</option>
                                 @if(isset($materials))
                                     @foreach($materials as $material)
                                         <option value="{{ $material->id }}" {{ old('material_id') == $material->id ? 'selected' : '' }}>{{ $material->name }}</option>
@@ -161,130 +189,95 @@
                                 <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                             @enderror
                         </div>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div>
-                            <label for="manufacture_date" class="block text-sm font-medium text-gray-700 mb-1.5">Tanggal Pembuatan</label>
-                            <input type="date" id="manufacture_date" name="manufacture_date" value="{{ old('manufacture_date') }}" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-ebara-500 focus:ring-ebara-500 sm:text-sm py-2.5">
+                    </x-ui.form-grid>
+
+                    <!-- Tanggal & Kondisi -->
+                    <x-ui.form-grid columns="2">
+                        <div class="space-y-2">
+                            <label for="manufacture_date" class="flex items-center text-sm font-semibold text-gray-700">
+                                <i class="ph ph-calendar text-ebara-600 mr-2"></i>
+                                {{ __('modules.asset_models.manufacture_date') }}
+                            </label>
+                            <input type="date" id="manufacture_date" name="manufacture_date" value="{{ old('manufacture_date') }}" class="w-full py-3 px-4 border-2 border-gray-200 rounded-xl focus:border-ebara-500 focus:ring-2 focus:ring-ebara-500/20 transition-all duration-200 text-sm font-medium">
                             @error('manufacture_date')
                                 <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                             @enderror
                         </div>
-                        <div>
-                            <label for="condition" class="block text-sm font-medium text-gray-700 mb-1.5">Kondisi</label>
-                            <select id="condition" name="condition" required class="w-full rounded-xl border-gray-300 shadow-sm focus:border-ebara-500 focus:ring-ebara-500 sm:text-sm py-2.5">
-                                <option value="">Pilih Kondisi</option>
-                                <option value="Good" {{ old('condition') == 'Good' ? 'selected' : '' }}>Baik</option>
-                                <option value="Repair" {{ old('condition') == 'Repair' ? 'selected' : '' }}>Perbaikan</option>
-                                <option value="Damaged" {{ old('condition') == 'Damaged' ? 'selected' : '' }}>Rusak</option>
+                        <div class="space-y-2">
+                            <label for="condition" class="flex items-center text-sm font-semibold text-gray-700">
+                                <i class="ph ph-heartbeat text-ebara-600 mr-2"></i>
+                                {{ __('modules.common.condition') }}
+                                <span class="text-red-500 ml-1">*</span>
+                            </label>
+                            <select id="condition" name="condition" required class="w-full py-3 px-4 border-2 border-gray-200 rounded-xl focus:border-ebara-500 focus:ring-2 focus:ring-ebara-500/20 transition-all duration-200 text-sm font-medium">
+                                <option value="">{{ __('modules.common.select_condition') }}</option>
+                                <option value="Good" {{ old('condition') == 'Good' ? 'selected' : '' }}>{{ __('modules.common.condition_good') }}</option>
+                                <option value="Repair" {{ old('condition') == 'Repair' ? 'selected' : '' }}>{{ __('modules.common.condition_repair') }}</option>
+                                <option value="Damaged" {{ old('condition') == 'Damaged' ? 'selected' : '' }}>{{ __('modules.common.condition_damaged') }}</option>
                             </select>
                             @error('condition')
                                 <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                             @enderror
                         </div>
-                    </div>
+                    </x-ui.form-grid>
+
+                    <!-- Lokasi -->
                     <x-ui.lokasi-gedung-select label="Lokasi" name="location" id="location" :gedungs="$gedungs" />
-                    <div>
-                        <label for="description" class="block text-sm font-medium text-gray-700 mb-1.5">Deskripsi</label>
-                        <textarea id="description" name="description" rows="3" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-ebara-500 focus:ring-ebara-500 sm:text-sm py-2.5">{{ old('description') }}</textarea>
+
+                    <!-- Deskripsi -->
+                    <div class="space-y-2">
+                        <label for="description" class="flex items-center text-sm font-semibold text-gray-700">
+                            <i class="ph ph-note-pencil text-ebara-600 mr-2"></i>
+                            {{ __('modules.common.description') }}
+                        </label>
+                        <textarea id="description" name="description" rows="3" class="w-full py-3 px-4 border-2 border-gray-200 rounded-xl focus:border-ebara-500 focus:ring-2 focus:ring-ebara-500/20 transition-all duration-200 text-sm font-medium placeholder-gray-400">{{ old('description') }}</textarea>
                         @error('description')
                             <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
-                </form>
-                <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row justify-end gap-3 flex-shrink-0">
-                    <button type="button" id="cancelBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2.5 px-4 rounded-xl transition" tabindex="0" role="button" aria-label="Batal">Batal</button>
-                    <button type="submit" form="modelForm" class="bg-ebara-600 hover:bg-ebara-700 text-white font-medium py-2.5 px-4 rounded-xl transition" tabindex="0" role="button" aria-label="Simpan data">Simpan</button>
-                </div>
-            </div>
-        </div>
-      
-        <!-- QR Code Modal -->
-        <div id="qrModal" class="fixed inset-0 bg-gray-900/50 z-50 overflow-y-auto hidden">
-            <div class="flex items-center justify-center min-h-screen p-4">
-                <div class="relative bg-white rounded-xl shadow-2xl w-full mx-4 sm:mx-auto sm:max-w-md flex flex-col max-h-[90vh]">
-                    <div class="flex justify-between items-center p-6 border-b border-gray-200 flex-shrink-0">
-                        <h3 class="text-lg font-semibold text-gray-900">QR Code</h3>
-                        <button type="button" id="closeQrModalBtn" class="text-gray-400 hover:text-gray-600 transition p-1 rounded-lg hover:bg-gray-100">
-                            <i class="ph ph-x text-2xl"></i>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col sm:flex-row justify-end gap-3 pt-5 border-t border-gray-200">
+                        <button type="button" id="cancelBtn" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-all duration-200 text-sm">
+                            {{ __('modules.common.cancel') }}
+                        </button>
+                        <button type="submit" form="modelForm" class="px-5 py-2.5 bg-gradient-to-r from-ebara-600 to-ebara-700 hover:from-ebara-700 hover:to-ebara-800 text-white font-medium rounded-xl shadow-lg shadow-ebara-500/25 hover:shadow-ebara-500/40 transition-all duration-200 text-sm flex items-center justify-center gap-2">
+                            <i class="ph ph-floppy-disk text-lg"></i>
+                            {{ __('modules.common.save') }}
                         </button>
                     </div>
-                    <div class="p-6 text-center overflow-y-auto flex-1">
-                        <div id="qrCodeContainer" class="flex justify-center"></div>
-                        <p id="qrCodeText" class="mt-4 text-sm text-gray-600"></p>
-                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Code Modal -->
+    <div id="qrModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] hidden" style="display: none;">
+        <div class="flex items-center justify-center min-h-screen w-full p-4">
+            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm transform transition-all duration-300 scale-95 opacity-0 modal-content flex flex-col">
+                <div class="flex justify-between items-center p-6 border-b border-gray-100">
+                    <h3 class="text-lg font-bold text-gray-900" id="qrModalTitle">QR Code</h3>
+                    <button type="button" id="closeQrModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-lg hover:bg-gray-50">
+                        <i class="ph ph-x text-xl"></i>
+                    </button>
+                </div>
+                <div class="p-8 text-center">
+                    <div id="qrCodeContainer" class="flex justify-center mb-6 bg-white p-4 rounded-xl border-2 border-dashed border-gray-200"></div>
+                    <p id="qrCodeText" class="text-lg font-mono font-bold text-gray-700 mb-2"></p>
+                    <p class="text-sm text-gray-500">{{ __('modules.common.scan_qr_detail') }}</p>
+                </div>
+                <div class="p-6 bg-gray-50 border-t border-gray-100 rounded-b-2xl flex justify-center">
+                    <button type="button" onclick="window.print()" class="px-5 py-2.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium rounded-xl transition-all duration-200 text-sm flex items-center gap-2 shadow-sm">
+                        <i class="ph ph-printer text-lg"></i>
+                        {{ __('modules.common.print_qr') }}
+                    </button>
                 </div>
             </div>
         </div>
+    </div>
       
     @push('styles')
-    <style>
-        #modelModal {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-            transition: opacity 0.3s ease-in-out;
-        }
-        
-        #modelModal.show {
-            display: flex !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            align-items: center !important;
-            justify-content: center !important;
-        }
-        
-        #modelModal.hide, #modelModal.hidden {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-        }
-        
-        #modelModal .modal-content {
-            animation: modalSlideIn 0.3s ease-out;
-            pointer-events: auto !important;
-            margin: 0 auto;
-            position: relative;
-        }
-        
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        /* Ensure buttons are clickable */
-        #modelModal button {
-            pointer-events: auto !important;
-            position: relative !important;
-            z-index: 10001 !important;
-            cursor: pointer !important;
-        }
-        
-        /* Fix any overlay issues */
-        #modelModal {
-            pointer-events: auto !important;
-        }
-        
-        /* Ensure modal is on top */
-        #modelModal.show {
-            z-index: 9999 !important;
-        }
-        
-        /* Center modal properly on all screen sizes */
-        @media (max-width: 640px) {
-            #modelModal .modal-content {
-                width: 90vw !important;
-                max-width: 90vw !important;
-                margin: 0 auto;
-            }
-        }
-    </style>
+    <!-- Removed custom modal CSS in favor of global app.css animation classes -->
     @endpush
     
     @push('scripts')
@@ -295,107 +288,181 @@
     var destroyUrlTemplate = "{{ route('assets.models.destroy', ':id') }}";
     var qrCodeUrlTemplate = "{{ route('assets.models.qr-code', ':id') }}";
     var dataUrl = "{{ route('assets.models.data') }}";
- 
-    // Global functions - define outside document ready
-    window.showModal = function() {
-        console.log('Showing modal...');
-        const modal = document.getElementById('modelModal');
-        if (!modal) {
-            console.error('Modal element not found!');
-            return;
-        }
-        modal.classList.remove('hide', 'hidden');
-        modal.classList.add('show');
+
+    // Global Modal Helpers
+    window.openModelModal = function() {
+        var modal = document.getElementById('modelModal');
+        modal.classList.remove('hidden');
         modal.style.display = 'flex';
-        modal.style.visibility = 'visible';
-        modal.style.opacity = '1';
-        modal.style.alignItems = 'center';
-        modal.style.justifyContent = 'center';
+        requestAnimationFrame(function() {
+            modal.querySelector('.modal-content').classList.add('modal-active');
+        });
     }
- 
-    window.hideModal = function() {
-        console.log('Hiding modal...');
-        const modal = document.getElementById('modelModal');
-        if (!modal) {
-            console.error('Modal element not found!');
-            return;
-        }
-        modal.classList.remove('show');
-        modal.classList.add('hide', 'hidden');
-        modal.style.display = 'none';
-        modal.style.visibility = 'hidden';
-        modal.style.opacity = '0';
+
+    window.closeModelModal = function() {
+        var modal = document.getElementById('modelModal');
+        var content = modal.querySelector('.modal-content');
+        content.classList.remove('modal-active');
+        setTimeout(function() {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }, 300);
     }
- 
-    window.handleCreateNewModel = function() {
-        console.log('Create handler called');
-        try {
-            const modal = document.getElementById('modelModal');
-            const title = document.getElementById('modalTitle');
-            const form = document.getElementById('modelForm');
-            const idField = document.getElementById('modelId');
-            
-            if (title) title.textContent = 'Tambah Model';
-            if (form) form.reset();
-            if (idField) idField.value = '';
-            
-            // Reset form action for create
-            $('#modelForm').attr('action', storeUrl);
-            $('#formMethod').val('POST');
-            
-            // Force show modal with multiple methods
-            if (modal) {
-                modal.style.display = 'flex';
-                modal.style.visibility = 'visible';
-                modal.style.opacity = '1';
-                modal.style.alignItems = 'center';
-                modal.style.justifyContent = 'center';
-                modal.classList.remove('hide', 'hidden');
-                modal.classList.add('show');
-                
-                // Fallback: try jQuery
-                $(modal).show();
+
+    window.openQrModal = function() {
+        var modal = document.getElementById('qrModal');
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+        requestAnimationFrame(function() {
+            modal.querySelector('.modal-content').classList.add('modal-active');
+        });
+    }
+
+    window.closeQrModal = function() {
+        var modal = document.getElementById('qrModal');
+        var content = modal.querySelector('.modal-content');
+        content.classList.remove('modal-active');
+        setTimeout(function() {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }, 300);
+    }
+
+    // Global Action Functions
+    window.editModel = function(id) {
+        $.ajax({
+            url: showUrlTemplate.replace(':id', id),
+            method: 'GET',
+            success: function(response) {
+                if (response.success) {
+                    const data = response.data;
+                    $('#modalTitle').text('{{ __('modules.asset_models.edit_title') }}');
+                    $('#modalSubtitle').text('{{ __('modules.asset_models.edit_subtitle') }}');
+                    $('#modelId').val(data.id);
+                    $('#name').val(data.name);
+                    $('#type').val(data.type);
+                    $('#material_id').val(data.material_id);
+                    $('#manufacture_date').val(data.manufactured_date);
+                    $('#condition').val(data.condition);
+                    $('#location').val(data.location);
+                    $('#description').val(data.description);
+                    
+                    // Update form action for edit
+                    $('#modelForm').attr('action', updateUrlTemplate.replace(':id', id));
+                    $('#formMethod').val('PUT');
+                    
+                    openModelModal();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message,
+                        confirmButtonColor: '#dc2626'
+                    });
+                }
+            },
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: '{{ __('modules.asset_models.fetch_error') }}',
+                    confirmButtonColor: '#dc2626'
+                });
             }
-            
-            console.log('Modal should be visible now');
-        } catch (error) {
-            console.error('Error in create handler:', error);
-            // Ultimate fallback jQuery method
-            $('#modalTitle').text('Tambah Model');
-            $('#modelForm')[0].reset();
-            $('#modelId').val('');
-            $('#modelForm').attr('action', storeUrl);
-            $('#formMethod').val('POST');
-            $('#modelModal').show().removeClass('hide hidden').addClass('show');
-        }
+        });
     }
- 
+
+    window.deleteModel = function(id) {
+        Swal.fire({
+            title: '{{ __('modules.swal.confirm_title') }}',
+            text: '{{ __('modules.swal.delete_warning') }}',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#009B77',
+            confirmButtonText: '{{ __('modules.swal.yes_delete') }}',
+            cancelButtonText: '{{ __('modules.swal.cancel') }}',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: destroyUrlTemplate.replace(':id', id),
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        $('#modelsTable').DataTable().ajax.reload();
+                        Swal.fire({
+                            icon: 'success',
+                            title: '{{ __('modules.swal.success') }}',
+                            text: '{{ __('modules.swal.data_deleted') }}',
+                            confirmButtonColor: '#009B77'
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    window.viewQrCode = function(id) {
+        $.ajax({
+            url: qrCodeUrlTemplate.replace(':id', id),
+            method: 'GET',
+            success: function(response) {
+                if (response.success) {
+                    $('#qrCodeContainer').html(response.qrCode);
+                    $('#qrCodeText').text(response.modelCode);
+                    $('#qrModalTitle').text('QR Code: ' + response.modelCode);
+                    openQrModal();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message || '{{ __('modules.swal.qr_error') }}',
+                        confirmButtonColor: '#dc2626'
+                    });
+                }
+            },
+            error: function(xhr) {
+                let errorMessage = '{{ __('modules.swal.qr_load_error') }}';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: errorMessage,
+                    confirmButtonColor: '#dc2626'
+                });
+            }
+        });
+    }
+
     $(document).ready(function() {
-        console.log('Document ready, initializing modal handlers...');
-        
+        // Initialize DataTable
         let table = $('#modelsTable').DataTable({
             processing: true,
             serverSide: true,
             responsive: true,
             ajax: dataUrl,
             createdRow: function(row, data, dataIndex) {
-                // Add group class and smooth hover effect to rows
                 $(row).addClass('group hover:bg-gray-50 transition-colors duration-200');
             },
             columnDefs: [
                 {
-                    targets: 0, // Kode - Pill style
+                    targets: 0, // Kode
                     className: 'text-sm',
                     render: function(data, type, row) {
                         return '<span class="bg-gray-100 text-gray-600 py-1 px-2 rounded-md font-mono text-xs">' + data + '</span>';
                     }
                 },
                 {
-                    targets: 1, // Nama Model (primary column)
+                    targets: 1, // Nama Model
                     className: 'text-sm font-bold text-gray-900'
                 },
                 {
-                    targets: [2, 3, 4, 5, 6], // Tipe, Material, Tanggal, Kondisi, Lokasi
+                    targets: [2, 3, 4, 5, 6],
                     className: 'text-sm text-gray-600'
                 },
                 {
@@ -418,7 +485,7 @@
                         } else if (data === 'Damaged') {
                             badgeClass = 'bg-red-50 text-red-700 px-2 py-1 rounded-full text-xs font-medium';
                         }
-                        return '<span class="' + badgeClass + '">' + (data === 'Good' ? 'Baik' : (data === 'Repair' ? 'Perbaikan' : 'Rusak')) + '</span>';
+                        return '<span class="' + badgeClass + '">' + (data === 'Good' ? '{{ __('modules.common.condition_good') }}' : (data === 'Repair' ? '{{ __('modules.common.condition_repair') }}' : '{{ __('modules.common.condition_damaged') }}')) + '</span>';
                     }
                 },
                 { data: 'location' },
@@ -427,13 +494,13 @@
                     render: function(data, type, row) {
                         return `
                             <div class="flex items-center justify-center gap-2">
-                                <button onclick="viewQrCode(${row.id})" class="text-gray-400 hover:text-ebara-600 hover:bg-ebara-50 p-2 rounded-lg transition" title="QR Code">
+                                <button onclick="window.viewQrCode(${row.id})" class="text-gray-400 hover:text-ebara-600 hover:bg-ebara-50 p-2 rounded-lg transition" title="QR Code">
                                     <i class="ph ph-qr-code text-xl"></i>
                                 </button>
-                                <button onclick="editModel(${row.id})" class="text-gray-400 hover:text-ebara-600 hover:bg-ebara-50 p-2 rounded-lg transition" title="Edit">
+                                <button onclick="window.editModel(${row.id})" class="text-gray-400 hover:text-ebara-600 hover:bg-ebara-50 p-2 rounded-lg transition" title="Edit">
                                     <i class="ph ph-pencil-simple text-xl"></i>
                                 </button>
-                                <button onclick="deleteModel(${row.id})" class="text-gray-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition" title="Hapus">
+                                <button onclick="window.deleteModel(${row.id})" class="text-gray-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition" title="{{ __('modules.common.delete') }}">
                                     <i class="ph ph-trash text-xl"></i>
                                 </button>
                             </div>
@@ -442,28 +509,23 @@
                 }
             ],
             language: {
-                search: "Cari:",
-                lengthMenu: "Tampilkan _MENU_ data",
-                info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
-                infoEmpty: "Tidak ada data yang tersedia",
-                infoFiltered: "(difilter dari _MAX_ total data)",
-                zeroRecords: "Tidak ada data yang cocok",
-                emptyTable: "Tidak ada data tersedia di tabel",
+                search: "{{ __('modules.datatable.search') }}",
+                lengthMenu: "{{ __('modules.datatable.length_menu') }}",
+                info: "{{ __('modules.datatable.info') }}",
+                infoEmpty: "{{ __('modules.datatable.info_empty') }}",
+                infoFiltered: "{{ __('modules.datatable.info_filtered') }}",
+                zeroRecords: "{{ __('modules.datatable.zero_records') }}",
+                emptyTable: "{{ __('modules.datatable.empty_table') }}",
                 paginate: {
-                    first: "Pertama",
-                    last: "Terakhir",
-                    next: "Selanjutnya",
-                    previous: "Sebelumnya"
-                },
-                aria: {
-                    sortAscending: ": aktifkan untuk mengurutkan kolom secara ascending",
-                    sortDescending: ": aktifkan untuk mengurutkan kolom secara descending"
+                    first: "{{ __('modules.datatable.first') }}",
+                    last: "{{ __('modules.datatable.last') }}",
+                    next: "{{ __('modules.datatable.next') }}",
+                    previous: "{{ __('modules.datatable.previous') }}"
                 }
             },
             dom: '<"flex flex-col sm:flex-row justify-between items-center gap-4 mb-4"lf>rt<"flex flex-col sm:flex-row justify-between items-center gap-4 mt-4"ip">',
             lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
             initComplete: function() {
-                // Show/hide empty state based on data count
                 let api = this.api();
                 let count = api.page.info().recordsTotal;
                 if (count === 0) {
@@ -473,7 +535,7 @@
                 }
             }
         });
- 
+
         table.on('xhr', function() {
             let json = table.ajax.json();
             if (json) {
@@ -483,28 +545,46 @@
                 $('#totalAssets').text(json.stats.totalAssets || 0);
             }
         });
- 
 
-        // Create button handler (jQuery)
+        // Create button handler
         $('#createNewModel').on('click', function() {
-            console.log('Create button clicked (jQuery)'); // Debug log
-            handleCreateNewModel();
+            $('#modalTitle').text('{{ __('modules.asset_models.add_title') }}');
+            $('#modalSubtitle').text('{{ __('modules.asset_models.add_subtitle') }}');
+            $('#modelForm')[0].reset();
+            $('#modelId').val('');
+            $('#modelForm').attr('action', storeUrl);
+            $('#formMethod').val('POST');
+            openModelModal();
         });
- 
 
         // Close button handlers
         $('#closeModalBtn').on('click', function() {
-            console.log('Close button clicked (jQuery)'); // Debug log
-            hideModal();
+            closeModelModal();
         });
 
         $('#cancelBtn').on('click', function() {
-            console.log('Cancel button clicked (jQuery)'); // Debug log
-            hideModal();
+            closeModelModal();
         });
- 
 
-        // Form submit handler - handle both create and update
+        // Close modal when clicking outside
+        $('#modelModal').on('click', function(e) {
+            if (e.target === this) {
+                closeModelModal();
+            }
+        });
+        
+        // QR Code Modal Handlers
+        $('#closeQrModalBtn').on('click', function() {
+            closeQrModal();
+        });
+        
+        $('#qrModal').on('click', function(e) {
+            if (e.target === this) {
+                closeQrModal();
+            }
+        });
+
+        // Form submit handler
         $('#modelForm').on('submit', function(e) {
             e.preventDefault();
             
@@ -512,64 +592,42 @@
             const id = $('#modelId').val();
             let url = storeUrl;
             let method = 'POST';
-            let successMessage = 'Data berhasil disimpan';
             
             if (id) {
                 url = updateUrlTemplate.replace(':id', id);
                 method = 'PUT';
-                successMessage = 'Data berhasil diupdate';
-                // Update form action and method for update
-                form.attr('action', url);
-                $('#formMethod').val('PUT');
-            } else {
-                // Reset form action and method for create
-                form.attr('action', storeUrl);
-                $('#formMethod').val('POST');
             }
 
-            // Create FormData properly
-            const formData = new FormData(form[0]);
-            
-            // Add method override for PUT requests
+            const formData = new FormData(this);
             if (method === 'PUT') {
                 formData.append('_method', 'PUT');
             }
 
-            // Log form data for debugging
-            console.log('Form data being submitted:');
-            for (let [key, value] of formData.entries()) {
-                console.log(key + ':', value);
-            }
-
             $.ajax({
                 url: url,
-                type: 'POST', // Always use POST with _method override
+                type: 'POST',
                 data: formData,
                 processData: false,
                 contentType: false,
                 headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
                 success: function(data) {
-                    console.log('Response:', data);
-                    hideModal();
-                    $('#modelsTable').DataTable().ajax.reload();
+                    closeModelModal();
+                    table.ajax.reload();
                     Swal.fire({
                         icon: 'success',
-                        title: 'Berhasil',
-                        text: successMessage,
-                        confirmButtonColor: '#009B77'
+                        title: '{{ __('modules.swal.success') }}',
+                        text: id ? '{{ __('modules.swal.data_updated') }}' : '{{ __('modules.swal.data_saved') }}',
+                        confirmButtonColor: '#009B77',
+                        timer: 1500,
+                        showConfirmButton: false
                     });
                 },
                 error: function(xhr) {
-                    console.error('Error:', xhr);
-                    let errorMessage = 'Terjadi kesalahan saat menyimpan data';
+                    let errorMessage = '{{ __('modules.asset_models.save_error') }}';
                     if (xhr.responseJSON && xhr.responseJSON.message) {
                         errorMessage = xhr.responseJSON.message;
-                    }
-                    if (xhr.responseJSON && xhr.responseJSON.errors) {
-                        errorMessage = Object.values(xhr.responseJSON.errors).flat().join(', ');
                     }
                     Swal.fire({
                         icon: 'error',
@@ -581,151 +639,13 @@
             });
         });
 
-        // Close modal when clicking outside
-        document.getElementById('modelModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                console.log('Clicked outside modal, closing...'); // Debug log
-                hideModal();
-            }
-        });
-
         // Close modal with ESC key
-        document.addEventListener('keydown', function(e) {
+        $(document).on('keydown', function(e) {
             if (e.key === 'Escape') {
-                const modal = document.getElementById('modelModal');
-                if (modal.classList.contains('show')) {
-                    console.log('ESC key pressed, closing modal...'); // Debug log
-                    hideModal();
-                }
+                closeModelModal();
+                closeQrModal();
             }
         });
-    });
-
-    function editModel(id) {
-        $.ajax({
-            url: showUrlTemplate.replace(':id', id),
-            method: 'GET',
-            success: function(response) {
-                if (response.success) {
-                    const data = response.data;
-                    $('#modalTitle').text('Edit Model');
-                    $('#modelId').val(data.id);
-                    $('#name').val(data.name);
-                    $('#type').val(data.type);
-                    $('#material_id').val(data.material_id);
-                    $('#manufacture_date').val(data.manufactured_date);
-                    $('#condition').val(data.condition);
-                    $('#location').val(data.location);
-                    $('#description').val(data.description);
-                    
-                    // Update form action for edit
-                    $('#modelForm').attr('action', updateUrlTemplate.replace(':id', id));
-                    $('#formMethod').val('PUT');
-                    
-                    showModal();
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: response.message,
-                        confirmButtonColor: '#dc2626'
-                    });
-                }
-            },
-            error: function(xhr) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Gagal mengambil data model',
-                    confirmButtonColor: '#dc2626'
-                });
-            }
-        });
-    }
- 
-
-    function deleteModel(id) {
-        Swal.fire({
-            title: 'Apakah Anda yakin?',
-            text: 'Data yang dihapus tidak dapat dikembalikan',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#dc2626',
-            cancelButtonColor: '#009B77',
-            confirmButtonText: 'Ya, hapus',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: destroyUrlTemplate.replace(':id', id),
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        $('#modelsTable').DataTable().ajax.reload();
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil',
-                            text: 'Data berhasil dihapus',
-                            confirmButtonColor: '#009B77'
-                        });
-                    }
-                });
-            }
-        });
-    }
-
-    function viewQrCode(id) {
-        $.ajax({
-            url: qrCodeUrlTemplate.replace(':id', id),
-            method: 'GET',
-            success: function(response) {
-                if (response.success) {
-                    $('#qrCodeContainer').html(response.qrCode);
-                    $('#qrCodeText').text('QR Code untuk: ' + response.modelCode);
-                    $('#qrModal').removeClass('hidden');
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: response.message || 'Gagal generate QR Code',
-                        confirmButtonColor: '#dc2626'
-                    });
-                }
-            },
-            error: function(xhr) {
-                let errorMessage = 'Gagal memuat QR Code';
-                if (xhr.responseJSON && xhr.responseJSON.message) {
-                    errorMessage = xhr.responseJSON.message;
-                }
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: errorMessage,
-                    confirmButtonColor: '#dc2626'
-                });
-            }
-        });
-    }
-
-    // QR Modal close handlers
-    $('#closeQrModalBtn').on('click', function() {
-        $('#qrModal').addClass('hidden');
-    });
-
-    // Close modal when clicking outside
-    $('#qrModal').on('click', function(e) {
-        if (e.target === this) {
-            $('#qrModal').addClass('hidden');
-        }
-    });
-
-    // Close modal with ESC key
-    $(document).on('keydown', function(e) {
-        if (e.key === 'Escape') {
-            $('#qrModal').addClass('hidden');
-        }
     });
     </script>
     @endpush

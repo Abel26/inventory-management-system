@@ -117,11 +117,11 @@ class SecurityHeadersMiddleware
         else {
             $cspPolicy = implode('; ', [
                 "default-src 'self' {$protocol}",
-                "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: {$protocol} //cdn.jsdelivr.net",
-                "style-src 'self' 'unsafe-inline' {$protocol} //fonts.googleapis.com //cdn.jsdelivr.net",
+                "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: {$protocol}",
+                "style-src 'self' 'unsafe-inline' {$protocol} //fonts.googleapis.com",
                 "img-src 'self' data: {$protocol} blob:",
                 "font-src 'self' {$protocol} //fonts.googleapis.com //fonts.gstatic.com data:",
-                "connect-src 'self' {$protocol} //cdn.jsdelivr.net",
+                "connect-src 'self' {$protocol}",
                 "frame-src 'self' {$protocol} //www.google.com",
                 "frame-ancestors 'none'",
                 "object-src 'none'",

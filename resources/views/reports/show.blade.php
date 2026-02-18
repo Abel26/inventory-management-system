@@ -1,11 +1,11 @@
 <x-app-layout>
-    <x-slot name="title">Detail Laporan #{{ $report->report_code }}</x-slot>
+    <x-slot name="title">{{ __('modules.reports.detail_title') }} #{{ $report->report_code }}</x-slot>
 
     <div class="space-y-6">
         <!-- Header -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <div class="flex items-center gap-3">
+                <div class="flex flex-wrap items-center gap-2 sm:gap-3">
                     <h1 class="text-2xl font-bold text-gray-900">
                         #{{ $report->report_code }}
                     </h1>
@@ -15,7 +15,7 @@
                         @elseif($report->status->value === 'Resolved') bg-green-100 text-green-800
                         @else bg-red-100 text-red-800
                         @endif">
-                        {{ $report->status->value }}
+                        {{ __('modules.reports.status_' . \Illuminate\Support\Str::slug($report->status->value, '_')) }}
                     </span>
                     <span class="px-2 py-1 rounded-full text-xs font-medium
                         @if($report->priority->value === 'Low') bg-gray-100 text-gray-800
@@ -23,17 +23,17 @@
                         @elseif($report->priority->value === 'High') bg-orange-100 text-orange-800
                         @else bg-red-100 text-red-800
                         @endif">
-                        {{ $report->priority->value }}
+                        {{ __('modules.reports.priority_' . \Illuminate\Support\Str::slug($report->priority->value, '_')) }}
                     </span>
                 </div>
                 <p class="text-gray-600 mt-1">
-                    Dibuat pada {{ $report->created_at->format('d M Y H:i') }}
+                    {{ __('modules.reports.created_at') }} {{ $report->created_at->format('d M Y H:i') }}
                 </p>
             </div>
             <div class="flex gap-3">
                 <a href="{{ route('reports.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-lg inline-flex items-center gap-2 transition">
                     <i class="ph ph-arrow-left text-lg"></i>
-                    <span>Kembali</span>
+                    <span>{{ __('modules.common.back') }}</span>
                 </a>
             </div>
         </div>
@@ -44,7 +44,7 @@
                 <!-- Asset Details Card -->
                 <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                     <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-lg font-semibold text-gray-900">Detail Aset</h2>
+                        <h2 class="text-lg font-semibold text-gray-900">{{ __('modules.reports.asset_details') }}</h2>
                         @if($report->reportable)
                             @php
                                 $assetType = class_basename($report->reportable);
@@ -58,21 +58,21 @@
                             @if($routeName)
                                 <a href="{{ route($routeName, ['id' => $report->reportable->id]) }}"
                                    class="text-ebara-600 hover:text-ebara-800 text-sm font-medium">
-                                    Lihat Aset <i class="ph ph-arrow-right"></i>
+                                    {{ __('modules.reports.view_asset') }} <i class="ph ph-arrow-right"></i>
                                 </a>
                             @endif
                         @endif
                     </div>
 
                     @if($report->reportable)
-                        <div class="flex gap-4">
+                        <div class="flex flex-col sm:flex-row gap-4">
                             <div class="flex-shrink-0">
                                 @if(isset($report->reportable->photo_path) && $report->reportable->photo_path)
                                     <img src="{{ asset('storage/' . $report->reportable->photo_path) }}"
                                          alt="{{ $report->reportable->name }}"
-                                         class="w-32 h-32 object-cover rounded-lg">
+                                         class="w-20 h-20 sm:w-32 sm:h-32 object-cover rounded-lg">
                                 @else
-                                    <div class="w-32 h-32 bg-gray-200 rounded-lg flex items-center justify-center">
+                                    <div class="w-20 h-20 sm:w-32 sm:h-32 bg-gray-200 rounded-lg flex items-center justify-center">
                                         <i class="ph ph-cube text-4xl text-gray-400"></i>
                                     </div>
                                 @endif
@@ -93,28 +93,28 @@
                             </div>
                         </div>
                     @else
-                        <p class="text-gray-500 italic">Aset tidak ditemukan atau telah dihapus.</p>
+                        <p class="text-gray-500 italic">{{ __('modules.reports.asset_not_found') }}</p>
                     @endif
                 </div>
 
                 <!-- Issue Description Card -->
                 <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Deskripsi Masalah</h2>
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">{{ __('modules.reports.issue_description') }}</h2>
 
                     <div class="space-y-4">
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="text-sm font-medium text-gray-600">Jenis Masalah</label>
-                                <p class="mt-1">{{ $report->issue_type->value }}</p>
+                                <label class="text-sm font-medium text-gray-600">{{ __('modules.reports.issue_type') }}</label>
+                                <p class="mt-1">{{ __('modules.reports.issue_' . \Illuminate\Support\Str::slug($report->issue_type->value, '_')) }}</p>
                             </div>
                             <div>
-                                <label class="text-sm font-medium text-gray-600">Prioritas</label>
-                                <p class="mt-1">{{ $report->priority->value }}</p>
+                                <label class="text-sm font-medium text-gray-600">{{ __('modules.reports.priority') }}</label>
+                                <p class="mt-1">{{ __('modules.reports.priority_' . \Illuminate\Support\Str::slug($report->priority->value, '_')) }}</p>
                             </div>
                         </div>
 
                         <div>
-                            <label class="text-sm font-medium text-gray-600">Deskripsi</label>
+                            <label class="text-sm font-medium text-gray-600">{{ __('modules.common.description') }}</label>
                             <p class="mt-1 text-gray-900 bg-gray-50 p-3 rounded-lg">
                                 {{ $report->description }}
                             </p>
@@ -122,7 +122,7 @@
 
                         @if($report->photo_path)
                             <div>
-                                <label class="text-sm font-medium text-gray-600">Foto Bukti</label>
+                                <label class="text-sm font-medium text-gray-600">{{ __('modules.reports.photo_evidence') }}</label>
                                 <div class="mt-2">
                                     <img src="{{ asset('storage/' . $report->photo_path) }}"
                                          alt="Foto Bukti"
@@ -132,7 +132,7 @@
                         @endif
 
                         <div class="border-t pt-4 mt-4">
-                            <label class="text-sm font-medium text-gray-600">Dilaporkan Oleh</label>
+                            <label class="text-sm font-medium text-gray-600">{{ __('modules.reports.reported_by') }}</label>
                             <div class="flex items-center gap-2 mt-1">
                                 <div class="h-6 w-6 rounded-full bg-ebara-100 flex items-center justify-center">
                                     <span class="text-xs font-medium text-ebara-600">
@@ -151,7 +151,7 @@
             <div class="space-y-6">
                 <!-- Resolution Form Card -->
                 <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Update Status</h2>
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">{{ __('modules.reports.update_status') }}</h2>
 
                     <form method="POST" action="{{ route('reports.update-status', ['id' => $report->id]) }}">
                         @csrf
@@ -159,7 +159,7 @@
 
                         <div class="space-y-4">
                             <div>
-                                <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                                <label for="status" class="block text-sm font-medium text-gray-700">{{ __('modules.common.status') }}</label>
                                 <select id="status" name="status"
                                         class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-ebara-500 focus:border-ebara-500">
                                     <option value="Pending" {{ $report->status->value === 'Pending' ? 'selected' : '' }}>
@@ -178,16 +178,16 @@
                             </div>
 
                             <div>
-                                <label for="admin_note" class="block text-sm font-medium text-gray-700">Catatan Admin</label>
+                                <label for="admin_note" class="block text-sm font-medium text-gray-700">{{ __('modules.reports.admin_note') }}</label>
                                 <textarea id="admin_note" name="admin_note"
                                           rows="4"
                                           class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-ebara-500 focus:border-ebara-500"
-                                          placeholder="Tambahkan catatan tentang penyelesaian...">{{ $report->admin_note ?? '' }}</textarea>
+                                          placeholder="{{ __('modules.reports.admin_note_placeholder') }}">{{ $report->admin_note ?? '' }}</textarea>
                             </div>
 
                             <button type="submit" class="w-full bg-ebara-600 hover:bg-ebara-700 text-white font-medium py-2 px-4 rounded-lg inline-flex items-center justify-center gap-2 transition">
                                 <i class="ph ph-check-circle"></i>
-                                Update Status
+                                {{ __('modules.reports.update_status') }}
                             </button>
                         </div>
                     </form>
@@ -195,7 +195,7 @@
 
                 <!-- Resolution History Card -->
                 <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Riwayat Status</h2>
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">{{ __('modules.reports.status_history') }}</h2>
 
                     <div class="space-y-4">
                         <!-- Created -->
@@ -206,7 +206,7 @@
                                 </div>
                             </div>
                             <div class="flex-1">
-                                <p class="font-medium text-gray-900">Laporan Dibuat</p>
+                                <p class="font-medium text-gray-900">{{ __('modules.reports.report_created') }}</p>
                                 <p class="text-sm text-gray-600">{{ $report->created_at->format('d M Y H:i') }}</p>
                             </div>
                         </div>
@@ -222,7 +222,7 @@
                                     </div>
                                     <div class="flex-1">
                                         <p class="font-medium text-gray-900">In Progress</p>
-                                        <p class="text-sm text-gray-600">Status diubah ke In Progress</p>
+                                        <p class="text-sm text-gray-600">{{ __('modules.reports.status_changed_to') }} In Progress</p>
                                     </div>
                                 </div>
                             @endif
@@ -244,14 +244,14 @@
                                     <div class="flex-1">
                                         <p class="font-medium text-gray-900">{{ $report->status->value }}</p>
                                         <p class="text-sm text-gray-600">
-                                            Diselesaikan oleh {{ $report->resolver->name ?? 'Unknown' }}
+                                            {{ __('modules.reports.resolved_by') }} {{ $report->resolver->name ?? 'Unknown' }}
                                         </p>
                                         @if($report->resolved_at)
                                             <p class="text-sm text-gray-600">{{ $report->resolved_at->format('d M Y H:i') }}</p>
                                         @endif
                                         @if($report->admin_note)
                                             <p class="text-sm text-gray-600 mt-1">
-                                                <strong>Catatan:</strong> {{ $report->admin_note }}
+                                                <strong>{{ __('modules.reports.note_label') }}</strong> {{ $report->admin_note }}
                                             </p>
                                         @endif
                                     </div>

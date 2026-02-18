@@ -182,7 +182,7 @@ class GedungController extends Controller
                 'asset_models_count' => $gedung->assetModelsCount,
                 'asset_materials_count' => $gedung->assetMaterialsCount,
                 'asset_tools_count' => $gedung->assetToolsCount,
-                'total_assets' => $gedung->totalAssets,
+                'total_assets' => $gedung->assetModelsCount + $gedung->assetMaterialsCount + $gedung->assetToolsCount,
                 'created_at' => $gedung->created_at->format('d/m/Y H:i'),
                 'updated_at' => $gedung->updated_at->format('d/m/Y H:i'),
             ];

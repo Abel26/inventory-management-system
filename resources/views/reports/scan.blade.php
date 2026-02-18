@@ -1,5 +1,5 @@
 <x-app-layout>
-    <x-slot name="title">Scan QR Code</x-slot>
+    <x-slot name="title">{{ __('modules.reports.scan_title') }}</x-slot>
 
     @push('styles')
     <style>
@@ -203,9 +203,9 @@
                 <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-ebara-600 to-ebara-800 rounded-2xl shadow-lg mb-4">
                     <i class="ph ph-qr-code text-4xl text-white"></i>
                 </div>
-                <h1 class="text-4xl font-bold text-gray-900 mb-2">Scan Asset QR Code</h1>
+                <h1 class="text-4xl font-bold text-gray-900 mb-2">{{ __('modules.reports.scan_title') }}</h1>
                 <p class="text-lg text-gray-600 max-w-md mx-auto">
-                    Gunakan kamera perangkat Anda untuk memindai QR code aset atau masukkan kode secara manual
+                    {{ __('modules.reports.scan_description') }}
                 </p>
             </div>
 
@@ -220,7 +220,7 @@
                 <div class="glass-card rounded-3xl shadow-2xl p-8">
                     <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
                         <i class="ph ph-camera text-ebara-600"></i>
-                        <span>QR Scanner</span>
+                        <span>{{ __('modules.reports.scanner_title') }}</span>
                     </h2>
 
                     <!-- Error Toast -->
@@ -228,7 +228,7 @@
                         <div class="flex items-start gap-3">
                             <i class="ph ph-warning-circle text-2xl text-red-600 flex-shrink-0 mt-0.5"></i>
                             <div>
-                                <p class="font-semibold text-red-900">Terjadi Kesalahan</p>
+                                <p class="font-semibold text-red-900">{{ __('modules.common.error_title') }}</p>
                                 <p id="errorMessage" class="text-red-700 text-sm mt-1"></p>
                             </div>
                         </div>
@@ -239,7 +239,7 @@
                         <div class="flex items-start gap-3">
                             <i class="ph ph-check-circle text-2xl text-green-600 flex-shrink-0 mt-0.5"></i>
                             <div>
-                                <p class="font-semibold text-green-900">Berhasil</p>
+                                <p class="font-semibold text-green-900">{{ __('modules.common.success') }}</p>
                                 <p id="successMessage" class="text-green-700 text-sm mt-1"></p>
                             </div>
                         </div>
@@ -250,8 +250,8 @@
                         <!-- Placeholder (Inactive State) -->
                         <div id="cameraPlaceholder" class="camera-placeholder">
                             <i class="ph ph-camera text-6xl text-gray-400 mb-4"></i>
-                            <p class="text-gray-500 font-medium">Menyiapkan scanner...</p>
-                            <p class="text-gray-400 text-sm mt-2">Mohon tunggu sebentar</p>
+                            <p class="text-gray-500 font-medium">{{ __('modules.reports.preparing_scanner') }}</p>
+                            <p class="text-gray-400 text-sm mt-2">{{ __('modules.reports.wait_moment') }}</p>
                         </div>
 
                         <!-- Scanning Frame Overlay -->
@@ -281,7 +281,7 @@
                             class="flex-1 bg-ebara-600 text-white hover:bg-ebara-700 font-semibold py-4 px-6 rounded-xl text-lg flex items-center justify-center gap-2 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
                         >
                             <i class="ph ph-qr-code text-2xl"></i>
-                            <span>Mulai Scan</span>
+                            <span>{{ __('modules.reports.start_scan') }}</span>
                         </button>
 
                         <button
@@ -290,7 +290,7 @@
                             class="flex-1 bg-red-600 text-white hover:bg-red-700 font-semibold py-4 px-6 rounded-xl text-lg flex items-center justify-center gap-2 hidden transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
                         >
                             <i class="ph ph-stop-circle text-2xl"></i>
-                            <span>Stop Scan</span>
+                            <span>{{ __('modules.reports.stop_scan') }}</span>
                         </button>
                     </div>
                 </div>
@@ -301,12 +301,12 @@
                     <div class="glass-card rounded-3xl shadow-2xl p-8">
                         <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
                             <i class="ph ph-keyboard text-ebara-600"></i>
-                            <span>Input Manual</span>
+                            <span>{{ __('modules.reports.manual_input_title') }}</span>
                         </h2>
 
                         <form action="{{ route('reports.scan') }}" method="GET" class="space-y-5">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Kode QR / Kode Aset</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('modules.reports.manual_input_label') }}</label>
                                 <div class="input-wrapper">
                                     <i class="ph ph-magnifying-glass text-xl"></i>
                                     <input
@@ -315,14 +315,14 @@
                                         id="codeInput"
                                         required
                                         class="w-full pl-12 pr-4 py-4 text-lg font-medium border-2 border-gray-200 rounded-xl focus:border-ebara-500 focus:ring-4 focus:ring-ebara-500/20 outline-none transition-all"
-                                        placeholder="Contoh: A001 atau MOD-001"
+                                        placeholder="{{ __('modules.reports.manual_input_placeholder') }}"
                                     >
                                 </div>
                             </div>
 
                             <button type="submit" class="w-full bg-ebara-600 text-white hover:bg-ebara-700 font-semibold py-4 px-6 rounded-xl text-lg flex items-center justify-center gap-2 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5">
                                 <i class="ph ph-arrow-right text-xl"></i>
-                                <span>Cari Aset</span>
+                                <span>{{ __('modules.reports.search_asset') }}</span>
                             </button>
                         </form>
                     </div>
@@ -331,7 +331,7 @@
                     <div class="info-card rounded-2xl p-6">
                         <h3 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
                             <i class="ph ph-info text-ebara-600"></i>
-                            <span>Aset yang Didukung</span>
+                            <span>{{ __('modules.reports.supported_assets') }}</span>
                         </h3>
 
                         <div class="grid grid-cols-3 gap-3">
@@ -354,25 +354,25 @@
                     <div class="info-card rounded-2xl p-6">
                         <h3 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
                             <i class="ph ph-lightbulb text-yellow-600"></i>
-                            <span>Tips Scan</span>
+                            <span>{{ __('modules.reports.tips_scan') }}</span>
                         </h3>
 
                         <ul class="space-y-2">
                             <li class="flex items-start gap-2 text-sm text-gray-600">
                                 <i class="ph ph-check-circle text-green-600 flex-shrink-0 mt-0.5"></i>
-                                <span>Pastikan pencahayaan cukup terang</span>
+                                <span>{{ __('modules.reports.tip_light') }}</span>
                             </li>
                             <li class="flex items-start gap-2 text-sm text-gray-600">
                                 <i class="ph ph-check-circle text-green-600 flex-shrink-0 mt-0.5"></i>
-                                <span>Tahan perangkat dengan stabil</span>
+                                <span>{{ __('modules.reports.tip_steady') }}</span>
                             </li>
                             <li class="flex items-start gap-2 text-sm text-gray-600">
                                 <i class="ph ph-check-circle text-green-600 flex-shrink-0 mt-0.5"></i>
-                                <span>Jarak ideal: 10-20 cm dari QR code</span>
+                                <span>{{ __('modules.reports.tip_distance') }}</span>
                             </li>
                             <li class="flex items-start gap-2 text-sm text-gray-600">
                                 <i class="ph ph-check-circle text-green-600 flex-shrink-0 mt-0.5"></i>
-                                <span>Gunakan manual input jika scan gagal</span>
+                                <span>{{ __('modules.reports.tip_manual') }}</span>
                             </li>
                         </ul>
                     </div>
@@ -382,7 +382,6 @@
     </div>
 
     @push('scripts')
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script>
         // Global variables
         let html5QrcodeScanner = null;
@@ -449,7 +448,7 @@
             playBeep();
 
             // Show success message
-            showSuccess(`QR Code berhasil terbaca: ${scannedCode}`);
+            showSuccess(`{{ __('modules.reports.qr_success') }} ${scannedCode}`);
 
             // Construct URL
             const baseUrl = "{{ route('reports.scan') }}";
@@ -491,35 +490,35 @@
                 indicator.className = 'https-mode-indicator mb-6 rounded-xl p-4 text-center font-medium';
                 indicator.innerHTML = `
                     <i class="ph ph-shield-check text-2xl mr-2"></i>
-                    <span>Mode Kamera Live (HTTPS) - Kamera real-time tersedia</span>
+                    <span>{{ __('modules.reports.camera_mode') }}</span>
                 `;
                 
                 placeholder.innerHTML = `
                     <i class="ph ph-camera text-6xl text-green-500 mb-4"></i>
-                    <p class="text-green-600 font-medium">Kamera Live Siap</p>
-                    <p class="text-green-500 text-sm mt-2">Klik "Mulai Scan" untuk memulai</p>
+                    <p class="text-green-600 font-medium">{{ __('modules.reports.camera_mode_desc') }}</p>
+                    <p class="text-green-500 text-sm mt-2">{{ __('modules.reports.camera_mode_instruction') }}</p>
                 `;
                 
                 startBtn.innerHTML = `
                     <i class="ph ph-camera text-2xl"></i>
-                    <span>Mulai Scan Live</span>
+                    <span>{{ __('modules.reports.start_scan_live') }}</span>
                 `;
             } else {
                 indicator.className = 'http-mode-indicator mb-6 rounded-xl p-4 text-center font-medium';
                 indicator.innerHTML = `
                     <i class="ph ph-image text-2xl mr-2"></i>
-                    <span>Mode Kamera Standar (HTTP) - Scan via foto/gambar</span>
+                    <span>{{ __('modules.reports.standard_mode') }}</span>
                 `;
                 
                 placeholder.innerHTML = `
                     <i class="ph ph-image text-6xl text-amber-500 mb-4"></i>
-                    <p class="text-amber-600 font-medium">Scan via Foto</p>
-                    <p class="text-amber-500 text-sm mt-2">Klik "Mulai Scan" untuk ambil foto</p>
+                    <p class="text-amber-600 font-medium">{{ __('modules.reports.standard_mode_desc') }}</p>
+                    <p class="text-amber-500 text-sm mt-2">{{ __('modules.reports.standard_mode_instruction') }}</p>
                 `;
                 
                 startBtn.innerHTML = `
                     <i class="ph ph-camera text-2xl"></i>
-                    <span>Ambil Foto QR</span>
+                    <span>{{ __('modules.reports.take_photo') }}</span>
                 `;
             }
         }
@@ -584,16 +583,16 @@
                 } catch (err) {
                     console.error('❌ Camera error:', err);
                     
-                    let errorMsg = 'Gagal membuka kamera. Silakan coba lagi.';
+                    let errorMsg = '{{ __('modules.reports.camera_error') }}';
                     
                     if (err.name === 'NotAllowedError') {
-                        errorMsg = 'Izin kamera ditolak. Silakan berikan izin akses kamera di browser Anda.';
+                        errorMsg = '{{ __('modules.reports.camera_permission_denied') }}';
                     } else if (err.name === 'NotFoundError') {
-                        errorMsg = 'Kamera tidak ditemukan. Pastikan perangkat Anda memiliki kamera.';
+                        errorMsg = '{{ __('modules.reports.camera_not_found') }}';
                     } else if (err.name === 'NotReadableError') {
-                        errorMsg = 'Kamera sedang digunakan oleh aplikasi lain.';
+                        errorMsg = '{{ __('modules.reports.camera_in_use') }}';
                     } else if (err.name === 'OverconstrainedError') {
-                        errorMsg = 'Kamera tidak memenuhi persyaratan yang dibutuhkan.';
+                        errorMsg = '{{ __('modules.reports.camera_constraint') }}';
                     }
                     
                     showError(errorMsg);
@@ -650,8 +649,8 @@
                 placeholder.innerHTML = `
                     <div class="flex flex-col items-center">
                         <div class="spinner mb-4"></div>
-                        <p class="text-gray-600 font-medium">Memproses gambar...</p>
-                        <p class="text-gray-500 text-sm mt-2">Membaca QR code dari foto</p>
+                        <p class="text-gray-600 font-medium">{{ __('modules.reports.processing_image') }}</p>
+                        <p class="text-gray-500 text-sm mt-2">{{ __('modules.reports.reading_qr') }}</p>
                     </div>
                 `;
                 
@@ -667,12 +666,12 @@
                     .catch(err => {
                         console.error('❌ Failed to scan QR code from image:', err);
                         
-                        let errorMsg = 'Tidak dapat membaca QR code dari gambar.';
+                        let errorMsg = '{{ __('modules.reports.scan_image_error') }}';
                         
                         if (err.includes('No QR code found')) {
-                            errorMsg = 'QR code tidak ditemukan dalam gambar. Pastikan QR code terlihat jelas.';
+                            errorMsg = '{{ __('modules.reports.no_qr_found') }}';
                         } else if (err.includes('Unable to start decoding')) {
-                            errorMsg = 'Gagal memproses gambar. Silakan coba dengan gambar lain.';
+                            errorMsg = '{{ __('modules.reports.decode_error') }}';
                         }
                         
                         showError(errorMsg);

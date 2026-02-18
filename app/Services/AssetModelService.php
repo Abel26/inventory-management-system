@@ -37,6 +37,14 @@ class AssetModelService
     }
 
     /**
+     * Find asset model by model code.
+     */
+    public function getByModelCode(string $code): ?AssetModel
+    {
+        return $this->assetModelRepository->findByCode($code);
+    }
+
+    /**
      * Create new asset model.
      */
     public function create(array $data): AssetModel

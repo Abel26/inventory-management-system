@@ -37,6 +37,14 @@ class AssetMaterialService
     }
 
     /**
+     * Find asset material by material code.
+     */
+    public function getByMaterialCode(string $code): ?AssetMaterial
+    {
+        return $this->assetMaterialRepository->findByCode($code);
+    }
+
+    /**
      * Create new asset material.
      */
     public function create(array $data): AssetMaterial
@@ -66,14 +74,14 @@ class AssetMaterialService
             return false;
         }
 
-        $material->update($data);
+        $result = $this->assetMaterialRepository->update($material, $data);
 
         // Regenerate QR Code if material code changed
         if (isset($data['material_code']) && $data['material_code'] !== $material->getOriginal('material_code')) {
             $this->generateQrCode($material);
         }
 
-        return true;
+        return $result;
     }
 
     /**
@@ -90,9 +98,7 @@ class AssetMaterialService
         // Delete QR Code file
         $this->deleteQrCode($material);
 
-        $material->delete();
-
-        return true;
+        return $this->assetMaterialRepository->delete($material);
     }
 
     /**

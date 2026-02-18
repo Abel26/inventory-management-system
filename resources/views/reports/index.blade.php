@@ -1,9 +1,9 @@
 <x-app-layout>
-    <x-slot name="title">Laporan Masalah</x-slot>
+    <x-slot name="title">{{ __('modules.reports.title') }}</x-slot>
 
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Laporan Masalah') }}
+            {{ __('modules.reports.title') }}
         </h2>
     </x-slot>
 
@@ -12,61 +12,61 @@
             <!-- Header -->
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h2 class="text-2xl font-bold text-gray-900">Laporan Masalah</h2>
-                    <p class="text-gray-600 mt-1">Kelola dan pantau status laporan aset</p>
+                    <h2 class="text-2xl font-bold text-gray-900">{{ __('modules.reports.title') }}</h2>
+                    <p class="text-gray-600 mt-1">{{ __('modules.reports.subtitle') }}</p>
                 </div>
             </div>
 
             <!-- Stats Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <!-- Total -->
-                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6 border border-gray-100">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm text-gray-500">Total Laporan</p>
-                            <h5 class="text-2xl font-bold text-gray-900 mt-1">{{ $stats['total'] }}</h5>
+                            <p class="text-sm text-gray-500">{{ __('modules.reports.total_reports') }}</p>
+                            <h5 class="text-xl lg:text-2xl font-bold text-gray-900 mt-1">{{ $stats['total'] }}</h5>
                         </div>
-                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <i class="ph ph-file-text text-2xl text-blue-600"></i>
+                        <div class="w-10 h-10 lg:w-12 lg:h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="ph ph-file-text text-xl lg:text-2xl text-blue-600"></i>
                         </div>
                     </div>
                 </div>
 
                 <!-- Pending -->
-                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6 border border-gray-100">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm text-gray-500">Pending</p>
-                            <h5 class="text-2xl font-bold text-yellow-600 mt-1">{{ $stats['pending'] }}</h5>
+                            <p class="text-sm text-gray-500">{{ __('modules.reports.status_pending') }}</p>
+                            <h5 class="text-xl lg:text-2xl font-bold text-yellow-600 mt-1">{{ $stats['pending'] }}</h5>
                         </div>
-                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                            <i class="ph ph-clock text-2xl text-yellow-600"></i>
+                        <div class="w-10 h-10 lg:w-12 lg:h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="ph ph-clock text-xl lg:text-2xl text-yellow-600"></i>
                         </div>
                     </div>
                 </div>
 
                 <!-- In Progress -->
-                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6 border border-gray-100">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm text-gray-500">In Progress</p>
-                            <h5 class="text-2xl font-bold text-blue-600 mt-1">{{ $stats['in_progress'] }}</h5>
+                            <p class="text-sm text-gray-500">{{ __('modules.reports.status_in_progress') }}</p>
+                            <h5 class="text-xl lg:text-2xl font-bold text-blue-600 mt-1">{{ $stats['in_progress'] }}</h5>
                         </div>
-                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <i class="ph ph-spinner text-2xl text-blue-600"></i>
+                        <div class="w-10 h-10 lg:w-12 lg:h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="ph ph-spinner text-xl lg:text-2xl text-blue-600"></i>
                         </div>
                     </div>
                 </div>
 
                 <!-- Resolved -->
-                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="bg-white rounded-xl shadow-sm p-4 lg:p-6 border border-gray-100">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm text-gray-500">Resolved</p>
-                            <h5 class="text-2xl font-bold text-green-600 mt-1">{{ $stats['resolved'] }}</h5>
+                            <p class="text-sm text-gray-500">{{ __('modules.reports.status_resolved') }}</p>
+                            <h5 class="text-xl lg:text-2xl font-bold text-green-600 mt-1">{{ $stats['resolved'] }}</h5>
                         </div>
-                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                            <i class="ph ph-check-circle text-2xl text-green-600"></i>
+                        <div class="w-10 h-10 lg:w-12 lg:h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="ph ph-check-circle text-xl lg:text-2xl text-green-600"></i>
                         </div>
                     </div>
                 </div>
@@ -75,19 +75,19 @@
             <!-- Filter Buttons -->
             <div class="flex flex-wrap gap-2">
                 <button id="filter-all" onclick="filterByStatus('all')" class="px-4 py-2 rounded-lg text-sm font-medium bg-ebara-600 text-white transition">
-                    Semua
+                    {{ __('modules.reports.all') }}
                 </button>
                 <button id="filter-Pending" onclick="filterByStatus('Pending')" class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 transition">
-                    Pending
+                    {{ __('modules.reports.status_pending') }}
                 </button>
                 <button id="filter-In Progress" onclick="filterByStatus('In Progress')" class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 transition">
-                    In Progress
+                    {{ __('modules.reports.status_in_progress') }}
                 </button>
                 <button id="filter-Resolved" onclick="filterByStatus('Resolved')" class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 transition">
-                    Resolved
+                    {{ __('modules.reports.status_resolved') }}
                 </button>
                 <button id="filter-Rejected" onclick="filterByStatus('Rejected')" class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 transition">
-                    Rejected
+                    {{ __('modules.reports.status_rejected') }}
                 </button>
             </div>
 
@@ -96,14 +96,14 @@
                 <table id="reportsTable" class="w-full">
                     <thead>
                         <tr class="bg-gray-100 text-gray-600 uppercase text-sm">
-                            <th class="px-4 py-3 text-left font-semibold">Ticket ID</th>
-                            <th class="px-4 py-3 text-left font-semibold">Asset</th>
-                            <th class="px-4 py-3 text-left font-semibold">Reporter</th>
-                            <th class="px-4 py-3 text-left font-semibold">Issue Type</th>
-                            <th class="px-4 py-3 text-left font-semibold">Priority</th>
-                            <th class="px-4 py-3 text-left font-semibold">Status</th>
-                            <th class="px-4 py-3 text-left font-semibold hidden sm:table-cell">Date</th>
-                            <th class="px-4 py-3 text-center font-semibold">Aksi</th>
+                            <th class="px-4 py-3 text-left font-semibold">{{ __('modules.reports.report_code') }}</th>
+                            <th class="px-4 py-3 text-left font-semibold">{{ __('modules.reports.asset_name') }}</th>
+                            <th class="px-4 py-3 text-left font-semibold">{{ __('modules.reports.reporter') }}</th>
+                            <th class="px-4 py-3 text-left font-semibold">{{ __('modules.reports.issue_type') }}</th>
+                            <th class="px-4 py-3 text-left font-semibold">{{ __('modules.reports.priority') }}</th>
+                            <th class="px-4 py-3 text-left font-semibold">{{ __('modules.common.status') }}</th>
+                            <th class="px-4 py-3 text-left font-semibold hidden sm:table-cell">{{ __('modules.reports.date') }}</th>
+                            <th class="px-4 py-3 text-center font-semibold">{{ __('modules.common.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -120,16 +120,38 @@
     var allReports = @json($reports);
     var currentFilter = 'all';
     var table = null;
+    
+    // Translation map
+    var translations = {
+        priority: {
+            'Low': "{{ __('modules.reports.priority_low') }}",
+            'Medium': "{{ __('modules.reports.priority_medium') }}",
+            'High': "{{ __('modules.reports.priority_high') }}",
+            'Critical': "{{ __('modules.reports.priority_critical') }}"
+        },
+        status: {
+            'Pending': "{{ __('modules.reports.status_pending') }}",
+            'In Progress': "{{ __('modules.reports.status_in_progress') }}",
+            'Resolved': "{{ __('modules.reports.status_resolved') }}",
+            'Rejected': "{{ __('modules.reports.status_rejected') }}"
+        },
+        issue_type: {
+            'Damage': "{{ __('modules.reports.issue_damage') }}",
+            'Maintenance': "{{ __('modules.reports.issue_maintenance') }}",
+            'Lost': "{{ __('modules.reports.issue_lost') }}",
+            'Stock Discrepancy': "{{ __('modules.reports.issue_stock_discrepancy') }}"
+        }
+    };
 
     $(document).ready(function() {
         // Check for success message and show SweetAlert
         @if(session('success'))
             Swal.fire({
                 icon: 'success',
-                title: 'Berhasil!',
+                title: '{{ __('modules.swal.success') }}',
                 text: "{{ session('success') }}",
                 showConfirmButton: true,
-                confirmButtonText: 'OK',
+                confirmButtonText: '{{ __('modules.swal.ok') }}',
                 confirmButtonColor: '#059669',
                 timer: 5000,
                 timerProgressBar: true
@@ -183,7 +205,8 @@
                             'Stock Discrepancy': 'ph-chart-bar'
                         };
                         var icon = icons[data] || 'ph-file-text';
-                        return '<div class="flex items-center gap-2"><i class="ph ' + icon + '"></i><span>' + data + '</span></div>';
+                        var label = translations.issue_type[data] || data;
+                        return '<div class="flex items-center gap-2"><i class="ph ' + icon + '"></i><span>' + label + '</span></div>';
                     }
                 },
                 {
@@ -221,7 +244,7 @@
                     render: function(data, type, row) {
                         return `
                             <div class="flex items-center justify-center gap-2">
-                                <a href="/reports/${row.id}" class="text-indigo-600 hover:text-indigo-800 transition" title="Lihat Detail">
+                                <a href="/reports/${row.id}" class="text-indigo-600 hover:text-indigo-800 transition" title="{{ __('modules.reports.detail_title') }}">
                                     <i class="ph ph-eye text-xl"></i>
                                 </a>
                             </div>
@@ -230,21 +253,21 @@
                 }
             ],
             language: {
-                search: "Cari:",
-                lengthMenu: "Tampilkan _MENU_ data",
-                info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
-                infoEmpty: "Tidak ada data yang tersedia",
-                zeroRecords: "Tidak ada data yang cocok",
-                emptyTable: "Tidak ada data tersedia di tabel",
+                search: "{{ __('modules.datatable.search') }}",
+                lengthMenu: "{{ __('modules.datatable.length_menu') }}",
+                info: "{{ __('modules.datatable.info') }}",
+                infoEmpty: "{{ __('modules.datatable.info_empty') }}",
+                zeroRecords: "{{ __('modules.datatable.zero_records') }}",
+                emptyTable: "{{ __('modules.datatable.empty_table') }}",
                 paginate: {
-                    first: "Pertama",
-                    last: "Terakhir",
-                    next: "Selanjutnya",
-                    previous: "Sebelumnya"
+                    first: "{{ __('modules.datatable.first') }}",
+                    last: "{{ __('modules.datatable.last') }}",
+                    next: "{{ __('modules.datatable.next') }}",
+                    previous: "{{ __('modules.datatable.previous') }}"
                 },
                 aria: {
-                    sortAscending: ": aktifkan untuk mengurutkan kolom secara ascending",
-                    sortDescending: ": aktifkan untuk mengurutkan kolom secara descending"
+                    sortAscending: "{{ __('modules.datatable.sort_ascending') }}",
+                    sortDescending: "{{ __('modules.datatable.sort_descending') }}"
                 }
             },
             dom: '<"flex flex-col sm:flex-row justify-between items-center gap-4 mb-4"lf>rt<"flex flex-col sm:flex-row justify-between items-center gap-4 mt-4"ip>',

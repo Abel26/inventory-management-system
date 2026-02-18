@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Repositories\AssetMaterialRepository;
+use App\Repositories\AssetModelRepository;
+use App\Repositories\AssetRepository;
+use App\Repositories\AssetToolRepository;
 use Illuminate\Support\ServiceProvider;
 use App\Repositories\Contracts\AssetMaterialRepositoryInterface;
 use App\Repositories\Contracts\AssetToolRepositoryInterface;
@@ -10,14 +14,11 @@ use App\Repositories\Contracts\AssetRepositoryInterface;
 use App\Repositories\Contracts\RoleRepositoryInterface;
 use App\Repositories\Contracts\ReportRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
-use App\Repositories\AssetMaterialRepository;
-use App\Repositories\AssetToolRepository;
-use App\Repositories\AssetModelRepository;
-use App\Repositories\AssetRepository;
-use App\Repositories\RoleRepository;
 use App\Repositories\ReportRepository;
+use App\Repositories\RoleRepository;
 use App\Repositories\UserRepository;
 use App\Services\UserService;
+use App\Services\RoleService;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
@@ -38,8 +39,11 @@ class RepositoryServiceProvider extends ServiceProvider
         // Bind Asset Repository
         $this->app->bind(AssetRepositoryInterface::class, AssetRepository::class);
         
-        // Bind Role Repository
+        // Bind Role Repository and Service
         $this->app->bind(RoleRepositoryInterface::class, RoleRepository::class);
+        $this->app->singleton(RoleService::class, function ($app) {
+            return new RoleService($app->make(RoleRepositoryInterface::class));
+        });
         
         // Bind User Repository and Service
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
