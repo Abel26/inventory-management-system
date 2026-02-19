@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Repositories\Contracts\ReportRepositoryInterface;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class ReportService
 {
@@ -31,7 +32,8 @@ class ReportService
         
         // Handle photo upload
         if (isset($data['photo']) && $data['photo'] instanceof \Illuminate\Http\UploadedFile) {
-            $path = $data['photo']->store('reports/photos', 'public');
+            $disk = config('filesystems.default');
+            $path = $data['photo']->store('reports/photos', $disk);
             $data['photo_path'] = $path;
         }
         
@@ -69,10 +71,18 @@ class ReportService
 
         if ($status === 'Resolved') {
             $data['resolved_at'] = now();
-            $data['resolved_by'] = $resolvedBy ?? auth()->id();
+            $data['resolved_by'] = $resolvedBy ?? (Auth::check() ? Auth::id() : null);
         }
 
         return $this->reportRepository->update($id, $data);
+    }
+    
+    /**
+     * Delete report by ID.
+     */
+    public function delete(int $id)
+    {
+        return $this->reportRepository->delete($id);
     }
     
     /**

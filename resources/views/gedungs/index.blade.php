@@ -18,14 +18,14 @@
                         <i class="ph ph-caret-down text-sm" x-show="open" x-transition></i>
                     </button>
                     <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
-                        <div class="flex items-center gap-2 px-4 py-3 text-gray-400">
+                        <a href="{{ route('master-data.gedungs.export') }}" class="flex items-center gap-2 px-4 py-3 hover:bg-gray-100 transition" onclick="handleExport(event, 'excel')">
                             <i class="ph ph-microsoft-excel-logo text-lg text-green-600"></i>
-                            <span class="text-sm font-medium">{{ __('modules.common.export_excel') }} (Coming Soon)</span>
-                        </div>
-                        <div class="flex items-center gap-2 px-4 py-3 text-gray-400 border-t border-gray-100">
+                            <span class="text-sm font-medium">{{ __('modules.common.export_excel') }}</span>
+                        </a>
+                        <a href="{{ route('master-data.gedungs.export-pdf') }}" class="flex items-center gap-2 px-4 py-3 hover:bg-gray-100 transition border-t border-gray-100" onclick="handleExport(event, 'pdf')">
                             <i class="ph ph-file-pdf text-lg text-red-600"></i>
-                            <span class="text-sm font-medium">{{ __('modules.common.export_pdf') }} (Coming Soon)</span>
-                        </div>
+                            <span class="text-sm font-medium">{{ __('modules.common.export_pdf') }}</span>
+                        </a>
                     </div>
                 </div>
                 <button type="button" id="createNewGedung" class="w-full md:w-auto bg-ebara-600 hover:bg-ebara-700 text-white font-medium py-2.5 px-4 rounded-xl inline-flex items-center justify-center gap-2 transition-colors">
@@ -95,7 +95,7 @@
     </div>
   
     <!-- Add/Edit Modal -->
-    <div id="gedungModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden" style="display: none;" x-data="{ open: false }">
+    <div id="gedungModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden opacity-0" style="display: none;">
         <div class="flex items-center justify-center min-h-screen w-full p-4">
             <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg transform transition-all duration-300 scale-95 opacity-0 modal-content">
                 <!-- Modal Header with Gradient -->
@@ -120,6 +120,7 @@
                 <form id="gedungForm" class="p-6 space-y-5" action="{{ route('master-data.gedungs.store') }}" method="POST">
                     @csrf
                     <input type="hidden" id="gedungId" name="id">
+                    <input type="hidden" name="_method" value="POST">
                     
                     <!-- Kode Gedung Field -->
                     <div class="space-y-2">
@@ -209,146 +210,37 @@
     @push('styles')
     <style>
         #gedungModal {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            display: none !important;
-            visibility: hidden !important;
+            transition: opacity 0.3s ease !important;
+        }
+        
+        #gedungModal.opacity-0 {
             opacity: 0 !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 50 !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            box-sizing: border-box !important;
         }
         
-        #gedungModal .flex {
-            width: 100% !important;
-            height: 100% !important;
-            min-height: 100vh !important;
-            align-items: center !important;
-            justify-content: center !important;
-            padding: 1rem !important;
-            box-sizing: border-box !important;
-        }
-        
-        #gedungModal.show {
-            display: flex !important;
-            visibility: visible !important;
+        #gedungModal.opacity-100 {
             opacity: 1 !important;
-            align-items: center !important;
-            justify-content: center !important;
-        }
-        
-        #gedungModal.hide, #gedungModal.hidden {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
         }
         
         #gedungModal .modal-content {
-            animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            pointer-events: auto !important;
-            position: relative;
-            margin: 0;
-            max-width: 90vw;
-            width: 100%;
+            transition: all 0.3s ease !important;
         }
         
-        #gedungModal.show .modal-content {
+        #gedungModal .modal-content.scale-95 {
+            transform: scale(0.95) !important;
+            opacity: 0 !important;
+        }
+        
+        #gedungModal .modal-content.scale-100 {
             transform: scale(1) !important;
             opacity: 1 !important;
         }
         
-        @keyframes modalSlideIn {
-            0% {
-                opacity: 0;
-                transform: scale(0.9) translateY(-20px);
-            }
-            50% {
-                transform: scale(1.02) translateY(5px);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
+        #gedungModal .modal-content.opacity-0 {
+            opacity: 0 !important;
         }
         
-        @keyframes modalFadeOut {
-            0% {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-            100% {
-                opacity: 0;
-                transform: scale(0.9) translateY(-20px);
-            }
-        }
-        
-        /* Ensure buttons are clickable */
-        #gedungModal button {
-            pointer-events: auto !important;
-            position: relative !important;
-            z-index: 10001 !important;
-            cursor: pointer !important;
-            transition: all 0.2s ease;
-        }
-        
-        /* Fix any overlay issues */
-        #gedungModal {
-            pointer-events: auto !important;
-        }
-        
-        /* Ensure modal is on top */
-        #gedungModal.show {
-            z-index: 50 !important;
-        }
-        
-        /* Input focus effects */
-        .modal-content input:focus {
-            box-shadow: 0 0 0 3px rgba(0, 155, 119, 0.1);
-        }
-        
-        /* Button hover effects */
-        .modal-content button[type="submit"]:hover {
-            box-shadow: 0 10px 25px -5px rgba(0, 155, 119, 0.25);
-        }
-        
-        /* Center modal properly on all screen sizes */
-        @media (min-width: 641px) {
-            #gedungModal .modal-content {
-                max-width: 500px !important;
-                width: 100% !important;
-            }
-        }
-        
-        @media (max-width: 640px) {
-            #gedungModal .modal-content {
-                width: 95vw !important;
-                max-width: 95vw !important;
-                margin: 0 1rem !important;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            #gedungModal .modal-content {
-                width: 98vw !important;
-                max-width: 98vw !important;
-                margin: 0 0.5rem !important;
-            }
-        }
-        
-        /* Fix for iOS Safari */
-        @supports (-webkit-touch-callout: none) {
-            #gedungModal {
-                position: fixed !important;
-                top: 0 !important;
-                left: 0 !important;
-                width: 100% !important;
-                height: 100% !important;
-            }
+        #gedungModal .modal-content.opacity-100 {
+            opacity: 1 !important;
         }
     </style>
     @endpush
@@ -363,69 +255,88 @@
  
     // Global functions - define outside document ready
     window.showModal = function() {
-        console.log('Showing modal...');
-        const modal = document.getElementById('gedungModal');
-        const modalContent = modal.querySelector('.modal-content');
+        console.log('DEBUG GEDUNG: Opening modal'); // DEBUG
+        var modal = document.getElementById('gedungModal');
         
         if (!modal) {
-            console.error('Modal element not found!');
+            console.error('DEBUG GEDUNG: Modal element not found!'); // DEBUG
             return;
         }
         
-        // Reset modal content state
-        modalContent.style.transform = 'scale(0.9)';
-        modalContent.style.opacity = '0';
+        // Force inline styles to override everything
+        modal.classList.remove('hidden');
+        modal.classList.remove('opacity-0');
+        modal.classList.add('opacity-100');
+        modal.style.setProperty('display', 'flex', 'important');
+        modal.style.setProperty('opacity', '1', 'important');
+        modal.style.setProperty('visibility', 'visible', 'important');
+        modal.style.setProperty('position', 'fixed', 'important');
+        modal.style.setProperty('top', '0', 'important');
+        modal.style.setProperty('left', '0', 'important');
+        modal.style.setProperty('right', '0', 'important');
+        modal.style.setProperty('bottom', '0', 'important');
+        modal.style.setProperty('z-index', '9999', 'important');
         
-        // Show modal with proper centering
-        modal.classList.remove('hide', 'hidden');
-        modal.classList.add('show');
-        modal.style.display = 'flex';
-        modal.style.visibility = 'visible';
-        modal.style.opacity = '1';
-        modal.style.alignItems = 'center';
-        modal.style.justifyContent = 'center';
-        
-        // Force reflow to ensure proper centering
+        // Force reflow to ensure transition works
         modal.offsetHeight;
         
-        // Animate modal content
-        setTimeout(() => {
-            modalContent.style.transform = 'scale(1)';
-            modalContent.style.opacity = '1';
-        }, 10);
+        requestAnimationFrame(function() {
+            var modalContent = modal.querySelector('.modal-content');
+            if (modalContent) {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+                modalContent.style.setProperty('opacity', '1', 'important');
+                modalContent.style.setProperty('transform', 'scale(1)', 'important');
+                modalContent.style.setProperty('visibility', 'visible', 'important');
+                console.log('DEBUG GEDUNG: Modal content inline styles set'); // DEBUG
+            }
+            
+            console.log('DEBUG GEDUNG: Modal inline styles set'); // DEBUG
+            console.log('DEBUG GEDUNG: Modal opened, checking buttons'); // DEBUG
+            
+            // Ensure buttons are enabled and visible
+            setTimeout(function() {
+                var submitBtn = document.querySelector('#gedungForm button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.style.display = 'flex';
+                    console.log('DEBUG GEDUNG: Submit button enabled and visible'); // DEBUG
+                }
+            }, 100);
+        });
     }
  
     window.hideModal = function() {
-        console.log('Hiding modal...');
-        const modal = document.getElementById('gedungModal');
-        const modalContent = modal.querySelector('.modal-content');
+        console.log('DEBUG GEDUNG: Closing modal'); // DEBUG
+        var modal = document.getElementById('gedungModal');
         
         if (!modal) {
-            console.error('Modal element not found!');
             return;
         }
         
-        // Animate out
-        modalContent.style.transform = 'scale(0.9)';
-        modalContent.style.opacity = '0';
+        var modalContent = modal.querySelector('.modal-content');
+        if (modalContent) {
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+        }
         
-        setTimeout(() => {
-            modal.classList.remove('show');
-            modal.classList.add('hide', 'hidden');
+        // Fade out modal
+        modal.classList.remove('opacity-100');
+        modal.classList.add('opacity-0');
+        
+        // Wait for content transition, then hide modal
+        setTimeout(function() {
             modal.style.display = 'none';
-            modal.style.visibility = 'hidden';
-            modal.style.opacity = '0';
+            modal.classList.add('hidden');
         }, 300);
     }
  
     window.handleCreateNewGedung = function() {
-        console.log('Create handler called');
+        console.log('DEBUG GEDUNG: Create handler called'); // DEBUG
         try {
-            const modal = document.getElementById('gedungModal');
             const title = document.getElementById('modalTitle');
             const form = document.getElementById('gedungForm');
             const idField = document.getElementById('gedungId');
-            const modalContent = modal.querySelector('.modal-content');
             
             if (title) {
                 title.textContent = '{{ __('modules.gedungs.add_title') }}';
@@ -435,29 +346,7 @@
             if (form) form.reset();
             if (idField) idField.value = '';
             
-            if (modal) {
-                // Reset modal content state
-                modalContent.style.transform = 'scale(0.9)';
-                modalContent.style.opacity = '0';
-                
-                // Show modal with proper centering
-                modal.style.display = 'flex';
-                modal.style.visibility = 'visible';
-                modal.style.opacity = '1';
-                modal.style.alignItems = 'center';
-                modal.style.justifyContent = 'center';
-                modal.classList.remove('hide', 'hidden');
-                modal.classList.add('show');
-                
-                // Force reflow to ensure proper centering
-                modal.offsetHeight;
-                
-                // Animate modal content
-                setTimeout(() => {
-                    modalContent.style.transform = 'scale(1)';
-                    modalContent.style.opacity = '1';
-                }, 10);
-            }
+            showModal();
         } catch (error) {
             console.error('Error in create handler:', error);
         }
@@ -561,7 +450,7 @@
  
         // Create button handler
         $('#createNewGedung').on('click', function() {
-            console.log('Create button clicked');
+            console.log('DEBUG GEDUNG: Create button clicked'); // DEBUG
             handleCreateNewGedung();
         });
  
@@ -586,7 +475,7 @@
             
             // Confirm before saving
             let confirmTitle = '{{ __('modules.swal.confirm_title') }}';
-            let confirmText = isEdit ? '{{ __('modules.swal.update_warning') }}' : '{{ __('modules.swal.save_warning') }}';
+            let confirmText = isEdit ? '{{ __('modules.gedungs.update_confirm') }}' : '{{ __('modules.gedungs.create_confirm') }}';
             let successMessage = isEdit ? '{{ __('modules.swal.data_updated') }}' : '{{ __('modules.swal.data_saved') }}';
 
             Swal.fire({
@@ -607,8 +496,10 @@
                     if (id) {
                         url = updateUrlTemplate.replace(':id', id);
                         method = 'PUT';
-                        // Add method override for PUT requests
-                        formData.append('_method', 'PUT');
+                        // Update method override for PUT requests
+                        formData.set('_method', 'PUT');
+                    } else {
+                        formData.set('_method', 'POST');
                     }
 
                     $.ajax({
@@ -664,7 +555,7 @@
         $(document).on('keydown', function(e) {
             if (e.key === 'Escape') {
                 const modal = $('#gedungModal');
-                if (modal.hasClass('show')) {
+                if (!modal.hasClass('hidden')) {
                     console.log('ESC key pressed, closing modal...');
                     hideModal();
                 }
@@ -679,8 +570,6 @@
             success: function(response) {
                 if (response.success) {
                     const data = response.data;
-                    const modal = document.getElementById('gedungModal');
-                    const modalContent = modal.querySelector('.modal-content');
                     const title = document.getElementById('modalTitle');
                     
                     // Update title and subtitle
@@ -695,26 +584,8 @@
                     $('#gedung_id_field').val(data.gedung_id);
                     $('#nama').val(data.nama);
                     
-                    // Show modal with proper centering
-                    modalContent.style.transform = 'scale(0.9)';
-                    modalContent.style.opacity = '0';
-                    
-                    modal.style.display = 'flex';
-                    modal.style.visibility = 'visible';
-                    modal.style.opacity = '1';
-                    modal.style.alignItems = 'center';
-                    modal.style.justifyContent = 'center';
-                    modal.classList.remove('hide', 'hidden');
-                    modal.classList.add('show');
-                    
-                    // Force reflow to ensure proper centering
-                    modal.offsetHeight;
-                    
-                    // Animate modal content
-                    setTimeout(() => {
-                        modalContent.style.transform = 'scale(1)';
-                        modalContent.style.opacity = '1';
-                    }, 10);
+                    // Show modal using simplified function
+                    showModal();
                 } else {
                     Swal.fire({
                         icon: 'error',
@@ -749,9 +620,10 @@
             if (result.isConfirmed) {
                 $.ajax({
                     url: destroyUrlTemplate.replace(':id', id),
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    type: 'POST',
+                    data: {
+                        '_method': 'DELETE',
+                        '_token': '{{ csrf_token() }}'
                     },
                     success: function(response) {
                         $('#gedungsTable').DataTable().ajax.reload();
@@ -776,6 +648,118 @@
                     }
                 });
             }
+        });
+    }
+
+    // Export handler function
+    window.handleExport = function(event, type) {
+        event.preventDefault();
+        
+        const url = event.target.closest('a').href;
+        const exportType = type === 'excel' ? 'Excel' : 'PDF';
+        
+        // Show loading with timeout warning
+        Swal.fire({
+            title: 'Mengekspor Data...',
+            text: `Sedang membuat file ${exportType}, mohon tunggu.`,
+            icon: 'info',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading();
+                
+                // Show timeout warning after 20 seconds
+                setTimeout(() => {
+                    Swal.update({
+                        title: 'Proses Memakan Waktu...',
+                        text: `Export ${exportType} sedang diproses. File besar membutuhkan waktu lebih lama.`,
+                        icon: 'warning'
+                    });
+                }, 20000);
+            }
+        });
+        
+        // For Excel, use direct download to avoid timeout issues
+        if (type === 'excel') {
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = ''; // Let server set filename
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Check if download completed after delay
+            setTimeout(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Export Dimulai!',
+                    text: `File ${exportType} sedang diunduh. Periksa folder download Anda.`,
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            }, 3000);
+            
+            return;
+        }
+        
+        // For PDF, use fetch method
+        fetch(url, {
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.blob();
+            } else {
+                throw new Error('Export failed');
+            }
+        })
+        .then(blob => {
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const downloadLink = document.createElement('a');
+            downloadLink.href = downloadUrl;
+            
+            const contentDisposition = response.headers.get('content-disposition');
+            let filename = `gedungs-${type}-${new Date().toISOString().split('T')[0]}.${type === 'excel' ? 'xlsx' : 'pdf'}`;
+            
+            if (contentDisposition) {
+                const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+                if (filenameMatch) {
+                    filename = filenameMatch[1];
+                }
+            }
+            
+            downloadLink.download = filename;
+            downloadLink.style.display = 'none';
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            window.URL.revokeObjectURL(downloadUrl);
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Export Berhasil!',
+                text: `File ${exportType} telah berhasil diunduh.`,
+                timer: 2000,
+                showConfirmButton: false
+            });
+        })
+        .catch(error => {
+            console.error('Export error:', error);
+            
+            // Fallback to direct link
+            window.location.href = url;
+            
+            Swal.fire({
+                icon: 'warning',
+                title: 'Redirecting...',
+                text: 'Mengunduh file menggunakan metode alternatif.',
+                timer: 1500,
+                showConfirmButton: false
+            });
         });
     }
     </script>

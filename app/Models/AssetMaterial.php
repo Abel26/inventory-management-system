@@ -23,6 +23,7 @@ class AssetMaterial extends Model
         'type',
         'quantity',
         'unit',
+        'unit_id', // Tambahkan unit_id untuk relasi ke satuan
         'min_threshold',
         'supplier',
         'entry_date',
@@ -42,10 +43,27 @@ class AssetMaterial extends Model
     protected $casts = [
         'quantity' => 'integer',
         'min_threshold' => 'integer',
+        'unit_id' => 'integer', // Tambahkan casting untuk unit_id
         'entry_date' => 'date',
         'expiry_date' => 'date',
         'unit_price' => 'decimal:2',
     ];
+
+    /**
+     * Get the satuan for this material.
+     */
+    public function satuan()
+    {
+        return $this->belongsTo(Satuan::class, 'unit_id', 'id');
+    }
+
+    /**
+     * Get the gedung for this material.
+     */
+    public function gedung()
+    {
+        return $this->belongsTo(Gedung::class, 'gedung_id', 'gedung_id');
+    }
 
     /**
      * Get the models that use this material.

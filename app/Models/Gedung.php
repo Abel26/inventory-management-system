@@ -86,6 +86,6 @@ class Gedung extends Model
      */
     public function getTotalAssetsAttribute(): int
     {
-        return $this->assetModelsCount + $this->assetMaterialsCount + $this->assetToolsCount;
+        return $this->asset_models_count + $this->asset_materials_count + $this->asset_tools_count;
     }
 }

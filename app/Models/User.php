@@ -92,6 +92,46 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if user is Admin.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->hasRole('Admin');
+    }
+
+    /**
+     * Check if user is regular User.
+     */
+    public function isRegularUser(): bool
+    {
+        return $this->hasRole('User');
+    }
+
+    /**
+     * Check if user can manage users (Super Admin only).
+     */
+    public function canManageUsers(): bool
+    {
+        return $this->isSuperAdmin();
+    }
+
+    /**
+     * Check if user can view user management (Super Admin and Admin).
+     */
+    public function canViewUserManagement(): bool
+    {
+        return $this->isSuperAdmin() || $this->isAdmin();
+    }
+
+    /**
+     * Check if user can manage roles (Super Admin only).
+     */
+    public function canManageRoles(): bool
+    {
+        return $this->isSuperAdmin();
+    }
+
+    /**
      * Get user's status badge HTML.
      */
     public function getStatusBadgeAttribute(): string

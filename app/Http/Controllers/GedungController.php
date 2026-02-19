@@ -6,11 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreGedungRequest;
 use App\Http\Requests\UpdateGedungRequest;
 use App\Models\Gedung;
+use App\Exports\GedungsExport;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\PDF;
+use Carbon\Carbon;
 
 class GedungController extends Controller
 {
@@ -66,20 +71,20 @@ class GedungController extends Controller
      */
     public function show(string $id): JsonResponse
     {
-        $gedung = Gedung::withCount(['assetModels', 'assetMaterials', 'assetTools'])
-            ->find($id);
+        try {
+            $gedung = Gedung::withCount(['assetModels', 'assetMaterials', 'assetTools'])
+                ->findOrFail($id);
 
-        if (!$gedung) {
+            return response()->json([
+                'success' => true,
+                'data' => $gedung
+            ]);
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Data gedung tidak ditemukan'
+                'message' => 'Data gedung tidak ditemukan',
             ], 404);
         }
-
-        return response()->json([
-            'success' => true,
-            'data' => $gedung
-        ]);
     }
 
     /**
@@ -88,7 +93,6 @@ class GedungController extends Controller
     public function edit(string $id): View
     {
         $gedung = Gedung::findOrFail($id);
-
         return view('gedungs.edit', compact('gedung'));
     }
 
@@ -152,48 +156,121 @@ class GedungController extends Controller
      */
     public function getData(Request $request): JsonResponse
     {
-        $draw = $request->get('draw');
-        $start = $request->get('start');
-        $length = $request->get('length');
-        $search = $request->get('search')['value'] ?? '';
+        $gedungs = Gedung::withCount(['assetModels', 'assetMaterials', 'assetTools'])
+            ->orderBy('created_at', 'desc');
 
-        $query = Gedung::withCount(['assetModels', 'assetMaterials', 'assetTools']);
-
-        // Apply search
-        if ($search) {
-            $query->where('nama', 'like', "%{$search}%")
-                ->orWhere('gedung_id', 'like', "%{$search}%");
+        // Filter by search
+        if ($request->has('search') && !empty($request->search['value'])) {
+            $search = $request->search['value'];
+            $gedungs->where(function($query) use ($search) {
+                $query->where('gedung_id', 'like', "%{$search}%")
+                      ->orWhere('nama', 'like', "%{$search}%");
+            });
         }
 
-        // Get total records
-        $totalRecords = $query->count();
-
-        // Apply pagination
-        $gedungs = $query->offset($start)
-            ->limit($length)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $totalRecords = $gedungs->count();
+        $gedungs = $gedungs->skip($request->start)
+                           ->take($request->length)
+                           ->get();
 
         $data = $gedungs->map(function ($gedung) {
             return [
                 'id' => $gedung->id,
                 'gedung_id' => $gedung->gedung_id,
                 'nama' => $gedung->nama,
-                'asset_models_count' => $gedung->assetModelsCount,
-                'asset_materials_count' => $gedung->assetMaterialsCount,
-                'asset_tools_count' => $gedung->assetToolsCount,
-                'total_assets' => $gedung->assetModelsCount + $gedung->assetMaterialsCount + $gedung->assetToolsCount,
+                'asset_models_count' => $gedung->asset_models_count,
+                'asset_materials_count' => $gedung->asset_materials_count,
+                'asset_tools_count' => $gedung->asset_tools_count,
+                'total_assets' => $gedung->asset_models_count + $gedung->asset_materials_count + $gedung->asset_tools_count,
                 'created_at' => $gedung->created_at->format('d/m/Y H:i'),
                 'updated_at' => $gedung->updated_at->format('d/m/Y H:i'),
             ];
         });
 
         return response()->json([
-            'draw' => $draw,
+            'draw' => $request->draw,
             'recordsTotal' => $totalRecords,
             'recordsFiltered' => $totalRecords,
-            'data' => $data,
+            'data' => $data
         ]);
+    }
+
+    /**
+     * Export gedungs to Excel.
+     */
+    public function export()
+    {
+        try {
+            // Increase execution time for export
+            set_time_limit(300); // 5 minutes
+            ini_set('memory_limit', '512M');
+            
+            Log::info('Starting gedung export process');
+            
+            $filename = 'gedungs-' . date('Y-m-d') . '.xlsx';
+            
+            Log::info('Generating Excel file: ' . $filename);
+            
+            // Use fast export with optimized settings
+            return Excel::download(new GedungsExport(), $filename);
+            
+        } catch (\Exception $e) {
+            Log::error('Export error: ' . $e->getMessage());
+            
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal mengekspor data gedung: ' . $e->getMessage()
+                ], 500);
+            }
+            
+            return redirect()->back()->with('error', 'Gagal mengekspor data gedung: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Export gedungs to PDF.
+     */
+    public function exportPdf()
+    {
+        try {
+            // Increase execution time for export
+            set_time_limit(300); // 5 minutes
+            ini_set('memory_limit', '512M');
+            
+            Log::info('Starting gedung PDF export process');
+            
+            $gedungs = Gedung::withCount(['assetModels', 'assetMaterials', 'assetTools'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+            
+            Log::info('Found ' . $gedungs->count() . ' gedungs for PDF export');
+            
+            $date = Carbon::now()->locale('id')->isoFormat('D MMMM Y');
+            $title = 'Laporan Data Gedung';
+            $subtitle = 'Data Seluruh Gedung dan Total Aset';
+            
+            Log::info('Generating PDF file');
+            
+            $pdf = PDF::loadView('gedungs.pdf', compact('gedungs', 'date', 'title', 'subtitle'))
+                ->setPaper('a4', 'portrait')
+                ->setOption('isHtml5ParserEnabled', true)
+                ->setOption('isRemoteEnabled', true);
+            
+            return $pdf->download("Laporan Gedung {$date}.pdf");
+            
+        } catch (\Exception $e) {
+            Log::error('PDF export error: ' . $e->getMessage());
+            
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal mengekspor PDF gedung: ' . $e->getMessage()
+                ], 500);
+            }
+            
+            return redirect()->back()->with('error', 'Gagal mengekspor PDF gedung: ' . $e->getMessage());
+        }
     }
 
     /**

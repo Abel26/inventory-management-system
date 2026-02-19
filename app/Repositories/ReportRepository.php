@@ -50,4 +50,13 @@ class ReportRepository implements ReportRepositoryInterface
             ->orderBy('created_at', 'desc')
             ->get();
     }
+    
+    public function delete(int $id): bool
+    {
+        $report = $this->find($id);
+        if (!$report) {
+            return false;
+        }
+        return $report->delete();
+    }
 }

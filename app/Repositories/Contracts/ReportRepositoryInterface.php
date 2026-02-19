@@ -13,4 +13,5 @@ interface ReportRepositoryInterface
     public function find(int $id): ?Report;
     public function getByStatus(string $status): Collection;
     public function getByUser(int $userId): Collection;
+    public function delete(int $id): bool;
 }

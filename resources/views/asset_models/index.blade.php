@@ -119,9 +119,9 @@
     </div>
  
     <!-- Add/Edit Modal -->
-    <div id="modelModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden" style="display: none;">
+    <div id="modelModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden opacity-0" style="display: none;">
         <div class="flex items-center justify-center min-h-screen w-full p-4">
-            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl transform transition-all duration-300 scale-95 opacity-0 modal-content flex flex-col max-h-[90vh]">
+            <div id="modelModalContent" class="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl transform transition-all duration-300 scale-95 opacity-0 modal-content flex flex-col max-h-[90vh]">
                 <!-- Modal Header with Gradient -->
                 <div class="relative bg-gradient-to-r from-ebara-600 to-ebara-700 rounded-t-2xl p-6 text-white flex-shrink-0">
                     <div class="flex justify-between items-center">
@@ -277,7 +277,42 @@
     </div>
       
     @push('styles')
-    <!-- Removed custom modal CSS in favor of global app.css animation classes -->
+    /* Modal animations fix - Simplified like asset_tools */
+    #modelModal {
+        transition: opacity 0.3s ease !important;
+    }
+    
+    #modelModal.opacity-0 {
+        opacity: 0 !important;
+    }
+    
+    #modelModal.opacity-100 {
+        opacity: 1 !important;
+    }
+    
+    #modelModalContent {
+        transition: all 0.3s ease !important;
+    }
+    
+    #modelModalContent.scale-95 {
+        transform: scale(0.95) !important;
+        opacity: 0 !important;
+    }
+    
+    #modelModalContent.scale-100 {
+        transform: scale(1) !important;
+        opacity: 1 !important;
+    }
+    
+    #modelModalContent.opacity-0 {
+        opacity: 0 !important;
+    }
+    
+    #modelModalContent.opacity-100 {
+        opacity: 1 !important;
+    }
+    
+    /* Export dropdown styles now handled by Alpine.js */
     @endpush
     
     @push('scripts')
@@ -289,49 +324,123 @@
     var qrCodeUrlTemplate = "{{ route('assets.models.qr-code', ':id') }}";
     var dataUrl = "{{ route('assets.models.data') }}";
 
+    // Export functionality now handled by Alpine.js - no need for vanilla JS
+
     // Global helper function untuk format tanggal
     window.formatDateForInput = function(dateString) {
-        if (!dateString) return '';
+        console.log('MODELS FORMAT DATE: Input:', dateString, 'Type:', typeof dateString); // DEBUG
+        
+        if (!dateString) {
+            console.log('MODELS FORMAT DATE: Empty date, returning empty string'); // DEBUG
+            return '';
+        }
         
         // Jika sudah format Y-m-d, gunakan langsung
         if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            console.log('MODELS FORMAT DATE: Already in Y-m-d format:', dateString); // DEBUG
             return dateString;
+        }
+        
+        // Handle format datetime dari Laravel (Y-m-d H:i:s)
+        if (dateString.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)) {
+            const dateOnly = dateString.split(' ')[0];
+            console.log('MODELS FORMAT DATE: Laravel datetime format, extracting date:', dateOnly); // DEBUG
+            return dateOnly;
         }
         
         // Konversi dari format lain ke Y-m-d
         try {
             const date = new Date(dateString);
-            if (isNaN(date.getTime())) return '';
+            if (isNaN(date.getTime())) {
+                console.log('MODELS FORMAT DATE: Invalid date, returning empty string'); // DEBUG
+                return '';
+            }
             
             // Konversi ke timezone lokal
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');
             
-            return `${year}-${month}-${day}`;
+            const result = `${year}-${month}-${day}`;
+            console.log('MODELS FORMAT DATE: Converted to:', result); // DEBUG
+            return result;
         } catch (e) {
-            console.error('Error parsing date:', dateString, e);
+            console.error('MODELS FORMAT DATE: Error parsing date:', dateString, e);
             return '';
         }
     };
 
-    // Global Modal Helpers
+    // Global Modal Helpers - Fixed for Tailwind transition sync
     window.openModelModal = function() {
+        console.log('DEBUG MODAL: Opening modal'); // DEBUG
         var modal = document.getElementById('modelModal');
+        
+        if (!modal) {
+            console.error('DEBUG MODAL: Modal element not found!'); // DEBUG
+            return;
+        }
+        
+        // Force inline styles to override everything
         modal.classList.remove('hidden');
-        modal.style.display = 'flex';
+        modal.style.setProperty('display', 'flex', 'important');
+        modal.style.setProperty('opacity', '1', 'important');
+        modal.style.setProperty('visibility', 'visible', 'important');
+        modal.style.setProperty('position', 'fixed', 'important');
+        modal.style.setProperty('top', '0', 'important');
+        modal.style.setProperty('left', '0', 'important');
+        modal.style.setProperty('right', '0', 'important');
+        modal.style.setProperty('bottom', '0', 'important');
+        modal.style.setProperty('z-index', '9999', 'important');
+        
+        // Force reflow to ensure transition works
+        modal.offsetHeight;
+        
         requestAnimationFrame(function() {
-            modal.querySelector('.modal-content').classList.add('modal-active');
+            var modalContent = document.getElementById('modelModalContent');
+            if (modalContent) {
+                modalContent.style.setProperty('opacity', '1', 'important');
+                modalContent.style.setProperty('transform', 'scale(1)', 'important');
+                modalContent.style.setProperty('visibility', 'visible', 'important');
+                console.log('DEBUG MODAL: Modal content inline styles set'); // DEBUG
+            }
+            
+            console.log('DEBUG MODAL: Modal inline styles set'); // DEBUG
+            console.log('DEBUG MODAL: Modal opened, checking buttons'); // DEBUG
+            
+            // Ensure buttons are enabled and visible
+            setTimeout(function() {
+                var submitBtn = document.querySelector('#modelForm button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.style.display = 'flex';
+                    console.log('DEBUG MODAL: Submit button enabled and visible'); // DEBUG
+                }
+            }, 100);
         });
     }
-
+    
     window.closeModelModal = function() {
+        console.log('DEBUG MODAL: Closing modal'); // DEBUG
         var modal = document.getElementById('modelModal');
-        var content = modal.querySelector('.modal-content');
-        content.classList.remove('modal-active');
+        
+        if (!modal) {
+            return;
+        }
+        
+        var modalContent = document.getElementById('modelModalContent');
+        if (modalContent) {
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+        }
+        
+        // Fade out modal
+        modal.classList.remove('opacity-100');
+        modal.classList.add('opacity-0');
+        
+        // Wait for content transition, then hide modal
         setTimeout(function() {
-            modal.classList.add('hidden');
             modal.style.display = 'none';
+            modal.classList.add('hidden');
         }, 300);
     }
 
@@ -356,30 +465,58 @@
 
     // Global Action Functions
     window.editModel = function(id) {
+        console.log('MODELS EDIT: Starting edit for ID:', id); // DEBUG
+        
         $.ajax({
             url: showUrlTemplate.replace(':id', id),
             method: 'GET',
             success: function(response) {
+                console.log('MODELS EDIT: Response from server:', response); // DEBUG
                 if (response.success) {
                     const data = response.data;
+                    console.log('MODELS EDIT: Model data:', data); // DEBUG
+                    
+                    // Debug tanggal dengan lebih detail
+                    console.log('MODELS EDIT: Manufacture date raw:', data.manufacture_date, 'Type:', typeof data.manufacture_date);
+                    
+                    // Test fungsi formatDateForInput
+                    console.log('MODELS EDIT: formatDateForInput(manufacture_date):', formatDateForInput(data.manufacture_date));
+                    
                     $('#modalTitle').text('{{ __('modules.asset_models.edit_title') }}');
                     $('#modalSubtitle').text('{{ __('modules.asset_models.edit_subtitle') }}');
                     $('#modelId').val(data.id);
                     $('#name').val(data.name);
                     $('#type').val(data.type);
                     $('#material_id').val(data.material_id);
+                    
                     // Perbaikan untuk tanggal - menggunakan fungsi helper global
-                    $('#manufacture_date').val(formatDateForInput(data.manufacture_date));
+                    const formattedManufactureDate = formatDateForInput(data.manufacture_date);
+                    console.log('MODELS EDIT: Setting manufacture_date to:', formattedManufactureDate);
+                    
+                    // Force set tanggal dengan multiple approaches
+                    $('#manufacture_date').val(formattedManufactureDate);
+                    
+                    // Additional force set untuk memastikan tanggal terisi
+                    setTimeout(function() {
+                        $('#manufacture_date').val(formattedManufactureDate).trigger('change');
+                        console.log('MODELS EDIT: Forced manufacture_date value after timeout:', $('#manufacture_date').val());
+                    }, 100);
+                    
                     $('#condition').val(data.condition);
                     $('#location').val(data.location).trigger('change');
                     $('#description').val(data.description);
+                    
+                    // Debug final values
+                    console.log('MODELS EDIT: Final manufacture_date value:', $('#manufacture_date').val());
                     
                     // Update form action for edit
                     $('#modelForm').attr('action', updateUrlTemplate.replace(':id', id));
                     $('#formMethod').val('PUT');
                     
+                    console.log('MODELS EDIT: About to open modal');
                     openModelModal();
                 } else {
+                    console.error('MODELS EDIT: Server returned error:', response.message);
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
@@ -389,6 +526,8 @@
                 }
             },
             error: function(xhr) {
+                console.error('MODELS EDIT: Error fetching model:', xhr); // DEBUG
+                console.error('MODELS EDIT: Response text:', xhr.responseText);
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
@@ -573,7 +712,7 @@
             }
         });
 
-        // Create button handler
+        // Create button handler - Simplified like asset_tools
         $('#createNewModel').on('click', function() {
             $('#modalTitle').text('{{ __('modules.asset_models.add_title') }}');
             $('#modalSubtitle').text('{{ __('modules.asset_models.add_subtitle') }}');
@@ -600,6 +739,13 @@
             }
         });
         
+        // Single click handler for submit button
+        $('#modelForm button[type="submit"]').off('click').on('click', function(e) {
+            e.preventDefault();
+            console.log('DEBUG FORM: Submit button clicked');
+            $('#modelForm').trigger('submit');
+        });
+        
         // QR Code Modal Handlers
         $('#closeQrModalBtn').on('click', function() {
             closeQrModal();
@@ -614,9 +760,11 @@
         // Form submit handler
         $('#modelForm').on('submit', function(e) {
             e.preventDefault();
+            console.log('MODELS FORM SUBMIT: Form submit triggered'); // DEBUG
             
             // Basic HTML5 validation
             if (!this.checkValidity()) {
+                console.log('MODELS FORM SUBMIT: HTML5 validation failed'); // DEBUG
                 return;
             }
             
@@ -625,72 +773,151 @@
             let url = storeUrl;
             let method = 'POST';
             
+            console.log('MODELS FORM SUBMIT: Form ID:', id, 'Method:', method); // DEBUG
+            
             if (id) {
                 url = updateUrlTemplate.replace(':id', id);
                 method = 'PUT';
             }
 
-            const formData = new FormData(this);
+            // Use serialize instead of FormData for consistency
+            const formData = form.serialize();
             if (method === 'PUT') {
-                formData.append('_method', 'PUT');
-            }
-            
-            // Confirm before saving
-            let confirmTitle = '{{ __('modules.swal.confirm_title') }}';
-            let confirmText = id ? '{{ __('modules.asset_models.update_confirm') }}' : '{{ __('modules.asset_models.create_confirm') }}'; // Assuming these keys exist, or generic text
-            // Fallback for missing keys if needed, but sticking to pattern
-            if (confirmText.includes('modules.asset_models')) {
-                 confirmText = id ? '{{ __('modules.swal.update_warning') }}' : '{{ __('modules.swal.save_warning') }}';
-            }
-            let successMessage = id ? '{{ __('modules.swal.data_updated') }}' : '{{ __('modules.swal.data_saved') }}';
+                // Add _method field for Laravel method spoofing
+                const formDataObj = new URLSearchParams(formData);
+                formDataObj.append('_method', 'PUT');
+                const finalFormData = formDataObj.toString();
+                console.log('MODELS FORM SUBMIT: Final form data:', finalFormData); // DEBUG
+                
+                // Confirm before saving
+                let confirmTitle = '{{ __('modules.swal.confirm_title') }}';
+                let confirmText = id ? '{{ __('modules.asset_models.update_confirm') }}' : '{{ __('modules.asset_models.create_confirm') }}';
+                let successMessage = id ? '{{ __('modules.swal.data_updated') }}' : '{{ __('modules.swal.data_saved') }}';
 
-            Swal.fire({
-                title: confirmTitle,
-                text: confirmText,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#009B77',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: '{{ __('modules.swal.yes_save') }}',
-                cancelButtonText: '{{ __('modules.swal.cancel') }}'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                     $.ajax({
-                        url: url,
-                        type: 'POST',
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        success: function(data) {
-                            closeModelModal();
-                            table.ajax.reload();
-                            Swal.fire({
-                                icon: 'success',
-                                title: '{{ __('modules.swal.success') }}',
-                                text: successMessage,
-                                confirmButtonColor: '#009B77',
-                                timer: 1500,
-                                showConfirmButton: false
-                            });
-                        },
-                        error: function(xhr) {
-                            let errorMessage = '{{ __('modules.asset_models.save_error') }}';
-                            if (xhr.responseJSON && xhr.responseJSON.message) {
-                                errorMessage = xhr.responseJSON.message;
+                Swal.fire({
+                    title: confirmTitle,
+                    text: confirmText,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#009B77',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: '{{ __('modules.swal.yes_save') }}',
+                    cancelButtonText: '{{ __('modules.swal.cancel') }}'
+                }).then((result) => {
+                    console.log('MODELS FORM SUBMIT: Swal result:', result); // DEBUG
+                    if (result.isConfirmed) {
+                        // Disable submit button to prevent double submission
+                        $('#modelForm button[type="submit"]').prop('disabled', true).html('<i class="ph ph-spinner-gap animate-spin"></i> {{ __('modules.common.saving') }}');
+                        
+                        $.ajax({
+                            url: url,
+                            method: 'POST',
+                            data: finalFormData,
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            success: function(data) {
+                                console.log('MODELS FORM SUBMIT: Update successful:', data);
+                                closeModelModal();
+                                table.ajax.reload();
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '{{ __('modules.swal.success') }}',
+                                    text: successMessage,
+                                    confirmButtonColor: '#009B77',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+                                // Reset form and re-enable button
+                                $('#modelForm')[0].reset();
+                                $('#modelForm button[type="submit"]').prop('disabled', false).html('<i class="ph ph-floppy-disk"></i> {{ __('modules.common.save') }}');
+                            },
+                            error: function(xhr) {
+                                console.error('MODELS FORM SUBMIT: AJAX error:', xhr); // DEBUG
+                                console.error('MODELS FORM SUBMIT: Response text:', xhr.responseText);
+                                let errorMessage = '{{ __('modules.asset_models.save_error') }}';
+                                if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    errorMessage = xhr.responseJSON.message;
+                                }
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: errorMessage,
+                                    confirmButtonColor: '#dc2626'
+                                });
+                                // Re-enable button on error
+                                $('#modelForm button[type="submit"]').prop('disabled', false).html('<i class="ph ph-floppy-disk"></i> {{ __('modules.common.save') }}');
                             }
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: errorMessage,
-                                confirmButtonColor: '#dc2626'
-                            });
-                        }
-                    });
-                }
-            });
+                        });
+                    }
+                });
+            } else {
+                // For new model creation
+                console.log('MODELS FORM SUBMIT: Creating new model'); // DEBUG
+                
+                // Confirm before saving
+                let confirmTitle = '{{ __('modules.swal.confirm_title') }}';
+                let confirmText = '{{ __('modules.asset_models.create_confirm') }}';
+                let successMessage = '{{ __('modules.swal.data_saved') }}';
+
+                Swal.fire({
+                    title: confirmTitle,
+                    text: confirmText,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#009B77',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: '{{ __('modules.swal.yes_save') }}',
+                    cancelButtonText: '{{ __('modules.swal.cancel') }}'
+                }).then((result) => {
+                    console.log('MODELS FORM SUBMIT: Swal result for new model:', result); // DEBUG
+                    if (result.isConfirmed) {
+                        // Disable submit button to prevent double submission
+                        $('#modelForm button[type="submit"]').prop('disabled', true).html('<i class="ph ph-spinner-gap animate-spin"></i> {{ __('modules.common.saving') }}');
+                        
+                        $.ajax({
+                            url: url,
+                            method: 'POST',
+                            data: formData,
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            success: function(data) {
+                                console.log('MODELS FORM SUBMIT: Create successful:', data);
+                                closeModelModal();
+                                table.ajax.reload();
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '{{ __('modules.swal.success') }}',
+                                    text: successMessage,
+                                    confirmButtonColor: '#009B77',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+                                // Reset form and re-enable button
+                                $('#modelForm')[0].reset();
+                                $('#modelForm button[type="submit"]').prop('disabled', false).html('<i class="ph ph-floppy-disk"></i> {{ __('modules.common.save') }}');
+                            },
+                            error: function(xhr) {
+                                console.error('MODELS FORM SUBMIT: AJAX error for new model:', xhr); // DEBUG
+                                console.error('MODELS FORM SUBMIT: Response text:', xhr.responseText);
+                                let errorMessage = '{{ __('modules.asset_models.save_error') }}';
+                                if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    errorMessage = xhr.responseJSON.message;
+                                }
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: errorMessage,
+                                    confirmButtonColor: '#dc2626'
+                                });
+                                // Re-enable button on error
+                                $('#modelForm button[type="submit"]').prop('disabled', false).html('<i class="ph ph-floppy-disk"></i> {{ __('modules.common.save') }}');
+                            }
+                        });
+                    }
+                });
+            }
         });
 
         // Close modal with ESC key

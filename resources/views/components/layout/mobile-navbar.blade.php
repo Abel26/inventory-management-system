@@ -13,7 +13,7 @@
 
     <!-- Logo (Center) -->
     <a href="{{ route('dashboard') }}" class="flex items-center space-x-2">
-        <x-brand.ebara-logo class="h-8 w-8 text-ebara-500" />
+        <img src="{{ asset('assets/img/logo.png') }}" alt="Ebara Inventory Logo" class="h-8 w-auto">
         <span class="text-lg font-bold text-slate-800">EBARA</span>
     </a>
 

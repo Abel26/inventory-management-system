@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\AssetLookupService;
 use App\Services\ReportService;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
@@ -292,5 +293,40 @@ class ReportController extends Controller
             ->setOption('isRemoteEnabled', true);
         
         return $pdf->download("Laporan Masalah {$date}.pdf");
+    }
+
+    /**
+     * Remove the specified report from storage.
+     */
+    public function destroy($id): JsonResponse
+    {
+        Log::info('🔄 Deleting report', ['id' => $id]);
+        
+        try {
+            $report = $this->reportService->find($id);
+            
+            if (!$report) {
+                Log::warning('⚠️ Report not found', ['id' => $id]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Laporan tidak ditemukan'
+                ], 404);
+            }
+            
+            $this->reportService->delete($id);
+            
+            Log::info('✅ Report deleted successfully', ['id' => $id]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Laporan berhasil dihapus'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('❌ Error deleting report:', ['id' => $id, 'error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus laporan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

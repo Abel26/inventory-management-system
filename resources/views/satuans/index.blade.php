@@ -93,8 +93,14 @@
                                 <i class="ph ph-text-aa text-gray-400 text-lg"></i>
                             </div>
                         </div>
+                        @error('nama')
+                            <p class="mt-1 text-xs text-red-500 flex items-center">
+                                <i class="ph ph-warning-circle mr-1"></i>
+                                {{ $message }}
+                            </p>
+                        @enderror
                     </div>
-
+                    
                     <!-- Kode Field -->
                     <div class="space-y-2">
                         <label for="kode" class="flex items-center text-sm font-semibold text-gray-700">
@@ -113,6 +119,12 @@
                                 <i class="ph ph-hash text-gray-400 text-lg"></i>
                             </div>
                         </div>
+                        @error('kode')
+                            <p class="mt-1 text-xs text-red-500 flex items-center">
+                                <i class="ph ph-warning-circle mr-1"></i>
+                                {{ $message }}
+                            </p>
+                        @enderror
                     </div>
 
                     <!-- Action Buttons -->
@@ -587,32 +599,61 @@
     });
 
     function editSatuan(id) {
+        console.log('Editing satuan with ID:', id);
+        
         $.ajax({
             url: showUrlTemplate.replace(':id', id),
             method: 'GET',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            beforeSend: function() {
+                // Show loading
+                Swal.fire({
+                    title: 'Memuat Data...',
+                    text: 'Sedang mengambil data satuan.',
+                    icon: 'info',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+            },
             success: function(response) {
-                if (response.success) {
-                    const data = response.data;
-                    $('#modalTitle').text('{{ __('modules.satuans.edit_title') }}');
-                    $('#modalSubtitle').text('{{ __('modules.satuans.update_subtitle') }}');
-                    $('#satuanId').val(data.id);
-                    $('#nama').val(data.nama);
-                    $('#kode').val(data.kode);
+                Swal.close();
+                
+                if (response.success && response.data) {
+                    // Update modal title
+                    const title = document.getElementById('modalTitle');
+                    const subtitle = document.getElementById('modalSubtitle');
+                    if (title) title.textContent = '{{ __('modules.satuans.edit_title') }}';
+                    if (subtitle) subtitle.textContent = '{{ __('modules.satuans.edit_subtitle') }}';
+                    
+                    // Fill form with data
+                    $('#satuanId').val(response.data.id);
+                    $('#kode').val(response.data.kode);
+                    $('#nama').val(response.data.nama);
+                    
+                    // Show modal
                     showModal();
                 } else {
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
-                        text: response.message,
+                        text: response.message || 'Gagal memuat data satuan',
                         confirmButtonColor: '#dc2626'
                     });
                 }
             },
             error: function(xhr) {
+                Swal.close();
+                const errorMessage = handleAjaxError(xhr, '{{ __('modules.satuans.fetch_error') }}');
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: '{{ __('modules.satuans.fetch_error') }}',
+                    text: errorMessage,
                     confirmButtonColor: '#dc2626'
                 });
             }
@@ -631,6 +672,18 @@
             cancelButtonText: '{{ __('modules.swal.cancel') }}'
         }).then((result) => {
             if (result.isConfirmed) {
+                // Show loading
+                Swal.fire({
+                    title: 'Menghapus...',
+                    text: 'Sedang menghapus data satuan.',
+                    icon: 'info',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
                 $.ajax({
                     url: destroyUrlTemplate.replace(':id', id),
                     method: 'DELETE',
@@ -638,25 +691,65 @@
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
                     success: function(response) {
-                        $('#satuansTable').DataTable().ajax.reload();
-                        Swal.fire({
-                            icon: 'success',
-                            title: '{{ __('modules.swal.success') }}',
-                            text: '{{ __('modules.swal.data_deleted') }}',
-                            confirmButtonColor: '#009B77'
-                        });
+                        Swal.close();
+                        handleAjaxSuccess(response, 'satuansTable', '{{ __('modules.swal.data_deleted') }}');
                     },
                     error: function(xhr) {
+                        Swal.close();
+                        const errorMessage = handleAjaxError(xhr, '{{ __('modules.swal.delete_error') }}');
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: '{{ __('modules.swal.delete_error') }}',
+                            text: errorMessage,
                             confirmButtonColor: '#dc2626'
                         });
                     }
                 });
             }
         });
+    }
+    
+    // Enhanced error handling for all AJAX requests
+    function handleAjaxError(xhr, defaultMessage) {
+        let errorMessage = defaultMessage;
+        
+        if (xhr.responseJSON && xhr.responseJSON.message) {
+            errorMessage = xhr.responseJSON.message;
+        } else if (xhr.responseJSON && xhr.responseJSON.errors) {
+            let errors = xhr.responseJSON.errors;
+            errorMessage = '';
+            for (let key in errors) {
+                errorMessage += errors[key][0] + '\n';
+            }
+        } else if (xhr.statusText) {
+            errorMessage = xhr.statusText;
+        }
+        
+        return errorMessage;
+    }
+    
+    // Enhanced success handling with auto reload
+    function handleAjaxSuccess(response, tableId, successMessage, reloadTable = true) {
+        if (response.success) {
+            if (reloadTable) {
+                $('#' + tableId).DataTable().ajax.reload();
+            }
+            Swal.fire({
+                icon: 'success',
+                title: '{{ __('modules.swal.success') }}',
+                text: response.message || successMessage,
+                confirmButtonColor: '#009B77',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: response.message || 'Terjadi kesalahan',
+                confirmButtonColor: '#dc2626'
+            });
+        }
     }
     </script>
     @endpush
