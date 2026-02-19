@@ -1,4 +1,4 @@
-<?php
+                                                                                                                                                                                                                                                                                                                                                                                                <?php
 
 namespace App\Services;
 
@@ -13,7 +13,7 @@ class ReportService
     ) {
         $this->reportRepository = $reportRepository;
     }
-    
+                                                                                                                                                                    
     /**
      * Get all reports with relationships.
      */
@@ -32,7 +32,7 @@ class ReportService
         
         // Handle photo upload
         if (isset($data['photo']) && $data['photo'] instanceof \Illuminate\Http\UploadedFile) {
-            $disk = config('filesystems.default');
+            $disk = 'public';
             $path = $data['photo']->store('reports/photos', $disk);
             $data['photo_path'] = $path;
         }

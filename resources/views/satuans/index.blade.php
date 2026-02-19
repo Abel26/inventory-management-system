@@ -601,6 +601,7 @@
                 }
             });
         });
+    });
 
     function editSatuan(id) {
         console.log('Editing satuan with ID:', id);
