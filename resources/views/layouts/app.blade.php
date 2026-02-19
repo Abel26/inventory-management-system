@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="{{ asset('vendor/jquery.dataTables.min.css') }}">
     <script src="{{ asset('vendor/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('vendor/dataTables.dataTables.min.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('vendor/sweetalert2.min.css') }}">
     <script src="{{ asset('vendor/sweetalert2.min.js') }}"></script>
     <script src="{{ asset('vendor/apexcharts.min.js') }}"></script>
     <script src="{{ asset('vendor/html5-qrcode.min.js') }}"></script>
