@@ -601,19 +601,6 @@
                 }
             });
         });
-        } catch (error) {
-            console.error('SATUANS FORM SUBMIT: Exception caught:', error); // DEBUG
-            console.error('SATUANS FORM SUBMIT: Error stack:', error.stack); // DEBUG
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Terjadi kesalahan sistem: ' + error.message,
-                confirmButtonColor: '#dc2626'
-            });
-            // Re-enable button on error
-            $('#submitSatuanBtn').prop('disabled', false).html('<i class="ph ph-floppy-disk text-lg"></i> {{ __('modules.common.save') }}');
-        }
-    });
 
     function editSatuan(id) {
         console.log('Editing satuan with ID:', id);

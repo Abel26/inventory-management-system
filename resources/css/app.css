@@ -15,8 +15,8 @@
 /* Hide elements with x-cloak until Alpine.js initialises */
 [x-cloak] { display: none !important; }
 
-/* Flatpickr must float above modals (z-50 = 50) but below SweetAlert (z-9999) */
-.flatpickr-calendar { z-index: 9998 !important; }
+/* Flatpickr must float ABOVE modals (z-9999) but BELOW SweetAlert (z-99999) */
+.flatpickr-calendar { z-index: 10001 !important; }
 
 /* ============================================
    DataTables CSS Overrides
@@ -369,7 +369,7 @@ span.flatpickr-weekday {
     display: grid !important;       /* Required for grid-area centering */
     position: fixed !important;     /* Must override potential :where() conflicts */
     inset: 0 !important;            /* top:0 right:0 bottom:0 left:0 */
-    z-index: 9999 !important;       /* Above all custom modals (z-50 = 50) */
+    z-index: 99999 !important;      /* Above modals (9999) and Flatpickr (10001) */
     height: 100% !important;
     width: 100% !important;
 }

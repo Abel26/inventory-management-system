@@ -617,26 +617,6 @@
     }
 
     $(document).ready(function() {
-        // Fix for production aria-hidden conflicts
-        if (typeof Swal !== 'undefined') {
-            // Override SweetAlert's default behavior to prevent aria-hidden conflicts
-            Swal.mixin({
-                didOpen: function() {
-                    // Remove aria-hidden from main container when SweetAlert opens
-                    $('.flex.h-screen').removeAttr('aria-hidden');
-                    console.log('MODELS PRODUCTION FIX: Removed aria-hidden from main container');
-                }
-            });
-        }
-        
-        // Global fix for any dynamically added aria-hidden
-        setInterval(function() {
-            if ($('#modelForm button[type="submit"]').is(':visible') && $('.flex.h-screen').attr('aria-hidden') === 'true') {
-                $('.flex.h-screen').removeAttr('aria-hidden');
-                console.log('MODELS PRODUCTION FIX: Auto-removed aria-hidden conflict');
-            }
-        }, 1000);
-        
         // Initialize DataTable
         let table = $('#modelsTable').DataTable({
             processing: true,
@@ -788,187 +768,73 @@
             }
         });
 
-        // Form submit handler
+        // Form submit handler — validate → confirm → AJAX
         $('#modelForm').on('submit', function(e) {
             e.preventDefault();
 
-            // HTML5 validation — browser highlights empty required fields inline
-            if (!this.reportValidity()) {
-                return;
-            }
+            // Step 1: browser highlights invalid field with tooltip
+            if (!this.reportValidity()) { return; }
 
             const form = $(this);
             const id = $('#modelId').val();
-            let url = storeUrl;
-            let method = 'POST';
-            
-            console.log('MODELS FORM SUBMIT: Form ID:', id, 'Method:', method); // DEBUG
-            
-            if (id) {
-                url = updateUrlTemplate.replace(':id', id);
-                method = 'PUT';
-            }
+            const isEdit = id !== '';
+            const url = isEdit ? updateUrlTemplate.replace(':id', id) : storeUrl;
+            const confirmText = isEdit ? '{{ __('modules.asset_models.update_confirm') }}' : '{{ __('modules.asset_models.create_confirm') }}';
+            const successMessage = isEdit ? '{{ __('modules.swal.data_updated') }}' : '{{ __('modules.swal.data_saved') }}';
 
-            // Use serialize instead of FormData for consistency
-            const formData = form.serialize();
-            if (method === 'PUT') {
-                // Add _method field for Laravel method spoofing
-                const formDataObj = new URLSearchParams(formData);
-                formDataObj.append('_method', 'PUT');
-                const finalFormData = formDataObj.toString();
-                console.log('MODELS FORM SUBMIT: Final form data:', finalFormData); // DEBUG
-                
-                // Confirm before saving
-                let confirmTitle = '{{ __('modules.swal.confirm_title') }}';
-                let confirmText = id ? '{{ __('modules.asset_models.update_confirm') }}' : '{{ __('modules.asset_models.create_confirm') }}';
-                let successMessage = id ? '{{ __('modules.swal.data_updated') }}' : '{{ __('modules.swal.data_saved') }}';
+            // Step 2: confirm dialog
+            Swal.fire({
+                title: '{{ __('modules.swal.confirm_title') }}',
+                text: confirmText,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#009B77',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: '{{ __('modules.swal.yes_save') }}',
+                cancelButtonText: '{{ __('modules.swal.cancel') }}'
+            }).then(function(result) {
+                if (!result.isConfirmed) return;
 
-                // Fix aria-hidden conflict by removing focus before SweetAlert
-                $('#modelForm button[type="submit"]').blur();
-                
-                // Store reference to button for later focus restoration
-                var submitBtn = document.querySelector('#modelForm button[type="submit"]');
-                
-                Swal.fire({
-                    title: confirmTitle,
-                    text: confirmText,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#009B77',
-                    cancelButtonColor: '#6b7280',
-                    confirmButtonText: '{{ __('modules.swal.yes_save') }}',
-                    cancelButtonText: '{{ __('modules.swal.cancel') }}',
-                    // Fix for production timing issues
-                    didOpen: function() {
-                        // Ensure proper focus management in SweetAlert
-                        console.log('MODELS SWAL: SweetAlert opened, fixing focus management');
-                        // Remove any aria-hidden conflicts
-                        $('.flex.h-screen').removeAttr('aria-hidden');
+                // Step 3: AJAX
+                var formData = form.serialize();
+                if (isEdit) { formData += '&_method=PUT'; }
+
+                $('#modelForm button[type="submit"]').prop('disabled', true).html('<i class="ph ph-spinner-gap animate-spin"></i> {{ __('modules.common.saving') }}');
+
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    data: formData,
+                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                    success: function(data) {
+                        closeModelModal();
+                        table.ajax.reload();
+                        Swal.fire({
+                            icon: 'success',
+                            title: '{{ __('modules.swal.success') }}',
+                            text: successMessage,
+                            confirmButtonColor: '#009B77',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        $('#modelForm')[0].reset();
+                        $('#modelForm button[type="submit"]').prop('disabled', false).html('<i class="ph ph-floppy-disk"></i> {{ __('modules.common.save') }}');
                     },
-                    didClose: function() {
-                        // Restore focus after SweetAlert closes
-                        console.log('MODELS SWAL: SweetAlert closed, restoring focus');
-                        setTimeout(function() {
-                            if (submitBtn && $(submitBtn).is(':visible')) {
-                                submitBtn.focus();
-                            }
-                        }, 100);
-                    }
-                }).then((result) => {
-                    console.log('MODELS FORM SUBMIT: Swal result:', result); // DEBUG
-                    if (result.isConfirmed) {
-                        // Disable submit button to prevent double submission
-                        $('#modelForm button[type="submit"]').prop('disabled', true).html('<i class="ph ph-spinner-gap animate-spin"></i> {{ __('modules.common.saving') }}');
-                        
-                        $.ajax({
-                            url: url,
-                            method: 'POST',
-                            data: finalFormData,
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            success: function(data) {
-                                console.log('MODELS FORM SUBMIT: Update successful:', data);
-                                closeModelModal();
-                                table.ajax.reload();
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: '{{ __('modules.swal.success') }}',
-                                    text: successMessage,
-                                    confirmButtonColor: '#009B77',
-                                    timer: 1500,
-                                    showConfirmButton: false
-                                });
-                                // Reset form and re-enable button
-                                $('#modelForm')[0].reset();
-                                $('#modelForm button[type="submit"]').prop('disabled', false).html('<i class="ph ph-floppy-disk"></i> {{ __('modules.common.save') }}');
-                            },
-                            error: function(xhr) {
-                                console.error('MODELS FORM SUBMIT: AJAX error:', xhr); // DEBUG
-                                console.error('MODELS FORM SUBMIT: Response text:', xhr.responseText);
-                                let errorMessage = '{{ __('modules.asset_models.save_error') }}';
-                                if (xhr.responseJSON && xhr.responseJSON.message) {
-                                    errorMessage = xhr.responseJSON.message;
-                                }
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error',
-                                    text: errorMessage,
-                                    confirmButtonColor: '#dc2626'
-                                });
-                                // Re-enable button on error
-                                $('#modelForm button[type="submit"]').prop('disabled', false).html('<i class="ph ph-floppy-disk"></i> {{ __('modules.common.save') }}');
-                            }
+                    error: function(xhr) {
+                        var errorMessage = '{{ __('modules.asset_models.save_error') }}';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: errorMessage,
+                            confirmButtonColor: '#dc2626'
                         });
+                        $('#modelForm button[type="submit"]').prop('disabled', false).html('<i class="ph ph-floppy-disk"></i> {{ __('modules.common.save') }}');
                     }
                 });
-            } else {
-                // For new model creation
-                console.log('MODELS FORM SUBMIT: Creating new model'); // DEBUG
-                
-                // Confirm before saving
-                let confirmTitle = '{{ __('modules.swal.confirm_title') }}';
-                let confirmText = '{{ __('modules.asset_models.create_confirm') }}';
-                let successMessage = '{{ __('modules.swal.data_saved') }}';
-
-                Swal.fire({
-                    title: confirmTitle,
-                    text: confirmText,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#009B77',
-                    cancelButtonColor: '#6b7280',
-                    confirmButtonText: '{{ __('modules.swal.yes_save') }}',
-                    cancelButtonText: '{{ __('modules.swal.cancel') }}'
-                }).then((result) => {
-                    console.log('MODELS FORM SUBMIT: Swal result for new model:', result); // DEBUG
-                    if (result.isConfirmed) {
-                        // Disable submit button to prevent double submission
-                        $('#modelForm button[type="submit"]').prop('disabled', true).html('<i class="ph ph-spinner-gap animate-spin"></i> {{ __('modules.common.saving') }}');
-                        
-                        $.ajax({
-                            url: url,
-                            method: 'POST',
-                            data: formData,
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            success: function(data) {
-                                console.log('MODELS FORM SUBMIT: Create successful:', data);
-                                closeModelModal();
-                                table.ajax.reload();
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: '{{ __('modules.swal.success') }}',
-                                    text: successMessage,
-                                    confirmButtonColor: '#009B77',
-                                    timer: 1500,
-                                    showConfirmButton: false
-                                });
-                                // Reset form and re-enable button
-                                $('#modelForm')[0].reset();
-                                $('#modelForm button[type="submit"]').prop('disabled', false).html('<i class="ph ph-floppy-disk"></i> {{ __('modules.common.save') }}');
-                            },
-                            error: function(xhr) {
-                                console.error('MODELS FORM SUBMIT: AJAX error for new model:', xhr); // DEBUG
-                                console.error('MODELS FORM SUBMIT: Response text:', xhr.responseText);
-                                let errorMessage = '{{ __('modules.asset_models.save_error') }}';
-                                if (xhr.responseJSON && xhr.responseJSON.message) {
-                                    errorMessage = xhr.responseJSON.message;
-                                }
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error',
-                                    text: errorMessage,
-                                    confirmButtonColor: '#dc2626'
-                                });
-                                // Re-enable button on error
-                                $('#modelForm button[type="submit"]').prop('disabled', false).html('<i class="ph ph-floppy-disk"></i> {{ __('modules.common.save') }}');
-                            }
-                        });
-                    }
-                });
-            }
+            });
         });
 
         // Close modal with ESC key
