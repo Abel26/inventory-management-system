@@ -21,7 +21,7 @@
         
         <!-- Mobile Logo -->
         <div class="lg:hidden flex items-center space-x-2">
-            <x-brand.ebara-logo class="h-8 w-8 text-ebara-500" />
+            <img src="{{ asset('assets/img/logo.png') }}" alt="Ebara Inventory Logo" class="h-8 w-auto">
             <span class="text-lg font-semibold text-gray-900">Ebara IMS</span>
         </div>
         

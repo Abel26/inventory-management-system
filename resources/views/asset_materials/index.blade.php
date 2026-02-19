@@ -189,12 +189,19 @@
                             <input type="number" id="quantity" name="quantity" required min="0" class="w-full py-3 px-4 border-2 border-gray-200 rounded-xl focus:border-ebara-500 focus:ring-2 focus:ring-ebara-500/20 transition-all duration-200 text-sm font-medium placeholder-gray-400">
                         </div>
                         <div class="space-y-2">
-                            <label for="unit" class="flex items-center text-sm font-semibold text-gray-700">
+                            <label for="unit_id" class="flex items-center text-sm font-semibold text-gray-700">
                                 <i class="ph ph-ruler text-ebara-600 mr-2"></i>
                                 {{ __('modules.common.unit') }}
                                 <span class="text-red-500 ml-1">*</span>
                             </label>
-                            <input type="text" id="unit" name="unit" required class="w-full py-3 px-4 border-2 border-gray-200 rounded-xl focus:border-ebara-500 focus:ring-2 focus:ring-ebara-500/20 transition-all duration-200 text-sm font-medium placeholder-gray-400">
+                            <select id="unit_id" name="unit_id" required class="w-full py-3 px-4 border-2 border-gray-200 rounded-xl focus:border-ebara-500 focus:ring-2 focus:ring-ebara-500/20 transition-all duration-200 text-sm font-medium">
+                                <option value="">{{ __('modules.asset_materials.select_unit') }}</option>
+                                @foreach($satuans as $satuan)
+                                    <option value="{{ $satuan->id }}">{{ $satuan->nama }} ({{ $satuan->kode }})</option>
+                                @endforeach
+                            </select>
+                            <!-- Hidden field untuk backward compatibility -->
+                            <input type="hidden" id="unit" name="unit" value="">
                         </div>
                     </x-ui.form-grid>
 
@@ -262,7 +269,7 @@
                         <button type="button" class="px-5 py-2.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-xl transition-all duration-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-200" onclick="closeMaterialModal()">
                             {{ __('modules.common.cancel') }}
                         </button>
-                        <button type="button" id="submitMaterialBtn" class="px-5 py-2.5 bg-gradient-to-r from-ebara-600 to-ebara-700 hover:from-ebara-700 hover:to-ebara-800 text-white font-medium rounded-xl shadow-lg shadow-ebara-500/25 hover:shadow-ebara-500/40 transition-all duration-200 text-sm flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-ebara-500">
+                        <button type="button" id="submitMaterialBtn" class="px-5 py-2.5 bg-gradient-to-r from-ebara-600 to-ebara-700 hover:from-ebara-700 hover:to-ebara-800 text-white font-medium rounded-xl shadow-lg shadow-ebara-500/25 hover:shadow-ebara-500/40 transition-all duration-200 text-sm flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-ebara-500" style="pointer-events: auto !important; cursor: pointer !important;">
                             <i class="ph ph-floppy-disk text-lg"></i>
                             {{ __('modules.common.save') }}
                         </button>
@@ -291,6 +298,41 @@
     </div>
 
     @push('scripts')
+    <style>
+    /* Modal animations fix */
+    .modal-content {
+        transition: all 0.3s ease;
+    }
+    
+    .modal-content.scale-95 {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    
+    .modal-content.scale-100 {
+        transform: scale(1);
+        opacity: 1;
+    }
+    
+    .modal-content.opacity-0 {
+        opacity: 0;
+    }
+    
+    .modal-content.opacity-1 {
+        opacity: 1;
+    }
+    
+    /* Ensure buttons are always clickable */
+    #submitMaterialBtn {
+        pointer-events: auto !important;
+        cursor: pointer !important;
+    }
+    
+    #submitMaterialBtn:disabled {
+        pointer-events: none !important;
+        cursor: not-allowed !important;
+    }
+    </style>
     <script>
     var storeUrl = "{{ route('assets.materials.store') }}";
     var showUrlTemplate = "{{ route('assets.materials.show', ':id') }}";
@@ -300,31 +342,72 @@
 
     // Global helper function untuk format tanggal
     window.formatDateForInput = function(dateString) {
-        if (!dateString) return '';
+        console.log('FORMAT DATE: Input:', dateString, 'Type:', typeof dateString); // DEBUG
+        
+        if (!dateString) {
+            console.log('FORMAT DATE: Empty date, returning empty string'); // DEBUG
+            return '';
+        }
         
         // Jika sudah format Y-m-d, gunakan langsung
         if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            console.log('FORMAT DATE: Already in Y-m-d format:', dateString); // DEBUG
             return dateString;
+        }
+        
+        // Handle format datetime dari Laravel (Y-m-d H:i:s)
+        if (dateString.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)) {
+            const dateOnly = dateString.split(' ')[0];
+            console.log('FORMAT DATE: Laravel datetime format, extracting date:', dateOnly); // DEBUG
+            return dateOnly;
         }
         
         // Konversi dari format lain ke Y-m-d
         try {
             const date = new Date(dateString);
-            if (isNaN(date.getTime())) return '';
+            if (isNaN(date.getTime())) {
+                console.log('FORMAT DATE: Invalid date, returning empty string'); // DEBUG
+                return '';
+            }
             
             // Konversi ke timezone lokal
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');
             
-            return `${year}-${month}-${day}`;
+            const result = `${year}-${month}-${day}`;
+            console.log('FORMAT DATE: Converted to:', result); // DEBUG
+            return result;
         } catch (e) {
-            console.error('Error parsing date:', dateString, e);
+            console.error('FORMAT DATE: Error parsing date:', dateString, e);
             return '';
         }
     };
 
     $(document).ready(function() {
+        console.log('DOCUMENT READY: Asset materials page loaded'); // DEBUG
+        console.log('DOCUMENT READY: jQuery version:', $.fn.jquery); // DEBUG
+        console.log('DOCUMENT READY: DataTable available:', typeof $.fn.DataTable !== 'undefined'); // DEBUG
+        console.log('DOCUMENT READY: Swal available:', typeof Swal !== 'undefined'); // DEBUG
+        
+        // Check if buttons exist on page load
+        console.log('DOCUMENT READY: Submit button exists:', $('#submitMaterialBtn').length > 0);
+        console.log('DOCUMENT READY: Submit button events on load:', $._data($('#submitMaterialBtn')[0], 'events'));
+        
+        // Add global error handler
+        window.addEventListener('error', function(e) {
+            console.error('GLOBAL ERROR:', e.error);
+        });
+        
+        // Add jQuery AJAX error handler
+        $(document).ajaxError(function(event, xhr, settings, error) {
+            console.error('AJAX ERROR:', {
+                url: settings.url,
+                status: xhr.status,
+                statusText: xhr.statusText,
+                responseText: xhr.responseText
+            });
+        });
         let table = $('#materialsTable').DataTable({
             processing: true,
             serverSide: true,
@@ -368,7 +451,9 @@
                         } else if (data <= row.min_threshold) {
                             badgeClass = 'bg-yellow-50 text-yellow-700 px-2 py-1 rounded-full text-xs font-medium';
                         }
-                        return '<span class="' + badgeClass + '">' + data + ' ' + row.unit + '</span>';
+                        // Tampilkan nama satuan dari relasi, fallback ke unit lama
+                        let unitName = row.satuan ? row.satuan.nama : row.unit;
+                        return '<span class="' + badgeClass + '">' + data + ' ' + unitName + '</span>';
                     }
                 },
                 { data: 'supplier' },
@@ -378,13 +463,13 @@
                     render: function(data, type, row) {
                         return `
                             <div class="flex items-center justify-center gap-2">
-                                <button onclick="viewQrCode(${row.id})" class="text-gray-400 hover:text-ebara-600 hover:bg-ebara-50 p-2 rounded-lg transition" title="QR Code">
+                                <button onclick="viewQrCode(${row.id})" class="text-gray-400 hover:text-ebara-600 hover:bg-ebara-50 p-2 rounded-lg transition" title="QR Code" style="pointer-events: auto !important;">
                                     <i class="ph ph-qr-code text-xl"></i>
                                 </button>
-                                <button onclick="editMaterial(${row.id})" class="text-gray-400 hover:text-ebara-600 hover:bg-ebara-50 p-2 rounded-lg transition" title="Edit">
+                                <button onclick="editMaterial(${row.id})" class="text-gray-400 hover:text-ebara-600 hover:bg-ebara-50 p-2 rounded-lg transition" title="Edit" style="pointer-events: auto !important;">
                                     <i class="ph ph-pencil-simple text-xl"></i>
                                 </button>
-                                <button onclick="deleteMaterial(${row.id})" class="text-gray-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition" title="Hapus">
+                                <button onclick="deleteMaterial(${row.id})" class="text-gray-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition" title="Hapus" style="pointer-events: auto !important;">
                                     <i class="ph ph-trash text-xl"></i>
                                 </button>
                             </div>
@@ -437,18 +522,78 @@
 
     // Global Modal helpers
     window.openMaterialModal = function() {
+        console.log('MODAL: Opening modal'); // DEBUG
         var modal = document.getElementById('materialModal');
         modal.classList.remove('hidden');
         modal.style.display = 'flex';
+        
+        // Force reflow to ensure transition works
+        modal.offsetHeight;
+        
         requestAnimationFrame(function() {
-            modal.querySelector('.modal-content').classList.add('modal-active');
+            var content = modal.querySelector('.modal-content');
+            content.classList.remove('scale-95', 'opacity-0');
+            content.classList.add('scale-100', 'opacity-100');
+            
+            console.log('MODAL: Modal opened, checking buttons'); // DEBUG
+            
+            // Ensure buttons are enabled and visible
+            setTimeout(function() {
+                var submitBtn = document.getElementById('submitMaterialBtn');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.style.display = 'flex';
+                    console.log('MODAL: Submit button enabled and visible'); // DEBUG
+                }
+            }, 100);
         });
     }
     
     window.closeMaterialModal = function() {
+        console.log('MODAL: Closing modal'); // DEBUG
+        
+        // Check if form has unsaved changes
+        var form = document.getElementById('materialForm');
+        var formData = new FormData(form);
+        var hasChanges = false;
+        
+        // Simple check if any field has value (excluding hidden fields)
+        for (var pair of formData.entries()) {
+            if (pair[0] !== 'id' && pair[0] !== 'unit' && pair[1] && pair[1].trim() !== '') {
+                hasChanges = true;
+                break;
+            }
+        }
+        
+        if (hasChanges) {
+            // Show confirmation dialog if there are unsaved changes
+            Swal.fire({
+                title: '{{ __('modules.swal.confirm_title') }}',
+                text: '{{ __('modules.asset_materials.confirm_close') }}',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: '{{ __('modules.asset_materials.yes_close') }}',
+                cancelButtonText: '{{ __('modules.swal.cancel') }}'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    performModalClose();
+                }
+            });
+        } else {
+            // Close directly if no changes
+            performModalClose();
+        }
+    }
+    
+    window.performModalClose = function() {
         var modal = document.getElementById('materialModal');
         var content = modal.querySelector('.modal-content');
-        content.classList.remove('modal-active');
+        
+        content.classList.remove('scale-100', 'opacity-100');
+        content.classList.add('scale-95', 'opacity-0');
+        
         setTimeout(function() {
             modal.classList.add('hidden');
             modal.style.display = 'none';
@@ -475,21 +620,40 @@
         $('#closeQrModalBtn').on('click', function() {
             $('#qrModal').addClass('hidden');
         });
+
+        // Sync dropdown satuan dengan hidden field unit
+        $('#unit_id').on('change', function() {
+            var selectedOption = $(this).find('option:selected');
+            var unitText = selectedOption.text();
+            // Extract nama satuan (sebelum kurung)
+            var unitName = unitText.split(' (')[0];
+            $('#unit').val(unitName);
+        });
     });
 
     function editMaterial(id) {
+        console.log('EDIT MATERIAL: Starting edit for ID:', id); // DEBUG
+        
+        // Check if submit button exists and has event handler
+        console.log('EDIT MATERIAL: Submit button exists:', $('#submitMaterialBtn').length > 0);
+        console.log('EDIT MATERIAL: Submit button events:', $._data($('#submitMaterialBtn')[0], 'events'));
+        
         $.ajax({
             url: showUrlTemplate.replace(':id', id),
             method: 'GET',
             success: function(response) {
-                console.log('Response from server:', response); // Debug log
+                console.log('EDIT MATERIAL: Response from server:', response); // Debug log
                 if (response.success) {
                     const data = response.data;
-                    console.log('Material data:', data); // Debug log
+                    console.log('EDIT MATERIAL: Material data:', data); // Debug log
                     
-                    // Debug tanggal
-                    console.log('Entry date raw:', data.entry_date);
-                    console.log('Expiry date raw:', data.expiry_date);
+                    // Debug tanggal dengan lebih detail
+                    console.log('EDIT MATERIAL: Entry date raw:', data.entry_date, 'Type:', typeof data.entry_date);
+                    console.log('EDIT MATERIAL: Expiry date raw:', data.expiry_date, 'Type:', typeof data.expiry_date);
+                    
+                    // Test fungsi formatDateForInput
+                    console.log('EDIT MATERIAL: formatDateForInput(entry_date):', formatDateForInput(data.entry_date));
+                    console.log('EDIT MATERIAL: formatDateForInput(expiry_date):', formatDateForInput(data.expiry_date));
                     
                     $('#modalTitle').text('{{ __('modules.asset_materials.edit_title') }}');
                     $('#modalSubtitle').text('{{ __('modules.asset_materials.edit_subtitle') }}');
@@ -498,24 +662,48 @@
                     $('#name').val(data.name);
                     $('#type').val(data.type);
                     $('#quantity').val(data.quantity);
-                    $('#unit').val(data.unit);
+                    $('#unit_id').val(data.unit_id);
+                    $('#unit').val(data.unit); // Untuk backward compatibility
                     $('#min_threshold').val(data.min_threshold);
                     $('#unit_price').val(data.unit_price);
                     $('#supplier').val(data.supplier);
                     
                     // Perbaikan untuk tanggal - menggunakan fungsi helper global
-                    $('#entry_date').val(formatDateForInput(data.entry_date));
-                    $('#expiry_date').val(formatDateForInput(data.expiry_date));
+                    const formattedEntryDate = formatDateForInput(data.entry_date);
+                    const formattedExpiryDate = formatDateForInput(data.expiry_date);
+                    
+                    console.log('EDIT MATERIAL: Setting entry_date to:', formattedEntryDate);
+                    console.log('EDIT MATERIAL: Setting expiry_date to:', formattedExpiryDate);
+                    
+                    $('#entry_date').val(formattedEntryDate);
+                    $('#expiry_date').val(formattedExpiryDate);
                     
                     $('#location').val(data.location).trigger('change');
                     $('#description').val(data.description);
                     
                     // Debug final values
-                    console.log('Final entry_date value:', $('#entry_date').val());
-                    console.log('Final expiry_date value:', $('#expiry_date').val());
+                    console.log('EDIT MATERIAL: Final entry_date value:', $('#entry_date').val());
+                    console.log('EDIT MATERIAL: Final expiry_date value:', $('#expiry_date').val());
                     
+                    // Check modal visibility and button states
+                    console.log('EDIT MATERIAL: About to open modal');
                     openMaterialModal();
+                    
+                    // Check if buttons are visible and enabled after modal opens
+                    setTimeout(function() {
+                        console.log('EDIT MATERIAL: Modal visible?', !$('#materialModal').hasClass('hidden'));
+                        console.log('EDIT MATERIAL: Submit button visible?', $('#submitMaterialBtn').is(':visible'));
+                        console.log('EDIT MATERIAL: Submit button enabled?', $('#submitMaterialBtn').is(':enabled'));
+                        console.log('EDIT MATERIAL: Submit button disabled?', $('#submitMaterialBtn').prop('disabled'));
+                        
+                        // Test click event on submit button
+                        $('#submitMaterialBtn').off('click.test').on('click.test', function() {
+                            console.log('EDIT MATERIAL: Submit button click test - EVENT FIRED!');
+                        });
+                    }, 500);
+                    
                 } else {
+                    console.error('EDIT MATERIAL: Server returned error:', response.message);
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
@@ -525,7 +713,8 @@
                 }
             },
             error: function(xhr) {
-                console.error('Error fetching material:', xhr); // Debug log
+                console.error('EDIT MATERIAL: Error fetching material:', xhr); // Debug log
+                console.error('EDIT MATERIAL: Response text:', xhr.responseText);
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
@@ -542,46 +731,52 @@
     // Also add click handler as backup with confirmation
     $('#submitMaterialBtn').on('click', function(e) {
         e.preventDefault();
-        console.log('Submit button clicked');
+        console.log('SUBMIT BUTTON: Click event fired!'); // DEBUG
+        console.log('SUBMIT BUTTON: Button disabled:', $(this).prop('disabled')); // DEBUG
+        console.log('SUBMIT BUTTON: Button visible:', $(this).is(':visible')); // DEBUG
         
         let id = $('#materialId').val();
         let isEdit = id !== '';
         
-        if (isEdit) {
-            // Show confirmation dialog for edit
-            Swal.fire({
-                title: '{{ __('modules.swal.confirm_title') }}',
-                text: '{{ __('modules.swal.update_warning') }}',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#009B77',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: '{{ __('modules.swal.yes_save') }}',
-                cancelButtonText: '{{ __('modules.swal.cancel') }}'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Trigger form submission manually instead of using submit()
-                    handleFormSubmission();
-                }
-            });
-        } else {
-            // Direct submit for new material
-            handleFormSubmission();
-        }
+        console.log('SUBMIT BUTTON: Form ID:', id, 'Is Edit:', isEdit); // DEBUG
+        
+        // Show confirmation dialog for both create and edit
+        let confirmTitle = isEdit ? '{{ __('modules.swal.confirm_title') }}' : '{{ __('modules.swal.confirm_title') }}';
+        let confirmText = isEdit ? '{{ __('modules.swal.update_warning') }}' : '{{ __('modules.asset_materials.confirm_create') }}';
+        
+        Swal.fire({
+            title: confirmTitle,
+            text: confirmText,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#009B77',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: isEdit ? '{{ __('modules.swal.yes_save') }}' : '{{ __('modules.asset_materials.yes_create') }}',
+            cancelButtonText: '{{ __('modules.swal.cancel') }}'
+        }).then((result) => {
+            console.log('SUBMIT BUTTON: Swal result:', result); // DEBUG
+            if (result.isConfirmed) {
+                // Trigger form submission manually instead of using submit()
+                handleFormSubmission();
+            }
+        });
     });
     
     // Extract form submission logic to separate function
     function handleFormSubmission() {
+        console.log('FORM SUBMISSION: Starting form submission'); // DEBUG
+        
         // Additional validation for expiry_date
         let entryDate = $('#entry_date').val();
         let expiryDate = $('#expiry_date').val();
         
-        console.log('Date validation - Entry:', entryDate, 'Expiry:', expiryDate);
+        console.log('FORM SUBMISSION: Date validation - Entry:', entryDate, 'Expiry:', expiryDate);
         
         // Validate expiry date if provided
         if (expiryDate && expiryDate !== '') {
             if (entryDate && entryDate !== '') {
                 if (new Date(expiryDate) < new Date(entryDate)) {
+                    console.log('FORM SUBMISSION: Date validation failed'); // DEBUG
                     Swal.fire({
                         icon: 'error',
                         title: 'Validasi Gagal',
@@ -597,8 +792,44 @@
             }
         }
         
-        // Basic form validation
+        // Enhanced form validation
+        let isValid = true;
+        let validationMessage = '';
+        
+        // Check required fields
+        if (!$('#name').val().trim()) {
+            isValid = false;
+            validationMessage = '{{ __('modules.asset_materials.name_required') }}';
+        } else if (!$('#type').val()) {
+            isValid = false;
+            validationMessage = '{{ __('modules.asset_materials.type_required') }}';
+        } else if (!$('#quantity').val() || $('#quantity').val() < 0) {
+            isValid = false;
+            validationMessage = '{{ __('modules.asset_materials.quantity_invalid') }}';
+        } else if (!$('#unit_id').val()) {
+            isValid = false;
+            validationMessage = '{{ __('modules.asset_materials.unit_required') }}';
+        } else if (!$('#min_threshold').val() || $('#min_threshold').val() < 0) {
+            isValid = false;
+            validationMessage = '{{ __('modules.asset_materials.min_threshold_invalid') }}';
+        } else if (!$('#entry_date').val()) {
+            isValid = false;
+            validationMessage = '{{ __('modules.asset_materials.entry_date_required') }}';
+        }
+        
+        if (!isValid) {
+            Swal.fire({
+                icon: 'error',
+                title: '{{ __('modules.asset_materials.validation_failed') }}',
+                text: validationMessage,
+                confirmButtonColor: '#dc2626'
+            });
+            return false;
+        }
+        
+        // Basic HTML5 form validation as fallback
         if (!$('#materialForm')[0].checkValidity()) {
+            console.log('FORM SUBMISSION: HTML5 validation failed'); // DEBUG
             // If HTML5 validation fails, trigger browser validation UI
             $('#materialForm')[0].reportValidity();
             return false;
@@ -618,8 +849,11 @@
             successMessage = '{{ __('modules.swal.data_updated') }}';
         }
 
+        console.log('FORM SUBMISSION: Sending AJAX to:', url); // DEBUG
+        console.log('FORM SUBMISSION: Form data:', formData); // DEBUG
+
         // Disable submit button to prevent double submission
-        $('#submitMaterialBtn').prop('disabled', true).text('{{ __('modules.common.saving') }}');
+        $('#submitMaterialBtn').prop('disabled', true).html('<i class="ph ph-spinner-gap animate-spin text-lg"></i> {{ __('modules.common.saving') }}');
 
         $.ajax({
             url: url,
@@ -629,30 +863,42 @@
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
             success: function(response) {
-                console.log('Update successful:', response);
+                console.log('FORM SUBMISSION: Update successful:', response);
                 closeMaterialModal();
                 
                 // Reload DataTable with a small delay to ensure server has processed the update
                 setTimeout(function() {
                     $('#materialsTable').DataTable().ajax.reload(null, false); // false = keep current page
-                    console.log('DataTable reloaded');
+                    console.log('FORM SUBMISSION: DataTable reloaded');
                 }, 500);
                 
                 Swal.fire({
                     icon: 'success',
                     title: '{{ __('modules.swal.success') }}',
                     text: successMessage,
-                    confirmButtonColor: '#009B77'
+                    confirmButtonColor: '#009B77',
+                    timer: 2000,
+                    timerProgressBar: true,
+                    showConfirmButton: false
                 });
                 // Reset form and re-enable button
                 $('#materialForm')[0].reset();
-                $('#submitMaterialBtn').prop('disabled', false).text('{{ __('modules.common.save') }}');
+                // Reset unit_id dropdown
+                $('#unit_id').val('');
+                $('#unit').val('');
+                $('#submitMaterialBtn').prop('disabled', false).html('<i class="ph ph-floppy-disk text-lg"></i> {{ __('modules.common.save') }}');
             },
             error: function(xhr) {
-                let errors = xhr.responseJSON.errors;
+                console.error('FORM SUBMISSION: AJAX error:', xhr); // DEBUG
+                console.error('FORM SUBMISSION: Response text:', xhr.responseText); // DEBUG
+                let errors = xhr.responseJSON?.errors;
                 let errorMessage = '';
-                for (let key in errors) {
-                    errorMessage += errors[key][0] + '\n';
+                if (errors) {
+                    for (let key in errors) {
+                        errorMessage += errors[key][0] + '\n';
+                    }
+                } else {
+                    errorMessage = xhr.responseJSON?.message || 'Terjadi kesalahan saat menyimpan data';
                 }
                 Swal.fire({
                     icon: 'error',
@@ -661,12 +907,18 @@
                     confirmButtonColor: '#dc2626'
                 });
                 // Re-enable button on error
-                $('#submitMaterialBtn').prop('disabled', false).text('{{ __('modules.common.save') }}');
+                $('#submitMaterialBtn').prop('disabled', false).html('<i class="ph ph-floppy-disk text-lg"></i> {{ __('modules.common.save') }}');
             }
         });
     }
 
     function deleteMaterial(id) {
+        console.log('DELETE MATERIAL: Starting delete for ID:', id); // DEBUG
+        
+        // Check if delete buttons are working
+        console.log('DELETE MATERIAL: Swal available:', typeof Swal !== 'undefined');
+        console.log('DELETE MATERIAL: jQuery available:', typeof $ !== 'undefined');
+        
         Swal.fire({
             title: '{{ __('modules.swal.confirm_title') }}',
             text: '{{ __('modules.swal.delete_warning') }}',
@@ -677,7 +929,9 @@
             confirmButtonText: '{{ __('modules.swal.yes_delete') }}',
             cancelButtonText: '{{ __('modules.swal.cancel') }}'
         }).then((result) => {
+            console.log('DELETE MATERIAL: Swal result:', result); // DEBUG
             if (result.isConfirmed) {
+                console.log('DELETE MATERIAL: Confirmed, sending AJAX request'); // DEBUG
                 $.ajax({
                     url: destroyUrlTemplate.replace(':id', id),
                     method: 'DELETE',
@@ -685,12 +939,23 @@
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
                     success: function(response) {
+                        console.log('DELETE MATERIAL: Delete successful:', response); // DEBUG
                         $('#materialsTable').DataTable().ajax.reload();
                         Swal.fire({
                             icon: 'success',
                             title: '{{ __('modules.swal.success') }}',
                             text: '{{ __('modules.swal.data_deleted') }}',
                             confirmButtonColor: '#009B77'
+                        });
+                    },
+                    error: function(xhr) {
+                        console.error('DELETE MATERIAL: Delete failed:', xhr); // DEBUG
+                        console.error('DELETE MATERIAL: Response text:', xhr.responseText);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Gagal menghapus data',
+                            confirmButtonColor: '#dc2626'
                         });
                     }
                 });

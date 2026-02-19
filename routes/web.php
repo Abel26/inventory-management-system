@@ -118,6 +118,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/', [ReportController::class, 'store'])->name('store');
         Route::get('/scan', [ReportController::class, 'scan'])->name('scan');
         Route::get('/{id}', [ReportController::class, 'show'])->name('show');
+        Route::delete('/{id}', [ReportController::class, 'destroy'])->name('destroy');
         Route::put('/{id}/status', [ReportController::class, 'updateStatus'])->name('update-status');
         Route::get('/by-status/{status}', [ReportController::class, 'getByStatus'])->name('by-status');
 
@@ -175,6 +176,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/create', [GedungController::class, 'create'])->name('create');
             Route::post('/', [GedungController::class, 'store'])->name('store');
             Route::get('/data', [GedungController::class, 'getData'])->name('data');
+            Route::get('/export', [GedungController::class, 'export'])->name('export');
+            Route::get('/export-pdf', [GedungController::class, 'exportPdf'])->name('export-pdf');
             Route::get('/{id}', [GedungController::class, 'show'])->name('show');
             Route::get('/{id}/edit', [GedungController::class, 'edit'])->name('edit');
             Route::put('/{id}', [GedungController::class, 'update'])->name('update');

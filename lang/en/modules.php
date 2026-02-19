@@ -154,8 +154,9 @@ return [
         'expiry_date' => 'Expiry Date',
         'code_placeholder' => 'Optional, will be auto-generated',
 
-        // Select Options - Types
+        // Select Options
         'select_type' => 'Select Type',
+        'select_unit' => 'Select Unit',
         'type_raw_material' => 'Raw Material',
         'type_component' => 'Component',
         'type_accessory' => 'Accessory',
@@ -163,6 +164,19 @@ return [
 
         // Error Messages
         'fetch_error' => 'Failed to fetch material data',
+        
+        // Confirmation Messages
+        'confirm_create' => 'Are you sure you want to add a new material?',
+        'confirm_close' => 'There are unsaved changes. Are you sure you want to close?',
+        'validation_failed' => 'Validation Failed',
+        'name_required' => 'Material name is required',
+        'type_required' => 'Material type is required',
+        'quantity_invalid' => 'Quantity is required and cannot be negative',
+        'unit_required' => 'Unit is required',
+        'min_threshold_invalid' => 'Minimum stock is required and cannot be negative',
+        'entry_date_required' => 'Entry date is required',
+        'yes_create' => 'Yes, Add',
+        'yes_close' => 'Yes, Close',
     ],
 
     // ===========================

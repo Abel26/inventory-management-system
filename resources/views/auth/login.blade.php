@@ -23,7 +23,7 @@
         <!-- Logo Section -->
         <div class="text-center mb-8">
             <div class="inline-flex items-center justify-center mb-4">
-                <x-brand.ebara-logo class="h-16 w-16 text-ebara-500" />
+                <img src="{{ asset('assets/img/logo.png') }}" alt="Ebara Inventory Logo" class="h-16 w-auto">
             </div>
             <h1 class="text-2xl font-bold text-gray-900">Ebara Inventory</h1>
             <p class="mt-2 text-sm text-gray-600">Sign in to your account</p>

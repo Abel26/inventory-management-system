@@ -37,8 +37,9 @@ class AssetManagementController extends Controller
         
         $materials = $this->assetMaterialService->getAll();
         $gedungs = \App\Models\Gedung::orderBy('nama')->get();
+        $satuans = \App\Models\Satuan::orderBy('nama')->get();
         
-        return view('asset_materials.index', compact('materials', 'gedungs'));
+        return view('asset_materials.index', compact('materials', 'gedungs', 'satuans'));
     }
 
     /**
@@ -116,7 +117,8 @@ class AssetManagementController extends Controller
                     'name' => $material->name,
                     'type' => $material->type,
                     'quantity' => $material->quantity,
-                    'unit' => $material->unit,
+                    'unit_id' => $material->unit_id,
+                    'unit' => $material->satuan ? $material->satuan->nama : $material->unit, // Untuk backward compatibility
                     'min_threshold' => $material->min_threshold,
                     'unit_price' => $material->unit_price,
                     'supplier' => $material->supplier,
@@ -255,7 +257,7 @@ class AssetManagementController extends Controller
         $search = $request->get('search')['value'] ?? '';
 
         // Get all materials with fresh data to avoid cache issues
-        $query = AssetMaterial::query()->latest();
+        $query = AssetMaterial::with(['satuan', 'gedung'])->latest();
 
         // Apply search
         if ($search) {
@@ -284,7 +286,9 @@ class AssetManagementController extends Controller
                 'name' => $material->name,
                 'type' => $material->type,
                 'quantity' => $material->quantity,
-                'unit' => $material->unit,
+                'unit_id' => $material->unit_id,
+                'unit' => $material->satuan ? $material->satuan->nama : $material->unit, // Untuk backward compatibility
+                'satuan' => $material->satuan, // Include satuan relation for DataTable
                 'min_threshold' => $material->min_threshold,
                 'supplier' => $material->supplier ?? '-',
                 'entry_date' => $material->entry_date ? $material->entry_date->format('d/m/Y') : '-',

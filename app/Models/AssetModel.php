@@ -142,4 +142,12 @@ class AssetModel extends Model
     {
         return $this->pendingMoldModifications()->count();
     }
+
+    /**
+     * Get the gedung that this model belongs to.
+     */
+    public function gedung(): BelongsTo
+    {
+        return $this->belongsTo(Gedung::class, 'gedung_id');
+    }
 }

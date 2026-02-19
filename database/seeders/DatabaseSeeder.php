@@ -6,6 +6,7 @@ use App\Models\User;
 use Database\Seeders\AssetModelSeeder;
 use Database\Seeders\AssetMaterialSeeder;
 use Database\Seeders\GedungSeeder;
+use Database\Seeders\SatuanSeeder;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -23,6 +24,9 @@ class DatabaseSeeder extends Seeder
         
         // Run RolePermissionSeeder
         // $this->call(RolePermissionSeeder::class);
+        
+        // Run SatuanSeeder first (satuans needed by materials)
+        $this->call(SatuanSeeder::class);
         
         // Run GedungSeeder first (gedungs needed by materials)
         $this->call(GedungSeeder::class);

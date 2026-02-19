@@ -95,6 +95,7 @@ return [
         'delete_warning' => 'Data yang dihapus tidak dapat dikembalikan',
         'update_warning' => 'Data akan diperbarui. Pastikan data sudah benar.',
         'create_warning' => 'Data akan ditambahkan. Pastikan data sudah benar.',
+        'save_warning' => 'Data akan disimpan. Pastikan data sudah benar.',
         'yes_save' => 'Ya, Simpan',
         'yes_delete' => 'Ya, hapus',
         'cancel' => 'Batal',
@@ -154,8 +155,9 @@ return [
         'expiry_date' => 'Tanggal Kadaluarsa',
         'code_placeholder' => 'Opsional, akan digenerate otomatis',
 
-        // Select Options - Types
+        // Select Options
         'select_type' => 'Pilih Tipe',
+        'select_unit' => 'Pilih Satuan',
         'type_raw_material' => 'Bahan Baku',
         'type_component' => 'Komponen',
         'type_accessory' => 'Aksesoris',
@@ -163,6 +165,19 @@ return [
 
         // Error Messages
         'fetch_error' => 'Gagal mengambil data material',
+        
+        // Confirmation Messages
+        'confirm_create' => 'Apakah Anda yakin ingin menambahkan material baru?',
+        'confirm_close' => 'Ada perubahan yang belum disimpan. Apakah Anda yakin ingin menutup?',
+        'validation_failed' => 'Validasi Gagal',
+        'name_required' => 'Nama material wajib diisi',
+        'type_required' => 'Tipe material wajib dipilih',
+        'quantity_invalid' => 'Jumlah wajib diisi dan tidak boleh negatif',
+        'unit_required' => 'Satuan wajib dipilih',
+        'min_threshold_invalid' => 'Minimum stok wajib diisi dan tidak boleh negatif',
+        'entry_date_required' => 'Tanggal masuk wajib diisi',
+        'yes_create' => 'Ya, Tambah',
+        'yes_close' => 'Ya, Tutup',
     ],
 
     // ===========================
@@ -221,7 +236,7 @@ return [
         'empty_state_desc' => 'Mulai dengan menambahkan user pertama',
         'fetch_error' => 'Gagal mengambil data user',
         'update_confirm' => 'Data alat akan diperbarui. Pastikan data sudah benar.',
-        'create_confirm' => 'Data alat akan ditambahkan. Pastikan data sudah benar.',
+        'create_confirm' => 'Apakah Anda yakin ingin menyimpan data alat ini?',
         'delete_permission_error' => 'Anda tidak memiliki izin untuk menghapus data ini',
     ],
 
@@ -270,6 +285,10 @@ return [
         'category_fixture' => 'Fixture',
         'category_other' => 'Lainnya',
 
+        // Confirmation Messages
+        'create_confirm' => 'Apakah Anda yakin ingin menyimpan data model ini?',
+        'update_confirm' => 'Data model akan diperbarui. Pastikan data sudah benar.',
+
         // Error Messages
         'fetch_error' => 'Gagal mengambil data model',
     ],
@@ -317,8 +336,13 @@ return [
         'info_title' => 'Informasi Gedung',
         'info_description' => 'Gedung digunakan sebagai referensi lokasi aset. Pastikan data diisi dengan benar.',
 
+        // Confirmation Messages
+        'create_confirm' => 'Apakah Anda yakin ingin menyimpan data gedung ini?',
+        'update_confirm' => 'Data gedung akan diperbarui. Pastikan data sudah benar.',
+
         // Error Messages
         'fetch_error' => 'Gagal mengambil data gedung',
+        'save_error' => 'Gagal menyimpan data gedung',
     ],
 
     // ===========================
@@ -459,6 +483,7 @@ return [
         // Create Page
         'create_title' => 'Buat Laporan',
         'create_subtitle' => 'Laporkan masalah pada aset',
+        'create_new' => 'Buat Laporan Baru',
         'no_asset_selected' => 'Tidak ada aset yang dipilih',
         'scan_qr_first' => 'Silakan scan QR code aset terlebih dahulu untuk membuat laporan.',
         'scan_qr_code' => 'Scan QR Code',

@@ -61,7 +61,14 @@ class SatuanController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Satuan berhasil ditambahkan'
+                'message' => 'Satuan berhasil ditambahkan',
+                'data' => [
+                    'id' => $satuan->id,
+                    'nama' => $satuan->nama,
+                    'kode' => $satuan->kode,
+                    'created_at' => $satuan->formatted_created_at,
+                    'updated_at' => $satuan->formatted_updated_at,
+                ]
             ]);
         } catch (\Exception $e) {
             Log::error('Error creating satuan:', ['error' => $e->getMessage()]);

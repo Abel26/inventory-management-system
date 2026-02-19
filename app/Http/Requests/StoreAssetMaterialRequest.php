@@ -28,7 +28,8 @@ class StoreAssetMaterialRequest extends FormRequest
             'name' => 'required|string|max:255',
             'type' => 'required|string|max:100',
             'quantity' => 'required|integer|min:0',
-            'unit' => 'required|string|max:20',
+            'unit' => 'nullable|string|max:20', // Keep for backward compatibility
+            'unit_id' => 'required|exists:satuans,id', // New field for satuan relation
             'min_threshold' => 'required|integer|min:0',
             'supplier' => 'nullable|string|max:255',
             'entry_date' => 'required|date',
@@ -57,6 +58,8 @@ class StoreAssetMaterialRequest extends FormRequest
             'quantity.integer' => 'Jumlah stok harus berupa angka',
             'quantity.min' => 'Jumlah stok tidak boleh negatif',
             'unit.required' => 'Satuan wajib diisi',
+            'unit_id.required' => 'Satuan wajib dipilih',
+            'unit_id.exists' => 'Satuan tidak valid',
             'min_threshold.required' => 'Batas minimum wajib diisi',
             'entry_date.required' => 'Tanggal masuk wajib diisi',
             'entry_date.date' => 'Format tanggal tidak valid',

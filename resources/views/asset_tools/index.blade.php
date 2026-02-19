@@ -263,7 +263,7 @@
                         <button type="button" id="cancelBtn" class="px-5 py-2.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-xl transition-all duration-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-200">
                             {{ __('modules.common.cancel') }}
                         </button>
-                        <button type="submit" id="submitToolBtn" class="px-5 py-2.5 bg-gradient-to-r from-ebara-600 to-ebara-700 hover:from-ebara-700 hover:to-ebara-800 text-white font-medium rounded-xl shadow-lg shadow-ebara-500/25 hover:shadow-ebara-500/40 transition-all duration-200 text-sm flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-ebara-500">
+                        <button type="button" id="submitToolBtn" class="px-5 py-2.5 bg-gradient-to-r from-ebara-600 to-ebara-700 hover:from-ebara-700 hover:to-ebara-800 text-white font-medium rounded-xl shadow-lg shadow-ebara-500/25 hover:shadow-ebara-500/40 transition-all duration-200 text-sm flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-ebara-500" style="pointer-events: auto !important; cursor: pointer !important;">
                             <i class="ph ph-floppy-disk text-lg"></i>
                             {{ __('modules.common.save') }}
                         </button>
@@ -292,6 +292,41 @@
     </div>
  
     @push('scripts')
+    <style>
+    /* Modal animations fix */
+    .modal-content {
+        transition: all 0.3s ease;
+    }
+    
+    .modal-content.scale-95 {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    
+    .modal-content.scale-100 {
+        transform: scale(1);
+        opacity: 1;
+    }
+    
+    .modal-content.opacity-0 {
+        opacity: 0;
+    }
+    
+    .modal-content.opacity-1 {
+        opacity: 1;
+    }
+    
+    /* Ensure buttons are always clickable */
+    #submitToolBtn {
+        pointer-events: auto !important;
+        cursor: pointer !important;
+    }
+    
+    #submitToolBtn:disabled {
+        pointer-events: none !important;
+        cursor: not-allowed !important;
+    }
+    </style>
     <script>
     var storeUrl = "{{ route('assets.tools.store') }}";
     var showUrlTemplate = "{{ route('assets.tools.show', ':id') }}";
@@ -301,31 +336,72 @@
 
     // Global helper function untuk format tanggal
     window.formatDateForInput = function(dateString) {
-        if (!dateString) return '';
+        console.log('TOOLS FORMAT DATE: Input:', dateString, 'Type:', typeof dateString); // DEBUG
+        
+        if (!dateString) {
+            console.log('TOOLS FORMAT DATE: Empty date, returning empty string'); // DEBUG
+            return '';
+        }
         
         // Jika sudah format Y-m-d, gunakan langsung
         if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            console.log('TOOLS FORMAT DATE: Already in Y-m-d format:', dateString); // DEBUG
             return dateString;
+        }
+        
+        // Handle format datetime dari Laravel (Y-m-d H:i:s)
+        if (dateString.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)) {
+            const dateOnly = dateString.split(' ')[0];
+            console.log('TOOLS FORMAT DATE: Laravel datetime format, extracting date:', dateOnly); // DEBUG
+            return dateOnly;
         }
         
         // Konversi dari format lain ke Y-m-d
         try {
             const date = new Date(dateString);
-            if (isNaN(date.getTime())) return '';
+            if (isNaN(date.getTime())) {
+                console.log('TOOLS FORMAT DATE: Invalid date, returning empty string'); // DEBUG
+                return '';
+            }
             
             // Konversi ke timezone lokal
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');
             
-            return `${year}-${month}-${day}`;
+            const result = `${year}-${month}-${day}`;
+            console.log('TOOLS FORMAT DATE: Converted to:', result); // DEBUG
+            return result;
         } catch (e) {
-            console.error('Error parsing date:', dateString, e);
+            console.error('TOOLS FORMAT DATE: Error parsing date:', dateString, e);
             return '';
         }
     };
  
     $(document).ready(function() {
+        console.log('TOOLS DOCUMENT READY: Asset tools page loaded'); // DEBUG
+        console.log('TOOLS DOCUMENT READY: jQuery version:', $.fn.jquery); // DEBUG
+        console.log('TOOLS DOCUMENT READY: DataTable available:', typeof $.fn.DataTable !== 'undefined'); // DEBUG
+        console.log('TOOLS DOCUMENT READY: Swal available:', typeof Swal !== 'undefined'); // DEBUG
+        
+        // Check if buttons exist on page load
+        console.log('TOOLS DOCUMENT READY: Submit button exists:', $('#submitToolBtn').length > 0);
+        console.log('TOOLS DOCUMENT READY: Submit button events on load:', $._data($('#submitToolBtn')[0], 'events'));
+        
+        // Add global error handler
+        window.addEventListener('error', function(e) {
+            console.error('TOOLS GLOBAL ERROR:', e.error);
+        });
+        
+        // Add jQuery AJAX error handler
+        $(document).ajaxError(function(event, xhr, settings, error) {
+            console.error('TOOLS AJAX ERROR:', {
+                url: settings.url,
+                status: xhr.status,
+                statusText: xhr.statusText,
+                responseText: xhr.responseText
+            });
+        });
         let table = $('#toolsTable').DataTable({
             processing: true,
             serverSide: true,
@@ -388,13 +464,13 @@
                     render: function(data, type, row) {
                         return `
                             <div class="flex items-center justify-center gap-2">
-                                <button onclick="viewQrCode(${row.id})" class="text-gray-400 hover:text-ebara-600 hover:bg-ebara-50 p-2 rounded-lg transition" title="QR Code">
+                                <button onclick="viewQrCode(${row.id})" class="text-gray-400 hover:text-ebara-600 hover:bg-ebara-50 p-2 rounded-lg transition" title="QR Code" style="pointer-events: auto !important;">
                                     <i class="ph ph-qr-code text-xl"></i>
                                 </button>
-                                <button onclick="editTool(${row.id})" class="text-gray-400 hover:text-ebara-600 hover:bg-ebara-50 p-2 rounded-lg transition" title="Edit">
+                                <button onclick="editTool(${row.id})" class="text-gray-400 hover:text-ebara-600 hover:bg-ebara-50 p-2 rounded-lg transition" title="Edit" style="pointer-events: auto !important;">
                                     <i class="ph ph-pencil-simple text-xl"></i>
                                 </button>
-                                <button onclick="deleteTool(${row.id})" class="text-gray-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition" title="Hapus">
+                                <button onclick="deleteTool(${row.id})" class="text-gray-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition" title="Hapus" style="pointer-events: auto !important;">
                                     <i class="ph ph-trash text-xl"></i>
                                 </button>
                             </div>
@@ -447,18 +523,41 @@
  
     // Global Modal helpers
     window.openToolModal = function() {
+        console.log('TOOLS MODAL: Opening modal'); // DEBUG
         var modal = document.getElementById('toolModal');
         modal.classList.remove('hidden');
         modal.style.display = 'flex';
+        
+        // Force reflow to ensure transition works
+        modal.offsetHeight;
+        
         requestAnimationFrame(function() {
-            modal.querySelector('.modal-content').classList.add('modal-active');
+            var content = modal.querySelector('.modal-content');
+            content.classList.remove('scale-95', 'opacity-0');
+            content.classList.add('scale-100', 'opacity-100');
+            
+            console.log('TOOLS MODAL: Modal opened, checking buttons'); // DEBUG
+            
+            // Ensure buttons are enabled and visible
+            setTimeout(function() {
+                var submitBtn = document.getElementById('submitToolBtn');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.style.display = 'flex';
+                    console.log('TOOLS MODAL: Submit button enabled and visible'); // DEBUG
+                }
+            }, 100);
         });
     }
     
     window.closeToolModal = function() {
+        console.log('TOOLS MODAL: Closing modal'); // DEBUG
         var modal = document.getElementById('toolModal');
         var content = modal.querySelector('.modal-content');
-        content.classList.remove('modal-active');
+        
+        content.classList.remove('scale-100', 'opacity-100');
+        content.classList.add('scale-95', 'opacity-0');
+        
         setTimeout(function() {
             modal.classList.add('hidden');
             modal.style.display = 'none';
@@ -488,12 +587,27 @@
     });
  
     function editTool(id) {
+        console.log('TOOLS EDIT: Starting edit for ID:', id); // DEBUG
+        
+        // Check if submit button exists and has event handler
+        console.log('TOOLS EDIT: Submit button exists:', $('#submitToolBtn').length > 0);
+        console.log('TOOLS EDIT: Submit button events:', $._data($('#submitToolBtn')[0], 'events'));
+        
         $.ajax({
             url: showUrlTemplate.replace(':id', id),
             method: 'GET',
             success: function(response) {
+                console.log('TOOLS EDIT: Response from server:', response); // DEBUG
                 if (response.success) {
                     const data = response.data;
+                    console.log('TOOLS EDIT: Tool data:', data); // DEBUG
+                    
+                    // Debug tanggal dengan lebih detail
+                    console.log('TOOLS EDIT: Purchase date raw:', data.purchase_date, 'Type:', typeof data.purchase_date);
+                    
+                    // Test fungsi formatDateForInput
+                    console.log('TOOLS EDIT: formatDateForInput(purchase_date):', formatDateForInput(data.purchase_date));
+                    
                     $('#modalTitle').text('{{ __('modules.asset_tools.edit_title') }}');
                     $('#modalSubtitle').text('{{ __('modules.asset_tools.edit_subtitle') }}');
                     $('#toolId').val(data.id);
@@ -502,15 +616,62 @@
                     $('#category').val(data.category);
                     $('#brand').val(data.brand);
                     $('#type').val(data.type);
+                    
                     // Perbaikan untuk tanggal - menggunakan fungsi helper global
-                    $('#purchase_date').val(formatDateForInput(data.purchase_date));
+                    const formattedPurchaseDate = formatDateForInput(data.purchase_date);
+                    console.log('TOOLS EDIT: Setting purchase_date to:', formattedPurchaseDate);
+                    
+                    // Force set tanggal dengan multiple approaches
+                    $('#purchase_date').val(formattedPurchaseDate);
+                    
+                    // Additional force set untuk memastikan tanggal terisi
+                    setTimeout(function() {
+                        $('#purchase_date').val(formattedPurchaseDate).trigger('change');
+                        console.log('TOOLS EDIT: Forced purchase_date value after timeout:', $('#purchase_date').val());
+                    }, 100);
+                    
                     $('#purchase_price').val(data.purchase_price);
                     $('#quantity').val(data.quantity);
                     $('#location').val(data.location).trigger('change');
                     $('#condition').val(data.condition);
                     $('#description').val(data.description);
+                    
+                    // Debug final values
+                    console.log('TOOLS EDIT: Final purchase_date value:', $('#purchase_date').val());
+                    
+                    // Check modal visibility and button states
+                    console.log('TOOLS EDIT: About to open modal');
                     openToolModal();
+                    
+                    // Check if buttons are visible and enabled after modal opens
+                    setTimeout(function() {
+                        console.log('TOOLS EDIT: Modal visible?', !$('#toolModal').hasClass('hidden'));
+                        console.log('TOOLS EDIT: Submit button visible?', $('#submitToolBtn').is(':visible'));
+                        console.log('TOOLS EDIT: Submit button enabled?', $('#submitToolBtn').is(':enabled'));
+                        console.log('TOOLS EDIT: Submit button disabled?', $('#submitToolBtn').prop('disabled'));
+                        
+                        // Force re-bind click event to submit button
+                        $('#submitToolBtn').off('click.edit').on('click.edit', function(e) {
+                            e.preventDefault();
+                            console.log('TOOLS EDIT: Submit button click - EVENT FIRED!'); // DEBUG
+                            $('#toolForm').trigger('submit');
+                        });
+                        
+                        // Additional backup click handler
+                        $('#submitToolBtn').off('click.backup').on('click.backup', function(e) {
+                            e.preventDefault();
+                            console.log('TOOLS EDIT: Submit button backup click - EVENT FIRED!'); // DEBUG
+                            $('#toolForm').trigger('submit');
+                        });
+                        
+                        // Test click event
+                        $('#submitToolBtn').off('click.test').on('click.test', function() {
+                            console.log('TOOLS EDIT: Submit button click test - EVENT FIRED!');
+                        });
+                    }, 500);
+                    
                 } else {
+                    console.error('TOOLS EDIT: Server returned error:', response.message);
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
@@ -520,6 +681,8 @@
                 }
             },
             error: function(xhr) {
+                console.error('TOOLS EDIT: Error fetching tool:', xhr); // DEBUG
+                console.error('TOOLS EDIT: Response text:', xhr.responseText);
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
@@ -566,7 +729,20 @@
         });
     });
 
+    // Also add click handler as backup for submit button
+    $('#submitToolBtn').on('click', function(e) {
+        e.preventDefault();
+        console.log('TOOLS SUBMIT BUTTON: Click event fired!'); // DEBUG
+        console.log('TOOLS SUBMIT BUTTON: Button disabled:', $(this).prop('disabled')); // DEBUG
+        console.log('TOOLS SUBMIT BUTTON: Button visible:', $(this).is(':visible')); // DEBUG
+        
+        // Trigger form submission
+        $('#toolForm').trigger('submit');
+    });
+
     function submitToolForm(successMessage = '{{ __('modules.swal.data_saved') }}') {
+        console.log('TOOLS SUBMIT FORM: Starting form submission'); // DEBUG
+        
         let formData = $('#toolForm').serialize();
         let id = $('#toolId').val();
         let url = storeUrl;
@@ -578,9 +754,12 @@
             formData += '&_method=PUT';
             method = 'POST'; // Always use POST with _method field
         }
+
+        console.log('TOOLS SUBMIT FORM: Sending AJAX to:', url); // DEBUG
+        console.log('TOOLS SUBMIT FORM: Form data:', formData); // DEBUG
  
         // Disable submit button to prevent double submission
-        $('#submitToolBtn').prop('disabled', true).text('{{ __('modules.common.saving') }}');
+        $('#submitToolBtn').prop('disabled', true).html('<i class="ph ph-spinner-gap animate-spin text-lg"></i> {{ __('modules.common.saving') }}');
  
         $.ajax({
             url: url,
@@ -590,13 +769,13 @@
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
             success: function(response) {
-                console.log('Update successful:', response);
+                console.log('TOOLS SUBMIT FORM: Update successful:', response);
                 closeToolModal();
                 
                 // Reload DataTable with a small delay to ensure server has processed update
                 setTimeout(function() {
                     $('#toolsTable').DataTable().ajax.reload(null, false); // false = keep current page
-                    console.log('DataTable reloaded');
+                    console.log('TOOLS SUBMIT FORM: DataTable reloaded');
                 }, 500);
                 
                 Swal.fire({
@@ -607,9 +786,11 @@
                 });
                 // Reset form and re-enable button
                 $('#toolForm')[0].reset();
-                $('#submitToolBtn').prop('disabled', false).text('{{ __('modules.common.save') }}');
+                $('#submitToolBtn').prop('disabled', false).html('<i class="ph ph-floppy-disk text-lg"></i> {{ __('modules.common.save') }}');
             },
             error: function(xhr) {
+                console.error('TOOLS SUBMIT FORM: AJAX error:', xhr); // DEBUG
+                console.error('TOOLS SUBMIT FORM: Response text:', xhr.responseText); // DEBUG
                 let errorMessage = '{{ __('modules.swal.generic_error') }}';
                 
                 if (xhr.responseJSON) {
@@ -642,13 +823,19 @@
                     confirmButtonColor: '#dc2626'
                 });
                 // Re-enable button on error
-                $('#submitToolBtn').prop('disabled', false).text('{{ __('modules.common.save') }}');
+                $('#submitToolBtn').prop('disabled', false).html('<i class="ph ph-floppy-disk text-lg"></i> {{ __('modules.common.save') }}');
             }
         });
     }
  
  
     function deleteTool(id) {
+        console.log('TOOLS DELETE: Starting delete for ID:', id); // DEBUG
+        
+        // Check if delete buttons are working
+        console.log('TOOLS DELETE: Swal available:', typeof Swal !== 'undefined');
+        console.log('TOOLS DELETE: jQuery available:', typeof $ !== 'undefined');
+        
         Swal.fire({
             title: '{{ __('modules.swal.confirm_title') }}',
             text: '{{ __('modules.swal.delete_warning') }}',
@@ -659,7 +846,9 @@
             confirmButtonText: '{{ __('modules.swal.yes_delete') }}',
             cancelButtonText: '{{ __('modules.swal.cancel') }}'
         }).then((result) => {
+            console.log('TOOLS DELETE: Swal result:', result); // DEBUG
             if (result.isConfirmed) {
+                console.log('TOOLS DELETE: Confirmed, sending AJAX request'); // DEBUG
                 $.ajax({
                     url: destroyUrlTemplate.replace(':id', id),
                     method: 'DELETE',
@@ -667,6 +856,7 @@
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
                     success: function(response) {
+                        console.log('TOOLS DELETE: Delete successful:', response); // DEBUG
                         $('#toolsTable').DataTable().ajax.reload();
                         Swal.fire({
                             icon: 'success',
@@ -676,6 +866,8 @@
                         });
                     },
                     error: function(xhr) {
+                        console.error('TOOLS DELETE: Delete failed:', xhr); // DEBUG
+                        console.error('TOOLS DELETE: Response text:', xhr.responseText);
                         let errorMessage = '{{ __('modules.swal.delete_error') }}';
                         
                         if (xhr.responseJSON && xhr.responseJSON.message) {

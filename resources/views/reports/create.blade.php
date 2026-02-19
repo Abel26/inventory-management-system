@@ -238,27 +238,91 @@
         document.getElementById('submitReportBtn').addEventListener('click', function(e) {
             e.preventDefault();
             
+            // Validate form first
+            const form = document.getElementById('reportForm');
+            const formData = new FormData(form);
+            
+            // Check required fields
+            const reportableId = formData.get('reportable_id');
+            const reportableType = formData.get('reportable_type');
+            const issueType = formData.get('issue_type');
+            const priority = formData.get('priority');
+            const description = formData.get('description');
+            
+            if (!reportableId || !reportableType) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Asset tidak valid. Silakan scan QR code terlebih dahulu.',
+                    confirmButtonColor: '#dc2626'
+                });
+                return;
+            }
+            
+            if (!issueType) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Silakan pilih jenis masalah.',
+                    confirmButtonColor: '#dc2626'
+                });
+                return;
+            }
+            
+            if (!priority) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Silakan pilih prioritas.',
+                    confirmButtonColor: '#dc2626'
+                });
+                return;
+            }
+            
+            if (!description || description.trim().length === 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Silakan isi deskripsi masalah.',
+                    confirmButtonColor: '#dc2626'
+                });
+                return;
+            }
+            
+            // Show confirmation
             Swal.fire({
                 title: '{{ __('modules.swal.submit_report') }}',
                 text: '{{ __('modules.swal.submit_report_text') }}',
                 icon: 'question',
-                position: 'center', // Explicitly center the modal
+                position: 'center',
                 showCancelButton: true,
-                confirmButtonColor: '#16a34a', // Green color for confirm
-                cancelButtonColor: '#6b7280', // Gray color for cancel
+                confirmButtonColor: '#16a34a',
+                cancelButtonColor: '#6b7280',
                 confirmButtonText: '{{ __('modules.swal.yes_submit') }}',
                 cancelButtonText: '{{ __('modules.swal.cancel') }}',
                 reverseButtons: true,
-                allowOutsideClick: false, // Prevent closing by clicking outside
-                allowEscapeKey: false, // Prevent closing with Escape key
-                backdrop: true, // Ensure backdrop is visible
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                backdrop: true,
                 didOpen: function(modal) {
-                    // Focus on modal for accessibility
                     modal.querySelector('button.swal2-confirm').focus();
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    document.getElementById('reportForm').submit();
+                    // Show loading
+                    Swal.fire({
+                        title: 'Mengirim...',
+                        text: 'Sedang mengirim laporan.',
+                        icon: 'info',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    // Submit form
+                    form.submit();
                 }
             });
         });

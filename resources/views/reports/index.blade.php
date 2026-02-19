@@ -36,7 +36,7 @@
                     </div>
                     <a href="{{ route('reports.create') }}" class="w-full md:w-auto bg-ebara-600 hover:bg-ebara-700 text-white font-medium py-2.5 px-4 rounded-xl inline-flex items-center justify-center gap-2 transition-colors">
                         <i class="ph ph-plus text-lg"></i>
-                        <span>{{ __('modules.reports.create_new') }}</span>
+                        <span>Buat Laporan Baru</span>
                     </a>
                 </div>
             </div>
@@ -165,6 +165,7 @@
     var allReports = @json($reports);
     var currentFilter = 'all';
     var table = null;
+    var destroyUrlTemplate = "{{ route('reports.destroy', ':id') }}";
     
     // Translation map
     var translations = {
@@ -292,6 +293,9 @@
                                 <a href="/reports/${row.id}" class="text-indigo-600 hover:text-indigo-800 transition" title="{{ __('modules.reports.detail_title') }}">
                                     <i class="ph ph-eye text-xl"></i>
                                 </a>
+                                <button onclick="deleteReport(${row.id}, '${row.report_code}')" class="text-red-600 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition" title="{{ __('modules.reports.delete_title') }}">
+                                    <i class="ph ph-trash text-xl"></i>
+                                </button>
                             </div>
                         `;
                     }
@@ -375,6 +379,57 @@
         
         // Update Export URLs
         updateExportUrls();
+    }
+    
+    function deleteReport(id, reportCode) {
+        console.log('Deleting report with ID:', id, 'Code:', reportCode);
+        
+        Swal.fire({
+            title: '{{ __('modules.swal.confirm_title') }}',
+            text: '{{ __('modules.swal.delete_warning') }}',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#009B77',
+            confirmButtonText: '{{ __('modules.swal.yes_delete') }}',
+            cancelButtonText: '{{ __('modules.swal.cancel') }}'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: destroyUrlTemplate.replace(':id', id),
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        // Remove the deleted row from allReports array
+                        allReports = allReports.filter(function(report) {
+                            return report.id !== id;
+                        });
+                        
+                        // Refresh the table with filtered data
+                        filterData();
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: '{{ __('modules.swal.success') }}',
+                            text: response.message || '{{ __('modules.reports.data_deleted') }}',
+                            confirmButtonColor: '#009B77',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    },
+                    error: function(xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: '{{ __('modules.reports.delete_error') }}',
+                            confirmButtonColor: '#dc2626'
+                        });
+                    }
+                });
+            }
+        });
     }
     
     function resetDateFilter() {
