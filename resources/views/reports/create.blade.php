@@ -242,12 +242,20 @@
                 title: '{{ __('modules.swal.submit_report') }}',
                 text: '{{ __('modules.swal.submit_report_text') }}',
                 icon: 'question',
+                position: 'center', // Explicitly center the modal
                 showCancelButton: true,
                 confirmButtonColor: '#16a34a', // Green color for confirm
                 cancelButtonColor: '#6b7280', // Gray color for cancel
                 confirmButtonText: '{{ __('modules.swal.yes_submit') }}',
                 cancelButtonText: '{{ __('modules.swal.cancel') }}',
-                reverseButtons: true
+                reverseButtons: true,
+                allowOutsideClick: false, // Prevent closing by clicking outside
+                allowEscapeKey: false, // Prevent closing with Escape key
+                backdrop: true, // Ensure backdrop is visible
+                didOpen: function(modal) {
+                    // Focus on modal for accessibility
+                    modal.querySelector('button.swal2-confirm').focus();
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     document.getElementById('reportForm').submit();

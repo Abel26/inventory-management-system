@@ -72,16 +72,18 @@ class AssetModelController extends Controller
     public function store(StoreAssetModelRequest $request)
     {
         try {
-            $this->assetModelService->create($request->validated());
+            $model = $this->assetModelService->create($request->validated());
             
-            return redirect()
-                ->route('assets.models.index')
-                ->with('success', 'Model berhasil ditambahkan');
+            return response()->json([
+                'success' => true,
+                'message' => 'Model berhasil ditambahkan',
+                'data' => $model
+            ]);
         } catch (\Exception $e) {
-            return redirect()
-                ->back()
-                ->withInput()
-                ->with('error', 'Gagal menambahkan model: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menambahkan model: ' . $e->getMessage()
+            ], 500);
         }
     }
 
@@ -116,7 +118,7 @@ class AssetModelController extends Controller
                     'name' => $model->name,
                     'type' => $model->type,
                     'material_id' => $model->material_id,
-                    'manufactured_date' => $model->manufacture_date ? $model->manufacture_date->format('Y-m-d') : null,
+                    'manufacture_date' => $model->manufacture_date ? $model->manufacture_date->format('Y-m-d') : null,
                     'condition' => $model->condition,
                     'location' => $model->location,
                     'gedung_id' => $model->gedung_id,

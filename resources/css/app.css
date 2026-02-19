@@ -348,3 +348,70 @@ span.flatpickr-weekday {
 .flatpickr-time input:hover {
     background: #f3f4f6 !important;
 }
+/* ============================================
+   SweetAlert2 CSS Fixes
+   Ensure proper positioning in all environments
+   ============================================ */
+
+/* Ensure SweetAlert2 modal backdrop and container have correct z-index */
+.swal2-container {
+    position: fixed !important;
+    z-index: 9999 !important;
+    overflow: visible !important;
+}
+
+/* Ensure backdrop is visible */
+.swal2-backdrop {
+    position: fixed !important;
+    z-index: 9998 !important;
+}
+
+/* Modal popup container */
+.swal2-popup {
+    position: fixed !important;
+    z-index: 9999 !important;
+    overflow-y: auto !important;
+}
+
+/* Ensure modal is centered when position is center */
+.swal2-center.swal2-popup {
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+}
+
+/* Prevent body scrolling when modal is open */
+body.swal2-shown {
+    overflow: hidden !important;
+}
+
+/* Z-Index Utility Classes for High-Layer Modals */
+.z-9999 {
+    z-index: 9999 !important;
+}
+
+.z-9998 {
+    z-index: 9998 !important;
+}
+
+/* ============================================
+   Modal Container and Content Fixes
+   Ensure proper click handling and positioning
+   ============================================ */
+
+/* Modal content should have highest z-index */
+#roleModal .modal-content {
+    position: relative !important;
+    z-index: 10000 !important;
+    pointer-events: auto !important;
+}
+
+/* Ensure wrapper allows clicks */
+#roleModal > div[style*="touch-action"] {
+    pointer-events: auto !important;
+}
+
+/* Ensure backdrop can receive clicks */
+#roleModalBackdrop {
+    pointer-events: auto !important;
+}

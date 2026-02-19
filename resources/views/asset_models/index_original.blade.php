@@ -119,7 +119,7 @@
     </div>
  
     <!-- Add/Edit Modal -->
-    <div id="modelModal" class="fixed inset-0 bg-gray-900/50 z-[9999] hidden p-4" style="display: none;" x-data="{ open: false }">
+    <div id="modelModal" class="fixed inset-0 bg-gray-900/50 z-50 hidden p-4" style="display: none;" x-data="{ open: false }">
         <div class="flex items-center justify-center min-h-full">
             <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh] z-[10000] modal-content">
                 <div class="flex justify-between items-center p-6 border-b border-gray-200 flex-shrink-0">

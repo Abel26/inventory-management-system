@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('mold_modifications', function (Blueprint $table) {
-            $table->softDeletes();
-        });
+        // Check if column exists before adding
+        if (!Schema::hasColumn('mold_modifications', 'deleted_at')) {
+            Schema::table('mold_modifications', function (Blueprint $table) {
+                $table->timestamp('deleted_at')->nullable();
+            });
+        }
     }
 
     /**
@@ -21,8 +24,11 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('mold_modifications', function (Blueprint $table) {
-            $table->dropSoftDeletes();
-        });
+        // Only drop if column exists
+        if (Schema::hasColumn('mold_modifications', 'deleted_at')) {
+            Schema::table('mold_modifications', function (Blueprint $table) {
+                $table->dropColumn('deleted_at');
+            });
+        }
     }
 };

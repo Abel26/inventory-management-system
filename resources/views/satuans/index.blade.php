@@ -24,7 +24,7 @@
                     <input type="text" id="searchInput" placeholder="{{ __('modules.satuans.search_placeholder') }}" class="pl-10 pr-4 py-2.5 bg-gray-50 border-transparent focus:bg-white focus:border-ebara-500 focus:ring-0 rounded-xl text-sm w-full md:w-72 transition-all">
                 </div>
             </div>
-            <table id="satuansTable" class="w-full">
+            <table id="satuansTable" class="w-full" width="100%">
                 <thead>
                     <tr class="bg-gray-50/80 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                         <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">{{ __('modules.common.no') }}</th>
@@ -49,7 +49,7 @@
     </div>
 
     <!-- Add/Edit Modal -->
-    <div id="satuanModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] hidden" style="display: none;">
+    <div id="satuanModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden" style="display: none;">
         <div class="flex items-center justify-center min-h-screen w-full p-4">
             <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all duration-300 scale-95 opacity-0 modal-content">
                 <!-- Modal Header with Gradient -->
@@ -142,7 +142,7 @@
             visibility: hidden !important;
             opacity: 0 !important;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 9999 !important;
+            z-index: 50 !important;
             padding: 0 !important;
             margin: 0 !important;
             box-sizing: border-box !important;
@@ -227,7 +227,7 @@
         
         /* Ensure modal is on top */
         #satuanModal.show {
-            z-index: 9999 !important;
+            z-index: 50 !important;
         }
         
         /* Input focus effects */
@@ -512,54 +512,74 @@
         $('#satuanForm').on('submit', function(e) {
             e.preventDefault();
             
-            let formData = $(this).serialize();
             let id = $('#satuanId').val();
-            let url = storeUrl;
-            let method = 'POST';
-            let successMessage = '{{ __('modules.swal.data_saved') }}';
+            let isEdit = id !== '';
+            
+            // Confirm before saving
+            let confirmTitle = '{{ __('modules.swal.confirm_title') }}';
+            let confirmText = isEdit ? '{{ __('modules.swal.update_warning') }}' : '{{ __('modules.swal.save_warning') }}';
+            let successMessage = isEdit ? '{{ __('modules.swal.data_updated') }}' : '{{ __('modules.swal.data_saved') }}';
 
-            if (id) {
-                url = updateUrlTemplate.replace(':id', id);
-                formData += '&_method=PUT';
-                // method remains POST because of _method spoofing
-                successMessage = '{{ __('modules.swal.data_updated') }}';
-            }
+            Swal.fire({
+                title: confirmTitle,
+                text: confirmText,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#009B77',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: '{{ __('modules.swal.yes_save') }}',
+                cancelButtonText: '{{ __('modules.swal.cancel') }}'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let formData = $(this).serialize();
+                    let url = storeUrl;
+                    let method = 'POST';
 
-            $.ajax({
-                url: url,
-                method: method,
-                data: formData,
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                success: function(response) {
-                    hideModal();
-                    $('#satuansTable').DataTable().ajax.reload();
-                    Swal.fire({
-                        icon: 'success',
-                        title: '{{ __('modules.swal.success') }}',
-                        text: successMessage,
-                        confirmButtonColor: '#009B77'
-                    });
-                },
-                error: function(xhr) {
-                    let errorMessage = '{{ __('modules.swal.generic_error') }}';
-                    if (xhr.responseJSON) {
-                        if (xhr.responseJSON.message) {
-                            errorMessage = xhr.responseJSON.message;
-                        } else if (xhr.responseJSON.errors) {
-                            let errors = xhr.responseJSON.errors;
-                            errorMessage = '';
-                            for (let key in errors) {
-                                errorMessage += errors[key][0] + '\n';
-                            }
-                        }
+                    if (id) {
+                        url = updateUrlTemplate.replace(':id', id);
+                        formData += '&_method=PUT';
+                        // method remains POST because of _method spoofing
                     }
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: errorMessage,
-                        confirmButtonColor: '#dc2626'
+
+                    $.ajax({
+                        url: url,
+                        method: method,
+                        data: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            hideModal();
+                            $('#satuansTable').DataTable().ajax.reload();
+                            Swal.fire({
+                                icon: 'success',
+                                title: '{{ __('modules.swal.success') }}',
+                                text: successMessage,
+                                confirmButtonColor: '#009B77',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        },
+                        error: function(xhr) {
+                            let errorMessage = '{{ __('modules.swal.generic_error') }}';
+                            if (xhr.responseJSON) {
+                                if (xhr.responseJSON.message) {
+                                    errorMessage = xhr.responseJSON.message;
+                                } else if (xhr.responseJSON.errors) {
+                                    let errors = xhr.responseJSON.errors;
+                                    errorMessage = '';
+                                    for (let key in errors) {
+                                        errorMessage += errors[key][0] + '\n';
+                                    }
+                                }
+                            }
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: errorMessage,
+                                confirmButtonColor: '#dc2626'
+                            });
+                        }
                     });
                 }
             });

@@ -69,11 +69,18 @@ class AssetToolController extends Controller
     public function store(StoreAssetToolRequest $request)
     {
         try {
-            $this->assetToolService->create($request->validated());
+            $tool = $this->assetToolService->create($request->validated());
             
-            return redirect()->route('assets.tools.index')->with('success', 'Data peralatan berhasil disimpan');
+            return response()->json([
+                'success' => true,
+                'message' => 'Data peralatan berhasil disimpan',
+                'data' => $tool
+            ]);
         } catch (\Exception $e) {
-            return redirect()->route('assets.tools.index')->with('error', 'Gagal menyimpan data peralatan: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menyimpan data peralatan: ' . $e->getMessage()
+            ], 500);
         }
     }
 
@@ -136,12 +143,21 @@ class AssetToolController extends Controller
             $updated = $this->assetToolService->update($id, $request->validated());
             
             if (!$updated) {
-                return redirect()->route('assets.tools.index')->with('error', 'Data peralatan tidak ditemukan');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data peralatan tidak ditemukan'
+                ], 404);
             }
             
-            return redirect()->route('assets.tools.index')->with('success', 'Data peralatan berhasil diperbarui');
+            return response()->json([
+                'success' => true,
+                'message' => 'Data peralatan berhasil diperbarui'
+            ]);
         } catch (\Exception $e) {
-            return redirect()->route('assets.tools.index')->with('error', 'Gagal memperbarui data peralatan: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui data peralatan: ' . $e->getMessage()
+            ], 500);
         }
     }
 

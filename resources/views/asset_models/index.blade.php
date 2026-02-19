@@ -91,7 +91,7 @@
                     <input type="text" id="searchInput" placeholder="{{ __('modules.asset_models.search_placeholder') }}" class="pl-10 pr-4 py-2.5 bg-gray-50 border-transparent focus:bg-white focus:border-ebara-500 focus:ring-0 rounded-xl text-sm w-full md:w-72 transition-all">
                 </div>
             </div>
-            <table id="modelsTable" class="w-full">
+            <table id="modelsTable" class="w-full" width="100%">
                 <thead>
                     <tr class="bg-gray-50/80 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                         <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">{{ __('modules.common.code') }}</th>
@@ -119,7 +119,7 @@
     </div>
  
     <!-- Add/Edit Modal -->
-    <div id="modelModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] hidden" style="display: none;">
+    <div id="modelModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden" style="display: none;">
         <div class="flex items-center justify-center min-h-screen w-full p-4">
             <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl transform transition-all duration-300 scale-95 opacity-0 modal-content flex flex-col max-h-[90vh]">
                 <!-- Modal Header with Gradient -->
@@ -252,7 +252,7 @@
     </div>
 
     <!-- QR Code Modal -->
-    <div id="qrModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] hidden" style="display: none;">
+    <div id="qrModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden" style="display: none;">
         <div class="flex items-center justify-center min-h-screen w-full p-4">
             <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm transform transition-all duration-300 scale-95 opacity-0 modal-content flex flex-col">
                 <div class="flex justify-between items-center p-6 border-b border-gray-100">
@@ -288,6 +288,32 @@
     var destroyUrlTemplate = "{{ route('assets.models.destroy', ':id') }}";
     var qrCodeUrlTemplate = "{{ route('assets.models.qr-code', ':id') }}";
     var dataUrl = "{{ route('assets.models.data') }}";
+
+    // Global helper function untuk format tanggal
+    window.formatDateForInput = function(dateString) {
+        if (!dateString) return '';
+        
+        // Jika sudah format Y-m-d, gunakan langsung
+        if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            return dateString;
+        }
+        
+        // Konversi dari format lain ke Y-m-d
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return '';
+            
+            // Konversi ke timezone lokal
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            
+            return `${year}-${month}-${day}`;
+        } catch (e) {
+            console.error('Error parsing date:', dateString, e);
+            return '';
+        }
+    };
 
     // Global Modal Helpers
     window.openModelModal = function() {
@@ -342,9 +368,10 @@
                     $('#name').val(data.name);
                     $('#type').val(data.type);
                     $('#material_id').val(data.material_id);
-                    $('#manufacture_date').val(data.manufactured_date);
+                    // Perbaikan untuk tanggal - menggunakan fungsi helper global
+                    $('#manufacture_date').val(formatDateForInput(data.manufacture_date));
                     $('#condition').val(data.condition);
-                    $('#location').val(data.location);
+                    $('#location').val(data.location).trigger('change');
                     $('#description').val(data.description);
                     
                     // Update form action for edit
@@ -588,6 +615,11 @@
         $('#modelForm').on('submit', function(e) {
             e.preventDefault();
             
+            // Basic HTML5 validation
+            if (!this.checkValidity()) {
+                return;
+            }
+            
             const form = $(this);
             const id = $('#modelId').val();
             let url = storeUrl;
@@ -602,38 +634,60 @@
             if (method === 'PUT') {
                 formData.append('_method', 'PUT');
             }
+            
+            // Confirm before saving
+            let confirmTitle = '{{ __('modules.swal.confirm_title') }}';
+            let confirmText = id ? '{{ __('modules.asset_models.update_confirm') }}' : '{{ __('modules.asset_models.create_confirm') }}'; // Assuming these keys exist, or generic text
+            // Fallback for missing keys if needed, but sticking to pattern
+            if (confirmText.includes('modules.asset_models')) {
+                 confirmText = id ? '{{ __('modules.swal.update_warning') }}' : '{{ __('modules.swal.save_warning') }}';
+            }
+            let successMessage = id ? '{{ __('modules.swal.data_updated') }}' : '{{ __('modules.swal.data_saved') }}';
 
-            $.ajax({
-                url: url,
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                success: function(data) {
-                    closeModelModal();
-                    table.ajax.reload();
-                    Swal.fire({
-                        icon: 'success',
-                        title: '{{ __('modules.swal.success') }}',
-                        text: id ? '{{ __('modules.swal.data_updated') }}' : '{{ __('modules.swal.data_saved') }}',
-                        confirmButtonColor: '#009B77',
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                },
-                error: function(xhr) {
-                    let errorMessage = '{{ __('modules.asset_models.save_error') }}';
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        errorMessage = xhr.responseJSON.message;
-                    }
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: errorMessage,
-                        confirmButtonColor: '#dc2626'
+            Swal.fire({
+                title: confirmTitle,
+                text: confirmText,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#009B77',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: '{{ __('modules.swal.yes_save') }}',
+                cancelButtonText: '{{ __('modules.swal.cancel') }}'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                     $.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        success: function(data) {
+                            closeModelModal();
+                            table.ajax.reload();
+                            Swal.fire({
+                                icon: 'success',
+                                title: '{{ __('modules.swal.success') }}',
+                                text: successMessage,
+                                confirmButtonColor: '#009B77',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        },
+                        error: function(xhr) {
+                            let errorMessage = '{{ __('modules.asset_models.save_error') }}';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
+                            }
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: errorMessage,
+                                confirmButtonColor: '#dc2626'
+                            });
+                        }
                     });
                 }
             });

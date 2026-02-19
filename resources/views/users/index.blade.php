@@ -91,7 +91,7 @@
                     <input type="text" id="searchInput" placeholder="{{ __('modules.users.search_placeholder') }}" class="pl-10 pr-4 py-2.5 bg-gray-50 border-transparent focus:bg-white focus:border-ebara-500 focus:ring-0 rounded-xl text-sm w-full md:w-72 transition-all">
                 </div>
             </div>
-            <table id="usersTable" class="w-full">
+            <table id="usersTable" class="w-full" width="100%">
                 <thead>
                     <tr class="bg-gray-50/80 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                         <th class="px-6 py-4 text-left font-semibold whitespace-nowrap w-1/3">{{ __('modules.users.user_info') }}</th>
@@ -334,6 +334,7 @@
                         <!-- Active Status -->
                         <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                             <div class="flex items-center">
+                                <input type="hidden" name="is_active" value="0">
                                 <input type="checkbox"
                                        id="is_active"
                                        name="is_active"

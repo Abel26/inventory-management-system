@@ -43,9 +43,12 @@ class RoleController extends Controller
             ];
         });
         
+        $permissionsByModule = $this->roleService->getPermissionsByModule();
+
         return view('roles.index', [
             'roles' => $rolesWithCount,
             'permissions' => $permissions,
+            'permissionsByModule' => $permissionsByModule,
         ]);
     }
 

@@ -30,7 +30,7 @@ class UpdateAssetModelRequest extends FormRequest
             'name' => 'required|string|max:255',
             'type' => 'required|string|max:100',
             'material_id' => 'nullable|exists:asset_materials,id',
-            'manufactured_date' => 'nullable|date',
+            'manufacture_date' => 'nullable|date',
             'condition' => 'required|in:Good,Repair,Damaged',
             'location' => 'nullable|string|max:255',
             'description' => 'nullable|string',

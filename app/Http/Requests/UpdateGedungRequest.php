@@ -23,7 +23,7 @@ class UpdateGedungRequest extends FormRequest
      */
     public function rules(): array
     {
-        $gedungId = $this->route('gedung');
+        $gedungId = $this->route('id');
         
         return [
             'gedung_id' => 'required|string|max:50|unique:gedungs,gedung_id,' . $gedungId,

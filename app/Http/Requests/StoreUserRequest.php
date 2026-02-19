@@ -27,7 +27,7 @@ class StoreUserRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users,username|alpha_dash',
-            'password' => ['required', 'confirmed', Password::defaults()],
+            'password' => 'required|confirmed|min:1',
             'phone_number' => 'nullable|string|max:20|regex:/^[+]?[0-9\s\-\(\)]+$/',
             'role' => 'required|string|exists:roles,name',
             'is_active' => 'required|boolean',
