@@ -326,6 +326,18 @@
         pointer-events: none !important;
         cursor: not-allowed !important;
     }
+    
+    /* Fix for aria-hidden conflicts */
+    .flex.h-screen[aria-hidden="true"] #submitToolBtn {
+        pointer-events: auto !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    /* Ensure SweetAlert doesn't hide our buttons */
+    body.swal2-shown:not(.swal2-toast-shown) .flex.h-screen {
+        aria-hidden: unset !important;
+    }
     </style>
     <script>
     var storeUrl = "{{ route('assets.tools.store') }}";
@@ -387,6 +399,26 @@
         // Check if buttons exist on page load
         console.log('TOOLS DOCUMENT READY: Submit button exists:', $('#submitToolBtn').length > 0);
         console.log('TOOLS DOCUMENT READY: Submit button events on load:', $._data($('#submitToolBtn')[0], 'events'));
+        
+        // Fix for production aria-hidden conflicts
+        if (typeof Swal !== 'undefined') {
+            // Override SweetAlert's default behavior to prevent aria-hidden conflicts
+            Swal.mixin({
+                didOpen: function() {
+                    // Remove aria-hidden from main container when SweetAlert opens
+                    $('.flex.h-screen').removeAttr('aria-hidden');
+                    console.log('TOOLS PRODUCTION FIX: Removed aria-hidden from main container');
+                }
+            });
+        }
+        
+        // Global fix for any dynamically added aria-hidden
+        setInterval(function() {
+            if ($('#submitToolBtn').is(':visible') && $('.flex.h-screen').attr('aria-hidden') === 'true') {
+                $('.flex.h-screen').removeAttr('aria-hidden');
+                console.log('TOOLS PRODUCTION FIX: Auto-removed aria-hidden conflict');
+            }
+        }, 1000);
         
         // Add global error handler
         window.addEventListener('error', function(e) {
@@ -713,6 +745,12 @@
         let confirmText = isEdit ? '{{ __('modules.asset_tools.update_confirm') }}' : '{{ __('modules.asset_tools.create_confirm') }}';
         let successMessage = isEdit ? '{{ __('modules.swal.data_updated') }}' : '{{ __('modules.swal.data_saved') }}';
         
+        // Fix aria-hidden conflict by removing focus before SweetAlert
+        $(this).blur();
+        
+        // Store reference to button for later focus restoration
+        var submitBtn = this;
+        
         Swal.fire({
             title: confirmTitle,
             text: confirmText,
@@ -721,7 +759,23 @@
             confirmButtonColor: '#009B77',
             cancelButtonColor: '#6b7280',
             confirmButtonText: '{{ __('modules.swal.yes_save') }}',
-            cancelButtonText: '{{ __('modules.swal.cancel') }}'
+            cancelButtonText: '{{ __('modules.swal.cancel') }}',
+            // Fix for production timing issues
+            didOpen: function() {
+                // Ensure proper focus management in SweetAlert
+                console.log('TOOLS SWAL: SweetAlert opened, fixing focus management');
+                // Remove any aria-hidden conflicts
+                $('.flex.h-screen').removeAttr('aria-hidden');
+            },
+            didClose: function() {
+                // Restore focus after SweetAlert closes
+                console.log('TOOLS SWAL: SweetAlert closed, restoring focus');
+                setTimeout(function() {
+                    if (submitBtn && $(submitBtn).is(':visible')) {
+                        submitBtn.focus();
+                    }
+                }, 100);
+            }
         }).then((result) => {
             if (result.isConfirmed) {
                 submitToolForm(successMessage);

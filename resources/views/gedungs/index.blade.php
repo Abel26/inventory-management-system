@@ -478,6 +478,12 @@
             let confirmText = isEdit ? '{{ __('modules.gedungs.update_confirm') }}' : '{{ __('modules.gedungs.create_confirm') }}';
             let successMessage = isEdit ? '{{ __('modules.swal.data_updated') }}' : '{{ __('modules.swal.data_saved') }}';
 
+            // Fix aria-hidden conflict by removing focus before SweetAlert
+            $('#gedungForm button[type="submit"]').blur();
+            
+            // Store reference to button for later focus restoration
+            var submitBtn = document.querySelector('#gedungForm button[type="submit"]');
+            
             Swal.fire({
                 title: confirmTitle,
                 text: confirmText,
@@ -486,7 +492,23 @@
                 confirmButtonColor: '#009B77',
                 cancelButtonColor: '#6b7280',
                 confirmButtonText: '{{ __('modules.swal.yes_save') }}',
-                cancelButtonText: '{{ __('modules.swal.cancel') }}'
+                cancelButtonText: '{{ __('modules.swal.cancel') }}',
+                // Fix for production timing issues
+                didOpen: function() {
+                    // Ensure proper focus management in SweetAlert
+                    console.log('GEDUNGS SWAL: SweetAlert opened, fixing focus management');
+                    // Remove any aria-hidden conflicts
+                    $('.flex.h-screen').removeAttr('aria-hidden');
+                },
+                didClose: function() {
+                    // Restore focus after SweetAlert closes
+                    console.log('GEDUNGS SWAL: SweetAlert closed, restoring focus');
+                    setTimeout(function() {
+                        if (submitBtn && $(submitBtn).is(':visible')) {
+                            submitBtn.focus();
+                        }
+                    }, 100);
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     const formData = new FormData(form[0]);

@@ -79,6 +79,14 @@ window.handleAjaxForm = function(formId, tableId, modalId, confirmTitle = 'Konfi
     const formAction = form.action;
     const formMethod = form.method.toUpperCase();
 
+    // Fix aria-hidden conflict by removing focus before SweetAlert
+    if (form && form.querySelector) {
+        const submitButton = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (submitButton) {
+            submitButton.blur();
+        }
+    }
+    
     // Show SweetAlert2 confirmation
     Swal.fire({
         title: confirmTitle,
@@ -89,7 +97,26 @@ window.handleAjaxForm = function(formId, tableId, modalId, confirmTitle = 'Konfi
         cancelButtonColor: '#6b7280', // Gray
         confirmButtonText: 'Ya, Simpan!',
         cancelButtonText: 'Batal',
-        reverseButtons: true
+        reverseButtons: true,
+        // Fix for production timing issues
+        didOpen: function() {
+            // Ensure proper focus management in SweetAlert
+            console.log('APP.JS: SweetAlert opened, fixing focus management');
+            // Remove any aria-hidden conflicts
+            const mainContainer = document.querySelector('.flex.h-screen');
+            if (mainContainer) {
+                mainContainer.removeAttribute('aria-hidden');
+            }
+        },
+        didClose: function() {
+            // Restore focus after SweetAlert closes
+            console.log('APP.JS: SweetAlert closed, restoring focus');
+            setTimeout(function() {
+                if (submitButton && submitButton.style.display !== 'none') {
+                    submitButton.focus();
+                }
+            }, 100);
+        }
     }).then((result) => {
         if (result.isConfirmed) {
             // Create FormData

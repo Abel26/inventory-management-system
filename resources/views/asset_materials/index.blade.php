@@ -332,6 +332,18 @@
         pointer-events: none !important;
         cursor: not-allowed !important;
     }
+    
+    /* Fix for aria-hidden conflicts */
+    .flex.h-screen[aria-hidden="true"] #submitMaterialBtn {
+        pointer-events: auto !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    /* Ensure SweetAlert doesn't hide our buttons */
+    body.swal2-shown:not(.swal2-toast-shown) .flex.h-screen {
+        aria-hidden: unset !important;
+    }
     </style>
     <script>
     var storeUrl = "{{ route('assets.materials.store') }}";
@@ -389,6 +401,26 @@
         console.log('DOCUMENT READY: jQuery version:', $.fn.jquery); // DEBUG
         console.log('DOCUMENT READY: DataTable available:', typeof $.fn.DataTable !== 'undefined'); // DEBUG
         console.log('DOCUMENT READY: Swal available:', typeof Swal !== 'undefined'); // DEBUG
+        
+        // Fix for production aria-hidden conflicts
+        if (typeof Swal !== 'undefined') {
+            // Override SweetAlert's default behavior to prevent aria-hidden conflicts
+            Swal.mixin({
+                didOpen: function() {
+                    // Remove aria-hidden from main container when SweetAlert opens
+                    $('.flex.h-screen').removeAttr('aria-hidden');
+                    console.log('PRODUCTION FIX: Removed aria-hidden from main container');
+                }
+            });
+        }
+        
+        // Global fix for any dynamically added aria-hidden
+        setInterval(function() {
+            if ($('#submitMaterialBtn').is(':visible') && $('.flex.h-screen').attr('aria-hidden') === 'true') {
+                $('.flex.h-screen').removeAttr('aria-hidden');
+                console.log('PRODUCTION FIX: Auto-removed aria-hidden conflict');
+            }
+        }, 1000);
         
         // Check if buttons exist on page load
         console.log('DOCUMENT READY: Submit button exists:', $('#submitMaterialBtn').length > 0);
@@ -527,6 +559,9 @@
         modal.classList.remove('hidden');
         modal.style.display = 'flex';
         
+        // Fix aria-hidden conflicts when opening modal
+        $('.flex.h-screen').removeAttr('aria-hidden');
+        
         // Force reflow to ensure transition works
         modal.offsetHeight;
         
@@ -544,6 +579,8 @@
                     submitBtn.disabled = false;
                     submitBtn.style.display = 'flex';
                     console.log('MODAL: Submit button enabled and visible'); // DEBUG
+                    // Set proper focus to submit button for accessibility
+                    submitBtn.focus();
                 }
             }, 100);
         });
@@ -735,6 +772,9 @@
         console.log('SUBMIT BUTTON: Button disabled:', $(this).prop('disabled')); // DEBUG
         console.log('SUBMIT BUTTON: Button visible:', $(this).is(':visible')); // DEBUG
         
+        // Fix aria-hidden conflict by removing focus before SweetAlert
+        $(this).blur();
+        
         let id = $('#materialId').val();
         let isEdit = id !== '';
         
@@ -744,6 +784,9 @@
         let confirmTitle = isEdit ? '{{ __('modules.swal.confirm_title') }}' : '{{ __('modules.swal.confirm_title') }}';
         let confirmText = isEdit ? '{{ __('modules.swal.update_warning') }}' : '{{ __('modules.asset_materials.confirm_create') }}';
         
+        // Store reference to button for later focus restoration
+        var submitBtn = this;
+        
         Swal.fire({
             title: confirmTitle,
             text: confirmText,
@@ -752,7 +795,23 @@
             confirmButtonColor: '#009B77',
             cancelButtonColor: '#6b7280',
             confirmButtonText: isEdit ? '{{ __('modules.swal.yes_save') }}' : '{{ __('modules.asset_materials.yes_create') }}',
-            cancelButtonText: '{{ __('modules.swal.cancel') }}'
+            cancelButtonText: '{{ __('modules.swal.cancel') }}',
+            // Fix for production timing issues
+            didOpen: function() {
+                // Ensure proper focus management in SweetAlert
+                console.log('SWAL: SweetAlert opened, fixing focus management');
+                // Remove any aria-hidden conflicts
+                $('.flex.h-screen').removeAttr('aria-hidden');
+            },
+            didClose: function() {
+                // Restore focus after SweetAlert closes
+                console.log('SWAL: SweetAlert closed, restoring focus');
+                setTimeout(function() {
+                    if (submitBtn && $(submitBtn).is(':visible')) {
+                        submitBtn.focus();
+                    }
+                }, 100);
+            }
         }).then((result) => {
             console.log('SUBMIT BUTTON: Swal result:', result); // DEBUG
             if (result.isConfirmed) {

@@ -312,6 +312,17 @@
         opacity: 1 !important;
     }
     
+    /* Fix for aria-hidden conflicts */
+    .flex.h-screen[aria-hidden="true"] #modelForm button[type="submit"] {
+        pointer-events: auto !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    /* Ensure SweetAlert doesn't hide our buttons */
+    body.swal2-shown:not(.swal2-toast-shown) .flex.h-screen {
+        aria-hidden: unset !important;
+    }
     /* Export dropdown styles now handled by Alpine.js */
     @endpush
     
@@ -606,6 +617,26 @@
     }
 
     $(document).ready(function() {
+        // Fix for production aria-hidden conflicts
+        if (typeof Swal !== 'undefined') {
+            // Override SweetAlert's default behavior to prevent aria-hidden conflicts
+            Swal.mixin({
+                didOpen: function() {
+                    // Remove aria-hidden from main container when SweetAlert opens
+                    $('.flex.h-screen').removeAttr('aria-hidden');
+                    console.log('MODELS PRODUCTION FIX: Removed aria-hidden from main container');
+                }
+            });
+        }
+        
+        // Global fix for any dynamically added aria-hidden
+        setInterval(function() {
+            if ($('#modelForm button[type="submit"]').is(':visible') && $('.flex.h-screen').attr('aria-hidden') === 'true') {
+                $('.flex.h-screen').removeAttr('aria-hidden');
+                console.log('MODELS PRODUCTION FIX: Auto-removed aria-hidden conflict');
+            }
+        }, 1000);
+        
         // Initialize DataTable
         let table = $('#modelsTable').DataTable({
             processing: true,
@@ -794,6 +825,12 @@
                 let confirmText = id ? '{{ __('modules.asset_models.update_confirm') }}' : '{{ __('modules.asset_models.create_confirm') }}';
                 let successMessage = id ? '{{ __('modules.swal.data_updated') }}' : '{{ __('modules.swal.data_saved') }}';
 
+                // Fix aria-hidden conflict by removing focus before SweetAlert
+                $('#modelForm button[type="submit"]').blur();
+                
+                // Store reference to button for later focus restoration
+                var submitBtn = document.querySelector('#modelForm button[type="submit"]');
+                
                 Swal.fire({
                     title: confirmTitle,
                     text: confirmText,
@@ -802,7 +839,23 @@
                     confirmButtonColor: '#009B77',
                     cancelButtonColor: '#6b7280',
                     confirmButtonText: '{{ __('modules.swal.yes_save') }}',
-                    cancelButtonText: '{{ __('modules.swal.cancel') }}'
+                    cancelButtonText: '{{ __('modules.swal.cancel') }}',
+                    // Fix for production timing issues
+                    didOpen: function() {
+                        // Ensure proper focus management in SweetAlert
+                        console.log('MODELS SWAL: SweetAlert opened, fixing focus management');
+                        // Remove any aria-hidden conflicts
+                        $('.flex.h-screen').removeAttr('aria-hidden');
+                    },
+                    didClose: function() {
+                        // Restore focus after SweetAlert closes
+                        console.log('MODELS SWAL: SweetAlert closed, restoring focus');
+                        setTimeout(function() {
+                            if (submitBtn && $(submitBtn).is(':visible')) {
+                                submitBtn.focus();
+                            }
+                        }, 100);
+                    }
                 }).then((result) => {
                     console.log('MODELS FORM SUBMIT: Swal result:', result); // DEBUG
                     if (result.isConfirmed) {

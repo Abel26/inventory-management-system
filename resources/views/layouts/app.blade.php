@@ -139,5 +139,8 @@
 
     <!-- Scripts Stack for Child Views -->
     @stack('scripts')
+    
+    <!-- Global SweetAlert aria-hidden fix for production -->
+    <x-global-sweetalert-fix />
 </body>
 </html>
