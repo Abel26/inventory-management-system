@@ -705,10 +705,8 @@
         e.preventDefault();
         console.log('Form submit triggered');
         
-        // Basic HTML5 validation check
-        if (!this.checkValidity()) {
-            // If HTML5 validation fails, trigger browser validation UI and return
-            // The browser will automatically show the validation messages
+        // HTML5 validation — browser highlights the invalid field with a popover
+        if (!this.reportValidity()) {
             return;
         }
         

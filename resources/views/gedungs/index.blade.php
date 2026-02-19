@@ -468,7 +468,10 @@
         // Form submit handler
         $('#gedungForm').on('submit', function(e) {
             e.preventDefault();
-            
+
+            // HTML5 validation — browser highlights empty required fields inline
+            if (!this.reportValidity()) { return; }
+
             const form = $(this);
             const id = $('#gedungId').val();
             let isEdit = id !== '';

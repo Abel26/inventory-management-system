@@ -396,7 +396,10 @@
         $('#submitRoleBtn').on('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            
+
+            // HTML5 validation — browser highlights empty required fields inline
+            if (!document.getElementById('roleForm').reportValidity()) { return; }
+
             const id = $('#roleId').val();
             let formData = $('#roleForm').serialize();
             let url = storeUrl;

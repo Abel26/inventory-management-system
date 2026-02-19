@@ -627,7 +627,10 @@
         // Form submission handler
         $('#userForm').on('submit', function(e) {
             e.preventDefault();
-            
+
+            // HTML5 validation — browser highlights empty required fields inline
+            if (!this.reportValidity()) { return; }
+
             let formData = $(this).serialize();
             let id = $('#userId').val();
             let url = storeUrl;

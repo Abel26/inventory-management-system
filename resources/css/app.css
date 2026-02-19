@@ -359,12 +359,22 @@ span.flatpickr-weekday {
    Ensure proper z-index stacking above modals
    ============================================ */
 
-/* Container must sit above all custom modals (z-50 = 50, so 9999 wins) */
+/*
+  SweetAlert2 uses :where() selectors (zero CSS specificity).
+  Any rule targeting .swal2-container will override the library defaults.
+  We must explicitly assert position:fixed + inset:0 so the overlay always
+  covers the full viewport regardless of Tailwind or other CSS.
+*/
 .swal2-container {
-    z-index: 9999 !important;
+    display: grid !important;       /* Required for grid-area centering */
+    position: fixed !important;     /* Must override potential :where() conflicts */
+    inset: 0 !important;            /* top:0 right:0 bottom:0 left:0 */
+    z-index: 9999 !important;       /* Above all custom modals (z-50 = 50) */
+    height: 100% !important;
+    width: 100% !important;
 }
 
-/* Popup inherits container layout – do NOT override position, it breaks centering */
+/* Popup is positioned by the grid container — do NOT set position:fixed on it */
 .swal2-popup {
     max-height: 90vh;
     overflow-y: auto;

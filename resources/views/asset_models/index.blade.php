@@ -791,14 +791,12 @@
         // Form submit handler
         $('#modelForm').on('submit', function(e) {
             e.preventDefault();
-            console.log('MODELS FORM SUBMIT: Form submit triggered'); // DEBUG
-            
-            // Basic HTML5 validation
-            if (!this.checkValidity()) {
-                console.log('MODELS FORM SUBMIT: HTML5 validation failed'); // DEBUG
+
+            // HTML5 validation — browser highlights empty required fields inline
+            if (!this.reportValidity()) {
                 return;
             }
-            
+
             const form = $(this);
             const id = $('#modelId').val();
             let url = storeUrl;

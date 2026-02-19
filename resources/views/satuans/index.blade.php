@@ -525,7 +525,10 @@
         // Form submit handler
         $('#satuanForm').on('submit', function(e) {
             e.preventDefault();
-            
+
+            // HTML5 validation — browser highlights empty required fields inline
+            if (!this.reportValidity()) { return; }
+
             let id = $('#satuanId').val();
             let isEdit = id !== '';
             
