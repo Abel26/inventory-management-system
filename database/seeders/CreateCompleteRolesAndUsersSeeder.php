@@ -22,17 +22,17 @@ class CreateCompleteRolesAndUsersSeeder extends Seeder
         $allPermissions = Permission::all();
 
         // Create or get Super Admin role
-        $superAdmin = Role::firstOrCreate([
-            'name' => 'Super Admin',
-            'guard_name' => 'web',
-        ]);
+        $superAdmin = Role::updateOrCreate(
+            ['name' => 'Super Admin'],
+            ['guard_name' => 'web']
+        );
         $superAdmin->syncPermissions($allPermissions);
 
         // Create Admin role
-        $admin = Role::firstOrCreate([
-            'name' => 'Admin',
-            'guard_name' => 'web',
-        ]);
+        $admin = Role::updateOrCreate(
+            ['name' => 'Admin'],
+            ['guard_name' => 'web']
+        );
         
         // Admin permissions: All except role management
         $adminPermissions = Permission::whereNotIn('name', [
@@ -43,10 +43,10 @@ class CreateCompleteRolesAndUsersSeeder extends Seeder
         $admin->syncPermissions($adminPermissions);
 
         // Create User role
-        $user = Role::firstOrCreate([
-            'name' => 'User',
-            'guard_name' => 'web',
-        ]);
+        $user = Role::updateOrCreate(
+            ['name' => 'User'],
+            ['guard_name' => 'web']
+        );
         
         // User permissions: View only for dashboard, assets, and reports
         $userPermissions = Permission::whereIn('name', [
@@ -59,7 +59,7 @@ class CreateCompleteRolesAndUsersSeeder extends Seeder
         $user->syncPermissions($userPermissions);
 
         // Create Super Admin user if not exists
-        $superAdminUser = User::firstOrCreate(
+        $superAdminUser = User::updateOrCreate(
             ['username' => 'superadmin'],
             [
                 'name' => 'Super Admin',
@@ -72,11 +72,11 @@ class CreateCompleteRolesAndUsersSeeder extends Seeder
         $superAdminUser->assignRole($superAdmin);
 
         // Create Admin user
-        $adminUser = User::firstOrCreate(
+        $adminUser = User::updateOrCreate(
             ['username' => 'admin'],
             [
                 'name' => 'Admin User',
-                'email' => 'admin@ebara.com',
+                'email' => 'adminuser@ebara.com',
                 'password' => Hash::make('Admin123'),
                 'email_verified_at' => now(),
                 'is_active' => true,
@@ -85,7 +85,7 @@ class CreateCompleteRolesAndUsersSeeder extends Seeder
         $adminUser->assignRole($admin);
 
         // Create regular User
-        $regularUser = User::firstOrCreate(
+        $regularUser = User::updateOrCreate(
             ['username' => 'user'],
             [
                 'name' => 'Regular User',
