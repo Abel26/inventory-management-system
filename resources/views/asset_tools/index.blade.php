@@ -675,32 +675,7 @@
                     console.log('TOOLS EDIT: About to open modal');
                     openToolModal();
                     
-                    // Check if buttons are visible and enabled after modal opens
-                    setTimeout(function() {
-                        console.log('TOOLS EDIT: Modal visible?', !$('#toolModal').hasClass('hidden'));
-                        console.log('TOOLS EDIT: Submit button visible?', $('#submitToolBtn').is(':visible'));
-                        console.log('TOOLS EDIT: Submit button enabled?', $('#submitToolBtn').is(':enabled'));
-                        console.log('TOOLS EDIT: Submit button disabled?', $('#submitToolBtn').prop('disabled'));
-                        
-                        // Force re-bind click event to submit button
-                        $('#submitToolBtn').off('click.edit').on('click.edit', function(e) {
-                            e.preventDefault();
-                            console.log('TOOLS EDIT: Submit button click - EVENT FIRED!'); // DEBUG
-                            $('#toolForm').trigger('submit');
-                        });
-                        
-                        // Additional backup click handler
-                        $('#submitToolBtn').off('click.backup').on('click.backup', function(e) {
-                            e.preventDefault();
-                            console.log('TOOLS EDIT: Submit button backup click - EVENT FIRED!'); // DEBUG
-                            $('#toolForm').trigger('submit');
-                        });
-                        
-                        // Test click event
-                        $('#submitToolBtn').off('click.test').on('click.test', function() {
-                            console.log('TOOLS EDIT: Submit button click test - EVENT FIRED!');
-                        });
-                    }, 500);
+
                     
                 } else {
                     console.error('TOOLS EDIT: Server returned error:', response.message);
@@ -783,76 +758,14 @@
         });
     });
 
-    // Also add click handler as backup for submit button
+    // Click handler for submit button - delegates to form submit handler
     $('#submitToolBtn').on('click', function(e) {
         e.preventDefault();
-        console.log('TOOLS SUBMIT BUTTON: Click event fired!'); // DEBUG
-        console.log('TOOLS SUBMIT BUTTON: Button disabled:', $(this).prop('disabled')); // DEBUG
-        console.log('TOOLS SUBMIT BUTTON: Button visible:', $(this).is(':visible')); // DEBUG
-        console.log('TOOLS SUBMIT BUTTON: Form data before submission:', $('#toolForm').serialize()); // DEBUG
-        
-        // Fix aria-hidden conflict by removing focus before SweetAlert
         $(this).blur();
-        
-        let id = $('#toolId').val();
-        let isEdit = id !== '';
-        
-        console.log('TOOLS SUBMIT BUTTON: Form ID:', id, 'Is Edit:', isEdit); // DEBUG
-        console.log('TOOLS SUBMIT BUTTON: CSRF Token:', $('meta[name="csrf-token"]').attr('content')); // DEBUG
-        
-        // Show confirmation dialog for both create and edit
-        let confirmTitle = isEdit ? '{{ __('modules.swal.confirm_title') }}' : '{{ __('modules.swal.confirm_title') }}';
-        let confirmText = isEdit ? '{{ __('modules.swal.update_warning') }}' : '{{ __('modules.asset_tools.confirm_create') }}';
-        
-        // Store reference to button for later focus restoration
-        var submitBtn = this;
-        
-        Swal.fire({
-            title: confirmTitle,
-            text: confirmText,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#009B77',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: isEdit ? '{{ __('modules.swal.yes_save') }}' : '{{ __('modules.asset_tools.yes_create') }}',
-            cancelButtonText: '{{ __('modules.swal.cancel') }}',
-            // Fix for production timing issues
-            didOpen: function() {
-                // Ensure proper focus management in SweetAlert
-                console.log('TOOLS SWAL: SweetAlert opened, fixing focus management');
-                // Remove any aria-hidden conflicts
-                $('.flex.h-screen').removeAttr('aria-hidden');
-            },
-            didClose: function() {
-                // Restore focus after SweetAlert closes
-                console.log('TOOLS SWAL: SweetAlert closed, restoring focus');
-                setTimeout(function() {
-                    if (submitBtn && $(submitBtn).is(':visible')) {
-                        submitBtn.focus();
-                    }
-                }, 100);
-            }
-        }).then((result) => {
-            console.log('TOOLS SUBMIT BUTTON: Swal result:', result); // DEBUG
-            if (result.isConfirmed) {
-                console.log('TOOLS SUBMIT BUTTON: User confirmed, calling submitToolForm()'); // DEBUG
-                // Trigger form submission manually instead of using submit()
-                try {
-                    submitToolForm();
-                } catch (error) {
-                    console.error('TOOLS SUBMIT BUTTON: Error in submitToolForm():', error); // DEBUG
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Terjadi kesalahan saat memproses form: ' + error.message,
-                        confirmButtonColor: '#dc2626'
-                    });
-                }
-            } else {
-                console.log('TOOLS SUBMIT BUTTON: User cancelled submission'); // DEBUG
-            }
-        });
+        $('#toolForm').trigger('submit');
     });
+
+
 
     function submitToolForm(successMessage = '{{ __('modules.swal.data_saved') }}') {
         console.log('TOOLS SUBMIT FORM: Starting form submission'); // DEBUG

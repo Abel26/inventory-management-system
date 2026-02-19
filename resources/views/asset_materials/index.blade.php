@@ -554,13 +554,9 @@
 
     // Global Modal helpers
     window.openMaterialModal = function() {
-        console.log('MODAL: Opening modal'); // DEBUG
         var modal = document.getElementById('materialModal');
         modal.classList.remove('hidden');
         modal.style.display = 'flex';
-        
-        // Fix aria-hidden conflicts when opening modal
-        $('.flex.h-screen').removeAttr('aria-hidden');
         
         // Force reflow to ensure transition works
         modal.offsetHeight;
@@ -569,62 +565,10 @@
             var content = modal.querySelector('.modal-content');
             content.classList.remove('scale-95', 'opacity-0');
             content.classList.add('scale-100', 'opacity-100');
-            
-            console.log('MODAL: Modal opened, checking buttons'); // DEBUG
-            
-            // Ensure buttons are enabled and visible
-            setTimeout(function() {
-                var submitBtn = document.getElementById('submitMaterialBtn');
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.style.display = 'flex';
-                    console.log('MODAL: Submit button enabled and visible'); // DEBUG
-                    // Set proper focus to submit button for accessibility
-                    submitBtn.focus();
-                }
-            }, 100);
         });
     }
     
     window.closeMaterialModal = function() {
-        console.log('MODAL: Closing modal'); // DEBUG
-        
-        // Check if form has unsaved changes
-        var form = document.getElementById('materialForm');
-        var formData = new FormData(form);
-        var hasChanges = false;
-        
-        // Simple check if any field has value (excluding hidden fields)
-        for (var pair of formData.entries()) {
-            if (pair[0] !== 'id' && pair[0] !== 'unit' && pair[1] && pair[1].trim() !== '') {
-                hasChanges = true;
-                break;
-            }
-        }
-        
-        if (hasChanges) {
-            // Show confirmation dialog if there are unsaved changes
-            Swal.fire({
-                title: '{{ __('modules.swal.confirm_title') }}',
-                text: '{{ __('modules.asset_materials.confirm_close') }}',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc2626',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: '{{ __('modules.asset_materials.yes_close') }}',
-                cancelButtonText: '{{ __('modules.swal.cancel') }}'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    performModalClose();
-                }
-            });
-        } else {
-            // Close directly if no changes
-            performModalClose();
-        }
-    }
-    
-    window.performModalClose = function() {
         var modal = document.getElementById('materialModal');
         var content = modal.querySelector('.modal-content');
         
@@ -634,6 +578,9 @@
         setTimeout(function() {
             modal.classList.add('hidden');
             modal.style.display = 'none';
+            // Reset form when modal is fully closed
+            document.getElementById('materialForm').reset();
+            document.getElementById('materialId').value = '';
         }, 300);
     }
 

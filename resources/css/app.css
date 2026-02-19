@@ -12,6 +12,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hide elements with x-cloak until Alpine.js initialises */
+[x-cloak] { display: none !important; }
+
+/* Flatpickr must float above modals (z-50 = 50) but below SweetAlert (z-9999) */
+.flatpickr-calendar { z-index: 9998 !important; }
+
 /* ============================================
    DataTables CSS Overrides
    Override default jQuery DataTables styling
@@ -350,38 +356,22 @@ span.flatpickr-weekday {
 }
 /* ============================================
    SweetAlert2 CSS Fixes
-   Ensure proper positioning in all environments
+   Ensure proper z-index stacking above modals
    ============================================ */
 
-/* Ensure SweetAlert2 modal backdrop and container have correct z-index */
+/* Container must sit above all custom modals (z-50 = 50, so 9999 wins) */
 .swal2-container {
-    position: fixed !important;
     z-index: 9999 !important;
-    overflow: visible !important;
 }
 
-/* Ensure backdrop is visible */
-.swal2-backdrop {
-    position: fixed !important;
-    z-index: 9998 !important;
-}
-
-/* Modal popup container */
+/* Popup inherits container layout – do NOT override position, it breaks centering */
 .swal2-popup {
-    position: fixed !important;
-    z-index: 9999 !important;
-    overflow-y: auto !important;
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
-/* Ensure modal is centered when position is center */
-.swal2-center.swal2-popup {
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-}
-
-/* Prevent body scrolling when modal is open */
-body.swal2-shown {
+/* Keep body non-scrollable while alert is open */
+body.swal2-shown:not(.swal2-toast-shown) {
     overflow: hidden !important;
 }
 

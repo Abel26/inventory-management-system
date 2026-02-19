@@ -24,7 +24,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="font-sans antialiased text-slate-700 bg-slate-50 h-full overflow-hidden"
-      x-data="{ sidebarOpen: true }"
+      x-data="{ sidebarOpen: window.innerWidth >= 1024 }"
       @toggle-sidebar.window="sidebarOpen = !sidebarOpen">
 
     <!-- ==================== LAYER Z-50: MOBILE HEADER ==================== -->
