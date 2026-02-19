@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateAssetMaterialRequest;
 use App\Models\AssetMaterial;
 use App\Services\AssetMaterialService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\AssetMaterialsExport;
@@ -71,14 +72,32 @@ class AssetManagementController extends Controller
      */
     public function store(StoreAssetMaterialRequest $request)
     {
+        Log::info('MATERIAL STORE: Request received', [
+            'data' => $request->all(),
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
+        
         try {
-            $this->assetMaterialService->create($request->validated());
+            Log::info('MATERIAL STORE: Validating request');
+            $validatedData = $request->validated();
+            Log::info('MATERIAL STORE: Validation passed', ['validated_data' => $validatedData]);
+            
+            $material = $this->assetMaterialService->create($validatedData);
+            Log::info('MATERIAL STORE: Material created successfully', ['material_id' => $material->id]);
             
             return response()->json([
                 'success' => true,
-                'message' => 'Material berhasil ditambahkan'
+                'message' => 'Material berhasil ditambahkan',
+                'material_id' => $material->id
             ]);
         } catch (\Exception $e) {
+            Log::error('MATERIAL STORE: Error occurred', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->all()
+            ]);
+            
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menambahkan material: ' . $e->getMessage()

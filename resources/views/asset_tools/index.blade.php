@@ -789,41 +789,114 @@
         console.log('TOOLS SUBMIT BUTTON: Click event fired!'); // DEBUG
         console.log('TOOLS SUBMIT BUTTON: Button disabled:', $(this).prop('disabled')); // DEBUG
         console.log('TOOLS SUBMIT BUTTON: Button visible:', $(this).is(':visible')); // DEBUG
+        console.log('TOOLS SUBMIT BUTTON: Form data before submission:', $('#toolForm').serialize()); // DEBUG
         
-        // Trigger form submission
-        $('#toolForm').trigger('submit');
+        // Fix aria-hidden conflict by removing focus before SweetAlert
+        $(this).blur();
+        
+        let id = $('#toolId').val();
+        let isEdit = id !== '';
+        
+        console.log('TOOLS SUBMIT BUTTON: Form ID:', id, 'Is Edit:', isEdit); // DEBUG
+        console.log('TOOLS SUBMIT BUTTON: CSRF Token:', $('meta[name="csrf-token"]').attr('content')); // DEBUG
+        
+        // Show confirmation dialog for both create and edit
+        let confirmTitle = isEdit ? '{{ __('modules.swal.confirm_title') }}' : '{{ __('modules.swal.confirm_title') }}';
+        let confirmText = isEdit ? '{{ __('modules.swal.update_warning') }}' : '{{ __('modules.asset_tools.confirm_create') }}';
+        
+        // Store reference to button for later focus restoration
+        var submitBtn = this;
+        
+        Swal.fire({
+            title: confirmTitle,
+            text: confirmText,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#009B77',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: isEdit ? '{{ __('modules.swal.yes_save') }}' : '{{ __('modules.asset_tools.yes_create') }}',
+            cancelButtonText: '{{ __('modules.swal.cancel') }}',
+            // Fix for production timing issues
+            didOpen: function() {
+                // Ensure proper focus management in SweetAlert
+                console.log('TOOLS SWAL: SweetAlert opened, fixing focus management');
+                // Remove any aria-hidden conflicts
+                $('.flex.h-screen').removeAttr('aria-hidden');
+            },
+            didClose: function() {
+                // Restore focus after SweetAlert closes
+                console.log('TOOLS SWAL: SweetAlert closed, restoring focus');
+                setTimeout(function() {
+                    if (submitBtn && $(submitBtn).is(':visible')) {
+                        submitBtn.focus();
+                    }
+                }, 100);
+            }
+        }).then((result) => {
+            console.log('TOOLS SUBMIT BUTTON: Swal result:', result); // DEBUG
+            if (result.isConfirmed) {
+                console.log('TOOLS SUBMIT BUTTON: User confirmed, calling submitToolForm()'); // DEBUG
+                // Trigger form submission manually instead of using submit()
+                try {
+                    submitToolForm();
+                } catch (error) {
+                    console.error('TOOLS SUBMIT BUTTON: Error in submitToolForm():', error); // DEBUG
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Terjadi kesalahan saat memproses form: ' + error.message,
+                        confirmButtonColor: '#dc2626'
+                    });
+                }
+            } else {
+                console.log('TOOLS SUBMIT BUTTON: User cancelled submission'); // DEBUG
+            }
+        });
     });
 
     function submitToolForm(successMessage = '{{ __('modules.swal.data_saved') }}') {
         console.log('TOOLS SUBMIT FORM: Starting form submission'); // DEBUG
+        console.log('TOOLS SUBMIT FORM: Function exists, typeof submitToolForm:', typeof submitToolForm); // DEBUG
         
-        let formData = $('#toolForm').serialize();
-        let id = $('#toolId').val();
-        let url = storeUrl;
-        let method = 'POST';
-        
-        if (id) {
-            url = updateUrlTemplate.replace(':id', id);
-            // Add _method field for Laravel method spoofing
-            formData += '&_method=PUT';
-            method = 'POST'; // Always use POST with _method field
-        }
+        try {
+            let formData = $('#toolForm').serialize();
+            let id = $('#toolId').val();
+            let url = storeUrl;
+            let method = 'POST';
+            
+            if (id) {
+                url = updateUrlTemplate.replace(':id', id);
+                // Add _method field for Laravel method spoofing
+                formData += '&_method=PUT';
+                method = 'POST'; // Always use POST with _method field
+                successMessage = '{{ __('modules.swal.data_updated') }}';
+            }
 
-        console.log('TOOLS SUBMIT FORM: Sending AJAX to:', url); // DEBUG
-        console.log('TOOLS SUBMIT FORM: Form data:', formData); // DEBUG
- 
-        // Disable submit button to prevent double submission
-        $('#submitToolBtn').prop('disabled', true).html('<i class="ph ph-spinner-gap animate-spin text-lg"></i> {{ __('modules.common.saving') }}');
- 
-        $.ajax({
-            url: url,
-            method: method,
-            data: formData,
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
+            console.log('TOOLS SUBMIT FORM: Preparing AJAX request'); // DEBUG
+            console.log('TOOLS SUBMIT FORM: URL:', url); // DEBUG
+            console.log('TOOLS SUBMIT FORM: Method:', method); // DEBUG
+            console.log('TOOLS SUBMIT FORM: Form data:', formData); // DEBUG
+            console.log('TOOLS SUBMIT FORM: CSRF Token:', '{{ csrf_token() }}'); // DEBUG
+
+            // Disable submit button to prevent double submission
+            $('#submitToolBtn').prop('disabled', true).html('<i class="ph ph-spinner-gap animate-spin text-lg"></i> {{ __('modules.common.saving') }}');
+            console.log('TOOLS SUBMIT FORM: Button disabled, sending AJAX request'); // DEBUG
+
+            $.ajax({
+                url: url,
+                method: method,
+                data: formData,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                },
+                timeout: 30000, // 30 seconds timeout
+                beforeSend: function(xhr) {
+                    console.log('TOOLS SUBMIT FORM: AJAX beforeSend triggered'); // DEBUG
+                },
             success: function(response) {
-                console.log('TOOLS SUBMIT FORM: Update successful:', response);
+                console.log('TOOLS SUBMIT FORM: AJAX success callback triggered'); // DEBUG
+                console.log('TOOLS SUBMIT FORM: Server response:', response); // DEBUG
                 closeToolModal();
                 
                 // Reload DataTable with a small delay to ensure server has processed update
@@ -836,50 +909,57 @@
                     icon: 'success',
                     title: '{{ __('modules.swal.success') }}',
                     text: successMessage,
-                    confirmButtonColor: '#009B77'
+                    confirmButtonColor: '#009B77',
+                    timer: 2000,
+                    timerProgressBar: true,
+                    showConfirmButton: false
                 });
                 // Reset form and re-enable button
                 $('#toolForm')[0].reset();
                 $('#submitToolBtn').prop('disabled', false).html('<i class="ph ph-floppy-disk text-lg"></i> {{ __('modules.common.save') }}');
             },
             error: function(xhr) {
+                console.log('TOOLS SUBMIT FORM: AJAX error callback triggered'); // DEBUG
                 console.error('TOOLS SUBMIT FORM: AJAX error:', xhr); // DEBUG
+                console.error('TOOLS SUBMIT FORM: Status:', xhr.status); // DEBUG
+                console.error('TOOLS SUBMIT FORM: Status text:', xhr.statusText); // DEBUG
                 console.error('TOOLS SUBMIT FORM: Response text:', xhr.responseText); // DEBUG
-                let errorMessage = '{{ __('modules.swal.generic_error') }}';
+                console.error('TOOLS SUBMIT FORM: Response JSON:', xhr.responseJSON); // DEBUG
                 
-                if (xhr.responseJSON) {
-                    if (xhr.responseJSON.errors) {
-                        // Handle validation errors
-                        let errors = xhr.responseJSON.errors;
-                        let errorMessages = [];
-                        for (let key in errors) {
-                            errorMessages.push(errors[key][0]);
-                        }
-                        errorMessage = errorMessages.join('<br>');
-                    } else if (xhr.responseJSON.message) {
-                        // Handle single error message
-                        errorMessage = xhr.responseJSON.message;
+                let errors = xhr.responseJSON?.errors;
+                let errorMessage = '';
+                if (errors) {
+                    for (let key in errors) {
+                        errorMessage += errors[key][0] + '\n';
                     }
-                } else if (xhr.status === 422) {
-                    errorMessage = '{{ __('modules.swal.validation_error') }}';
-                } else if (xhr.status === 403) {
-                    errorMessage = '{{ __('modules.swal.permission_error') }}';
-                } else if (xhr.status === 404) {
-                    errorMessage = '{{ __('modules.swal.not_found') }}';
-                } else if (xhr.status === 500) {
-                    errorMessage = '{{ __('modules.swal.server_error') }}';
+                } else {
+                    errorMessage = xhr.responseJSON?.message || 'Terjadi kesalahan saat menyimpan data';
                 }
-                
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    html: errorMessage,
+                    text: errorMessage,
                     confirmButtonColor: '#dc2626'
                 });
                 // Re-enable button on error
                 $('#submitToolBtn').prop('disabled', false).html('<i class="ph ph-floppy-disk text-lg"></i> {{ __('modules.common.save') }}');
+            },
+            complete: function(xhr) {
+                console.log('TOOLS SUBMIT FORM: AJAX complete callback triggered'); // DEBUG
             }
         });
+        } catch (error) {
+            console.error('TOOLS SUBMIT FORM: Exception caught:', error); // DEBUG
+            console.error('TOOLS SUBMIT FORM: Error stack:', error.stack); // DEBUG
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Terjadi kesalahan sistem: ' + error.message,
+                confirmButtonColor: '#dc2626'
+            });
+            // Re-enable button on error
+            $('#submitToolBtn').prop('disabled', false).html('<i class="ph ph-floppy-disk text-lg"></i> {{ __('modules.common.save') }}');
+        }
     }
  
  

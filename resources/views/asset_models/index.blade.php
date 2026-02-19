@@ -773,8 +773,62 @@
         // Single click handler for submit button
         $('#modelForm button[type="submit"]').off('click').on('click', function(e) {
             e.preventDefault();
-            console.log('DEBUG FORM: Submit button clicked');
-            $('#modelForm').trigger('submit');
+            console.log('MODELS SUBMIT BUTTON: Click event fired!'); // DEBUG
+            console.log('MODELS SUBMIT BUTTON: Button disabled:', $(this).prop('disabled')); // DEBUG
+            console.log('MODELS SUBMIT BUTTON: Button visible:', $(this).is(':visible')); // DEBUG
+            console.log('MODELS SUBMIT BUTTON: Form data before submission:', $('#modelForm').serialize()); // DEBUG
+            
+            // Fix aria-hidden conflict by removing focus before SweetAlert
+            $(this).blur();
+            
+            let id = $('#modelId').val();
+            let isEdit = id !== '';
+            
+            console.log('MODELS SUBMIT BUTTON: Form ID:', id, 'Is Edit:', isEdit); // DEBUG
+            console.log('MODELS SUBMIT BUTTON: CSRF Token:', $('meta[name="csrf-token"]').attr('content')); // DEBUG
+            
+            // Show confirmation dialog for both create and edit
+            let confirmTitle = isEdit ? '{{ __('modules.swal.confirm_title') }}' : '{{ __('modules.swal.confirm_title') }}';
+            let confirmText = isEdit ? '{{ __('modules.swal.update_warning') }}' : '{{ __('modules.asset_models.confirm_create') }}';
+            
+            // Store reference to button for later focus restoration
+            var submitBtn = this;
+            
+            Swal.fire({
+                title: confirmTitle,
+                text: confirmText,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#009B77',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: isEdit ? '{{ __('modules.swal.yes_save') }}' : '{{ __('modules.asset_models.yes_create') }}',
+                cancelButtonText: '{{ __('modules.swal.cancel') }}',
+                // Fix for production timing issues
+                didOpen: function() {
+                    // Ensure proper focus management in SweetAlert
+                    console.log('MODELS SWAL: SweetAlert opened, fixing focus management');
+                    // Remove any aria-hidden conflicts
+                    $('.flex.h-screen').removeAttr('aria-hidden');
+                },
+                didClose: function() {
+                    // Restore focus after SweetAlert closes
+                    console.log('MODELS SWAL: SweetAlert closed, restoring focus');
+                    setTimeout(function() {
+                        if (submitBtn && $(submitBtn).is(':visible')) {
+                            submitBtn.focus();
+                        }
+                    }, 100);
+                }
+            }).then((result) => {
+                console.log('MODELS SUBMIT BUTTON: Swal result:', result); // DEBUG
+                if (result.isConfirmed) {
+                    console.log('MODELS SUBMIT BUTTON: User confirmed, triggering form submission'); // DEBUG
+                    // Trigger form submission manually instead of using submit()
+                    $('#modelForm').trigger('submit');
+                } else {
+                    console.log('MODELS SUBMIT BUTTON: User cancelled submission'); // DEBUG
+                }
+            });
         });
         
         // QR Code Modal Handlers

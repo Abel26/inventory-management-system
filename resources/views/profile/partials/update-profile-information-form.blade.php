@@ -48,7 +48,7 @@
         </div>
 
         <div class="flex flex-col sm:flex-row items-center gap-3">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
+            <button type="submit" id="submitProfileBtn" class="x-primary-button">{{ __('Save') }}</button>
 
             @if (session('status') === 'profile-updated')
                 <p

@@ -771,6 +771,7 @@
         console.log('SUBMIT BUTTON: Click event fired!'); // DEBUG
         console.log('SUBMIT BUTTON: Button disabled:', $(this).prop('disabled')); // DEBUG
         console.log('SUBMIT BUTTON: Button visible:', $(this).is(':visible')); // DEBUG
+        console.log('SUBMIT BUTTON: Form data before submission:', $('#materialForm').serialize()); // DEBUG
         
         // Fix aria-hidden conflict by removing focus before SweetAlert
         $(this).blur();
@@ -779,6 +780,7 @@
         let isEdit = id !== '';
         
         console.log('SUBMIT BUTTON: Form ID:', id, 'Is Edit:', isEdit); // DEBUG
+        console.log('SUBMIT BUTTON: CSRF Token:', $('meta[name="csrf-token"]').attr('content')); // DEBUG
         
         // Show confirmation dialog for both create and edit
         let confirmTitle = isEdit ? '{{ __('modules.swal.confirm_title') }}' : '{{ __('modules.swal.confirm_title') }}';
@@ -815,8 +817,21 @@
         }).then((result) => {
             console.log('SUBMIT BUTTON: Swal result:', result); // DEBUG
             if (result.isConfirmed) {
+                console.log('SUBMIT BUTTON: User confirmed, calling handleFormSubmission()'); // DEBUG
                 // Trigger form submission manually instead of using submit()
-                handleFormSubmission();
+                try {
+                    handleFormSubmission();
+                } catch (error) {
+                    console.error('SUBMIT BUTTON: Error in handleFormSubmission():', error); // DEBUG
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Terjadi kesalahan saat memproses form: ' + error.message,
+                        confirmButtonColor: '#dc2626'
+                    });
+                }
+            } else {
+                console.log('SUBMIT BUTTON: User cancelled submission'); // DEBUG
             }
         });
     });
@@ -824,151 +839,195 @@
     // Extract form submission logic to separate function
     function handleFormSubmission() {
         console.log('FORM SUBMISSION: Starting form submission'); // DEBUG
+        console.log('FORM SUBMISSION: Function exists, typeof handleFormSubmission:', typeof handleFormSubmission); // DEBUG
         
-        // Additional validation for expiry_date
-        let entryDate = $('#entry_date').val();
-        let expiryDate = $('#expiry_date').val();
-        
-        console.log('FORM SUBMISSION: Date validation - Entry:', entryDate, 'Expiry:', expiryDate);
-        
-        // Validate expiry date if provided
-        if (expiryDate && expiryDate !== '') {
-            if (entryDate && entryDate !== '') {
-                if (new Date(expiryDate) < new Date(entryDate)) {
-                    console.log('FORM SUBMISSION: Date validation failed'); // DEBUG
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Validasi Gagal',
-                        text: 'Tanggal kadaluarsa harus setelah atau sama dengan tanggal masuk',
-                        confirmButtonColor: '#dc2626'
-                    });
-                    $('#expiry_date').addClass('border-red-500');
-                    setTimeout(() => {
-                        $('#expiry_date').removeClass('border-red-500');
-                    }, 3000);
-                    return false;
+        try {
+            // Additional validation for expiry_date
+            let entryDate = $('#entry_date').val();
+            let expiryDate = $('#expiry_date').val();
+            
+            console.log('FORM SUBMISSION: Date validation - Entry:', entryDate, 'Expiry:', expiryDate); // DEBUG
+            
+            // Validate expiry date if provided
+            if (expiryDate && expiryDate !== '') {
+                if (entryDate && entryDate !== '') {
+                    if (new Date(expiryDate) < new Date(entryDate)) {
+                        console.log('FORM SUBMISSION: Date validation failed'); // DEBUG
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Validasi Gagal',
+                            text: 'Tanggal kadaluarsa harus setelah atau sama dengan tanggal masuk',
+                            confirmButtonColor: '#dc2626'
+                        });
+                        $('#expiry_date').addClass('border-red-500');
+                        setTimeout(() => {
+                            $('#expiry_date').removeClass('border-red-500');
+                        }, 3000);
+                        return false;
+                    }
                 }
             }
-        }
-        
-        // Enhanced form validation
-        let isValid = true;
-        let validationMessage = '';
-        
-        // Check required fields
-        if (!$('#name').val().trim()) {
-            isValid = false;
-            validationMessage = '{{ __('modules.asset_materials.name_required') }}';
-        } else if (!$('#type').val()) {
-            isValid = false;
-            validationMessage = '{{ __('modules.asset_materials.type_required') }}';
-        } else if (!$('#quantity').val() || $('#quantity').val() < 0) {
-            isValid = false;
-            validationMessage = '{{ __('modules.asset_materials.quantity_invalid') }}';
-        } else if (!$('#unit_id').val()) {
-            isValid = false;
-            validationMessage = '{{ __('modules.asset_materials.unit_required') }}';
-        } else if (!$('#min_threshold').val() || $('#min_threshold').val() < 0) {
-            isValid = false;
-            validationMessage = '{{ __('modules.asset_materials.min_threshold_invalid') }}';
-        } else if (!$('#entry_date').val()) {
-            isValid = false;
-            validationMessage = '{{ __('modules.asset_materials.entry_date_required') }}';
-        }
-        
-        if (!isValid) {
-            Swal.fire({
-                icon: 'error',
-                title: '{{ __('modules.asset_materials.validation_failed') }}',
-                text: validationMessage,
-                confirmButtonColor: '#dc2626'
-            });
-            return false;
-        }
-        
-        // Basic HTML5 form validation as fallback
-        if (!$('#materialForm')[0].checkValidity()) {
-            console.log('FORM SUBMISSION: HTML5 validation failed'); // DEBUG
-            // If HTML5 validation fails, trigger browser validation UI
-            $('#materialForm')[0].reportValidity();
-            return false;
-        }
-        
-        let formData = $('#materialForm').serialize();
-        let id = $('#materialId').val();
-        let url = storeUrl;
-        let method = 'POST';
-        let successMessage = '{{ __('modules.swal.data_saved') }}';
-
-        if (id) {
-            url = updateUrlTemplate.replace(':id', id);
-            // Add _method field for Laravel method spoofing
-            formData += '&_method=PUT';
-            method = 'POST'; // Always use POST with _method field
-            successMessage = '{{ __('modules.swal.data_updated') }}';
-        }
-
-        console.log('FORM SUBMISSION: Sending AJAX to:', url); // DEBUG
-        console.log('FORM SUBMISSION: Form data:', formData); // DEBUG
-
-        // Disable submit button to prevent double submission
-        $('#submitMaterialBtn').prop('disabled', true).html('<i class="ph ph-spinner-gap animate-spin text-lg"></i> {{ __('modules.common.saving') }}');
-
-        $.ajax({
-            url: url,
-            method: method,
-            data: formData,
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            success: function(response) {
-                console.log('FORM SUBMISSION: Update successful:', response);
-                closeMaterialModal();
-                
-                // Reload DataTable with a small delay to ensure server has processed the update
-                setTimeout(function() {
-                    $('#materialsTable').DataTable().ajax.reload(null, false); // false = keep current page
-                    console.log('FORM SUBMISSION: DataTable reloaded');
-                }, 500);
-                
-                Swal.fire({
-                    icon: 'success',
-                    title: '{{ __('modules.swal.success') }}',
-                    text: successMessage,
-                    confirmButtonColor: '#009B77',
-                    timer: 2000,
-                    timerProgressBar: true,
-                    showConfirmButton: false
-                });
-                // Reset form and re-enable button
-                $('#materialForm')[0].reset();
-                // Reset unit_id dropdown
-                $('#unit_id').val('');
-                $('#unit').val('');
-                $('#submitMaterialBtn').prop('disabled', false).html('<i class="ph ph-floppy-disk text-lg"></i> {{ __('modules.common.save') }}');
-            },
-            error: function(xhr) {
-                console.error('FORM SUBMISSION: AJAX error:', xhr); // DEBUG
-                console.error('FORM SUBMISSION: Response text:', xhr.responseText); // DEBUG
-                let errors = xhr.responseJSON?.errors;
-                let errorMessage = '';
-                if (errors) {
-                    for (let key in errors) {
-                        errorMessage += errors[key][0] + '\n';
-                    }
-                } else {
-                    errorMessage = xhr.responseJSON?.message || 'Terjadi kesalahan saat menyimpan data';
-                }
+            
+            // Enhanced form validation
+            let isValid = true;
+            let validationMessage = '';
+            
+            console.log('FORM SUBMISSION: Starting field validation'); // DEBUG
+            
+            // Check required fields
+            if (!$('#name').val().trim()) {
+                isValid = false;
+                validationMessage = '{{ __('modules.asset_materials.name_required') }}';
+                console.log('FORM SUBMISSION: Name validation failed'); // DEBUG
+            } else if (!$('#type').val()) {
+                isValid = false;
+                validationMessage = '{{ __('modules.asset_materials.type_required') }}';
+                console.log('FORM SUBMISSION: Type validation failed'); // DEBUG
+            } else if (!$('#quantity').val() || $('#quantity').val() < 0) {
+                isValid = false;
+                validationMessage = '{{ __('modules.asset_materials.quantity_invalid') }}';
+                console.log('FORM SUBMISSION: Quantity validation failed'); // DEBUG
+            } else if (!$('#unit_id').val()) {
+                isValid = false;
+                validationMessage = '{{ __('modules.asset_materials.unit_required') }}';
+                console.log('FORM SUBMISSION: Unit validation failed'); // DEBUG
+            } else if (!$('#min_threshold').val() || $('#min_threshold').val() < 0) {
+                isValid = false;
+                validationMessage = '{{ __('modules.asset_materials.min_threshold_invalid') }}';
+                console.log('FORM SUBMISSION: Min threshold validation failed'); // DEBUG
+            } else if (!$('#entry_date').val()) {
+                isValid = false;
+                validationMessage = '{{ __('modules.asset_materials.entry_date_required') }}';
+                console.log('FORM SUBMISSION: Entry date validation failed'); // DEBUG
+            }
+            
+            console.log('FORM SUBMISSION: Validation result:', isValid, 'Message:', validationMessage); // DEBUG
+            
+            if (!isValid) {
+                console.log('FORM SUBMISSION: Showing validation error'); // DEBUG
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error',
-                    text: errorMessage,
+                    title: '{{ __('modules.asset_materials.validation_failed') }}',
+                    text: validationMessage,
                     confirmButtonColor: '#dc2626'
                 });
-                // Re-enable button on error
-                $('#submitMaterialBtn').prop('disabled', false).html('<i class="ph ph-floppy-disk text-lg"></i> {{ __('modules.common.save') }}');
+                return false;
             }
-        });
+            
+            // Basic HTML5 form validation as fallback
+            if (!$('#materialForm')[0].checkValidity()) {
+                console.log('FORM SUBMISSION: HTML5 validation failed'); // DEBUG
+                // If HTML5 validation fails, trigger browser validation UI
+                $('#materialForm')[0].reportValidity();
+                return false;
+            }
+            
+            let formData = $('#materialForm').serialize();
+            let id = $('#materialId').val();
+            let url = storeUrl;
+            let method = 'POST';
+            let successMessage = '{{ __('modules.swal.data_saved') }}';
+
+            if (id) {
+                url = updateUrlTemplate.replace(':id', id);
+                // Add _method field for Laravel method spoofing
+                formData += '&_method=PUT';
+                method = 'POST'; // Always use POST with _method field
+                successMessage = '{{ __('modules.swal.data_updated') }}';
+            }
+
+            console.log('FORM SUBMISSION: Preparing AJAX request'); // DEBUG
+            console.log('FORM SUBMISSION: URL:', url); // DEBUG
+            console.log('FORM SUBMISSION: Method:', method); // DEBUG
+            console.log('FORM SUBMISSION: Form data:', formData); // DEBUG
+            console.log('FORM SUBMISSION: CSRF Token:', '{{ csrf_token() }}'); // DEBUG
+
+            // Disable submit button to prevent double submission
+            $('#submitMaterialBtn').prop('disabled', true).html('<i class="ph ph-spinner-gap animate-spin text-lg"></i> {{ __('modules.common.saving') }}');
+            
+            console.log('FORM SUBMISSION: Button disabled, sending AJAX request'); // DEBUG
+
+            $.ajax({
+                url: url,
+                method: method,
+                data: formData,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                },
+                timeout: 30000, // 30 seconds timeout
+                beforeSend: function(xhr) {
+                    console.log('FORM SUBMISSION: AJAX beforeSend triggered'); // DEBUG
+                },
+                success: function(response) {
+                    console.log('FORM SUBMISSION: AJAX success callback triggered'); // DEBUG
+                    console.log('FORM SUBMISSION: Server response:', response); // DEBUG
+                    closeMaterialModal();
+                    
+                    // Reload DataTable with a small delay to ensure server has processed the update
+                    setTimeout(function() {
+                        $('#materialsTable').DataTable().ajax.reload(null, false); // false = keep current page
+                        console.log('FORM SUBMISSION: DataTable reloaded');
+                    }, 500);
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: '{{ __('modules.swal.success') }}',
+                        text: successMessage,
+                        confirmButtonColor: '#009B77',
+                        timer: 2000,
+                        timerProgressBar: true,
+                        showConfirmButton: false
+                    });
+                    // Reset form and re-enable button
+                    $('#materialForm')[0].reset();
+                    // Reset unit_id dropdown
+                    $('#unit_id').val('');
+                    $('#unit').val('');
+                    $('#submitMaterialBtn').prop('disabled', false).html('<i class="ph ph-floppy-disk text-lg"></i> {{ __('modules.common.save') }}');
+                },
+                error: function(xhr) {
+                    console.log('FORM SUBMISSION: AJAX error callback triggered'); // DEBUG
+                    console.error('FORM SUBMISSION: AJAX error:', xhr); // DEBUG
+                    console.error('FORM SUBMISSION: Status:', xhr.status); // DEBUG
+                    console.error('FORM SUBMISSION: Status text:', xhr.statusText); // DEBUG
+                    console.error('FORM SUBMISSION: Response text:', xhr.responseText); // DEBUG
+                    console.error('FORM SUBMISSION: Response JSON:', xhr.responseJSON); // DEBUG
+                    
+                    let errors = xhr.responseJSON?.errors;
+                    let errorMessage = '';
+                    if (errors) {
+                        for (let key in errors) {
+                            errorMessage += errors[key][0] + '\n';
+                        }
+                    } else {
+                        errorMessage = xhr.responseJSON?.message || 'Terjadi kesalahan saat menyimpan data';
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: errorMessage,
+                        confirmButtonColor: '#dc2626'
+                    });
+                    // Re-enable button on error
+                    $('#submitMaterialBtn').prop('disabled', false).html('<i class="ph ph-floppy-disk text-lg"></i> {{ __('modules.common.save') }}');
+                },
+                complete: function(xhr) {
+                    console.log('FORM SUBMISSION: AJAX complete callback triggered'); // DEBUG
+                }
+            });
+        } catch (error) {
+            console.error('FORM SUBMISSION: Exception caught:', error); // DEBUG
+            console.error('FORM SUBMISSION: Error stack:', error.stack); // DEBUG
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Terjadi kesalahan sistem: ' + error.message,
+                confirmButtonColor: '#dc2626'
+            });
+            // Re-enable button on error
+            $('#submitMaterialBtn').prop('disabled', false).html('<i class="ph ph-floppy-disk text-lg"></i> {{ __('modules.common.save') }}');
+        }
     }
 
     function deleteMaterial(id) {

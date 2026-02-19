@@ -293,7 +293,7 @@
                                 <a href="/reports/${row.id}" class="text-indigo-600 hover:text-indigo-800 transition" title="{{ __('modules.reports.detail_title') }}">
                                     <i class="ph ph-eye text-xl"></i>
                                 </a>
-                                <button onclick="deleteReport(${row.id}, '${row.report_code}')" class="text-red-600 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition" title="{{ __('modules.reports.delete_title') }}">
+                                <button onclick="deleteReport(${row.id}, '${row.report_code}')" class="text-red-600 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition" title="{{ __('modules.reports.delete_title') }}" style="pointer-events: auto !important;">
                                     <i class="ph ph-trash text-xl"></i>
                                 </button>
                             </div>

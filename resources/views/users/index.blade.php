@@ -560,29 +560,67 @@
         // Submit button handler
         $('#submitUserBtn').on('click', function(e) {
             e.preventDefault();
+            console.log('USERS SUBMIT BUTTON: Click event fired!'); // DEBUG
+            console.log('USERS SUBMIT BUTTON: Button disabled:', $(this).prop('disabled')); // DEBUG
+            console.log('USERS SUBMIT BUTTON: Button visible:', $(this).is(':visible')); // DEBUG
+            console.log('USERS SUBMIT BUTTON: Form data before submission:', $('#userForm').serialize()); // DEBUG
+            
+            // Fix aria-hidden conflict by removing focus before SweetAlert
+            $(this).blur();
             
             let id = $('#userId').val();
             let isEdit = id !== '';
             
+            console.log('USERS SUBMIT BUTTON: Form ID:', id, 'Is Edit:', isEdit); // DEBUG
+            console.log('USERS SUBMIT BUTTON: CSRF Token:', $('meta[name="csrf-token"]').attr('content')); // DEBUG
+            
             if (isEdit) {
                 // Show confirmation dialog for edit
+                let confirmTitle = '{{ __('modules.swal.confirm_title') }}';
+                let confirmText = '{{ __('modules.swal.update_warning') }}';
+                
+                // Store reference to button for later focus restoration
+                var submitBtn = this;
+                
                 Swal.fire({
-                    title: '{{ __('modules.swal.confirm_title') }}',
-                    text: '{{ __('modules.swal.update_warning') }}',
+                    title: confirmTitle,
+                    text: confirmText,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#009B77',
                     cancelButtonColor: '#6b7280',
                     confirmButtonText: '{{ __('modules.swal.yes_save') }}',
-                    cancelButtonText: '{{ __('modules.swal.cancel') }}'
+                    cancelButtonText: '{{ __('modules.swal.cancel') }}',
+                    // Fix for production timing issues
+                    didOpen: function() {
+                        // Ensure proper focus management in SweetAlert
+                        console.log('USERS SWAL: SweetAlert opened, fixing focus management');
+                        // Remove any aria-hidden conflicts
+                        $('.flex.h-screen').removeAttr('aria-hidden');
+                    },
+                    didClose: function() {
+                        // Restore focus after SweetAlert closes
+                        console.log('USERS SWAL: SweetAlert closed, restoring focus');
+                        setTimeout(function() {
+                            if (submitBtn && $(submitBtn).is(':visible')) {
+                                submitBtn.focus();
+                            }
+                        }, 100);
+                    }
                 }).then((result) => {
+                    console.log('USERS SUBMIT BUTTON: Swal result:', result); // DEBUG
                     if (result.isConfirmed) {
-                        $('#userForm').submit();
+                        console.log('USERS SUBMIT BUTTON: User confirmed, triggering form submission'); // DEBUG
+                        // Trigger form submission manually instead of using submit()
+                        $('#userForm').trigger('submit');
+                    } else {
+                        console.log('USERS SUBMIT BUTTON: User cancelled submission'); // DEBUG
                     }
                 });
             } else {
                 // Direct submit for new user
-                $('#userForm').submit();
+                console.log('USERS SUBMIT BUTTON: New user, triggering form submission directly'); // DEBUG
+                $('#userForm').trigger('submit');
             }
         });
 
@@ -666,6 +704,18 @@
                 }
             });
         });
+        } catch (error) {
+            console.error('USERS FORM SUBMIT: Exception caught:', error); // DEBUG
+            console.error('USERS FORM SUBMIT: Error stack:', error.stack); // DEBUG
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Terjadi kesalahan sistem: ' + error.message,
+                confirmButtonColor: '#dc2626'
+            });
+            // Re-enable button on error
+            $('#submitUserBtn').prop('disabled', false).html('<i class="ph ph-floppy-disk text-lg"></i> {{ __('modules.common.save') }}');
+        }
     });
 
     function editUser(id) {

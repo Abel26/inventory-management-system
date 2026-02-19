@@ -4,8 +4,8 @@ namespace App\Services;
 
 use App\Models\AssetMaterial;
 use App\Repositories\Contracts\AssetMaterialRepositoryInterface;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Str;
 
@@ -49,18 +49,34 @@ class AssetMaterialService
      */
     public function create(array $data): AssetMaterial
     {
+        Log::info('MATERIAL SERVICE: Creating new material', ['input_data' => $data]);
+        
         // Generate material code if not provided
         if (!isset($data['material_code']) || empty($data['material_code'])) {
             $data['material_code'] = $this->generateMaterialCode();
+            Log::info('MATERIAL SERVICE: Generated material code', ['material_code' => $data['material_code']]);
         }
 
-        // Create material
-        $material = $this->assetMaterialRepository->create($data);
+        try {
+            // Create material
+            Log::info('MATERIAL SERVICE: Calling repository create');
+            $material = $this->assetMaterialRepository->create($data);
+            Log::info('MATERIAL SERVICE: Material created successfully', ['material_id' => $material->id]);
 
-        // Generate QR Code
-        $this->generateQrCode($material);
+            // Generate QR Code
+            Log::info('MATERIAL SERVICE: Generating QR code');
+            $this->generateQrCode($material);
+            Log::info('MATERIAL SERVICE: QR code generated successfully');
 
-        return $material->fresh();
+            return $material->fresh();
+        } catch (\Exception $e) {
+            Log::error('MATERIAL SERVICE: Error creating material', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'data' => $data
+            ]);
+            throw $e;
+        }
     }
 
     /**

@@ -499,8 +499,64 @@
             hideModal();
         });
 
-        $('#submitSatuanBtn').on('click', function() {
-            $('#satuanForm').submit();
+        $('#submitSatuanBtn').on('click', function(e) {
+            e.preventDefault();
+            console.log('SATUANS SUBMIT BUTTON: Click event fired!'); // DEBUG
+            console.log('SATUANS SUBMIT BUTTON: Button disabled:', $(this).prop('disabled')); // DEBUG
+            console.log('SATUANS SUBMIT BUTTON: Button visible:', $(this).is(':visible')); // DEBUG
+            console.log('SATUANS SUBMIT BUTTON: Form data before submission:', $('#satuanForm').serialize()); // DEBUG
+            
+            // Fix aria-hidden conflict by removing focus before SweetAlert
+            $(this).blur();
+            
+            let id = $('#satuanId').val();
+            let isEdit = id !== '';
+            
+            console.log('SATUANS SUBMIT BUTTON: Form ID:', id, 'Is Edit:', isEdit); // DEBUG
+            console.log('SATUANS SUBMIT BUTTON: CSRF Token:', $('meta[name="csrf-token"]').attr('content')); // DEBUG
+            
+            // Show confirmation dialog for both create and edit
+            let confirmTitle = isEdit ? '{{ __('modules.swal.confirm_title') }}' : '{{ __('modules.swal.confirm_title') }}';
+            let confirmText = isEdit ? '{{ __('modules.swal.update_warning') }}' : '{{ __('modules.swal.save_warning') }}';
+            
+            // Store reference to button for later focus restoration
+            var submitBtn = this;
+            
+            Swal.fire({
+                title: confirmTitle,
+                text: confirmText,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#009B77',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: isEdit ? '{{ __('modules.swal.yes_save') }}' : '{{ __('modules.swal.yes_save') }}',
+                cancelButtonText: '{{ __('modules.swal.cancel') }}',
+                // Fix for production timing issues
+                didOpen: function() {
+                    // Ensure proper focus management in SweetAlert
+                    console.log('SATUANS SWAL: SweetAlert opened, fixing focus management');
+                    // Remove any aria-hidden conflicts
+                    $('.flex.h-screen').removeAttr('aria-hidden');
+                },
+                didClose: function() {
+                    // Restore focus after SweetAlert closes
+                    console.log('SATUANS SWAL: SweetAlert closed, restoring focus');
+                    setTimeout(function() {
+                        if (submitBtn && $(submitBtn).is(':visible')) {
+                            submitBtn.focus();
+                        }
+                    }, 100);
+                }
+            }).then((result) => {
+                console.log('SATUANS SUBMIT BUTTON: Swal result:', result); // DEBUG
+                if (result.isConfirmed) {
+                    console.log('SATUANS SUBMIT BUTTON: User confirmed, triggering form submission'); // DEBUG
+                    // Trigger form submission manually instead of using submit()
+                    $('#satuanForm').trigger('submit');
+                } else {
+                    console.log('SATUANS SUBMIT BUTTON: User cancelled submission'); // DEBUG
+                }
+            });
         });
 
         // Close modal when clicking outside
@@ -596,6 +652,18 @@
                 }
             });
         });
+        } catch (error) {
+            console.error('SATUANS FORM SUBMIT: Exception caught:', error); // DEBUG
+            console.error('SATUANS FORM SUBMIT: Error stack:', error.stack); // DEBUG
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Terjadi kesalahan sistem: ' + error.message,
+                confirmButtonColor: '#dc2626'
+            });
+            // Re-enable button on error
+            $('#submitSatuanBtn').prop('disabled', false).html('<i class="ph ph-floppy-disk text-lg"></i> {{ __('modules.common.save') }}');
+        }
     });
 
     function editSatuan(id) {
