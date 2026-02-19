@@ -1,4 +1,4 @@
-                                                                                                                                                                                                                                                                                                                                                                                                <?php
+<?php
 
 namespace App\Services;
 
@@ -13,7 +13,7 @@ class ReportService
     ) {
         $this->reportRepository = $reportRepository;
     }
-                                                                                                                                                                    
+    
     /**
      * Get all reports with relationships.
      */
