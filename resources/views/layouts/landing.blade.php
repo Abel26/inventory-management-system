@@ -24,7 +24,7 @@
     <link href="https://fonts.bunny.net/css?family=georgia:400,700&display=swap" rel="stylesheet" />
     
     <!-- Icons -->
-    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/png" href="{{ asset('assets/img/logo.png') }}">
     
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/css/landing.css', 'resources/js/app.js'])
