@@ -22,7 +22,7 @@ return [
         ],
         'asset_tracking' => [
             'title' => 'Pelacakan Aset',
-            'text' => 'Pelacakan real-time Material, Peralatan, dan Base Plates.'
+            'text' => 'Pelacakan real-time Material, Peralatan, dan Cetakan.'
         ],
         'data_insights' => [
             'title' => 'Wawasan Berbasis Data',

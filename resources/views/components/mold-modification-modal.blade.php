@@ -8,7 +8,7 @@
     x-transition:leave="transition ease-in duration-150"
     x-transition:leave-start="opacity-100 scale-100"
     x-transition:leave-end="opacity-0 scale-95"
-    class="fixed inset-0 bg-gray-900/50 z-[9999] flex items-center justify-center"
+    class="fixed inset-0 bg-gray-900/50 z-50 flex items-center justify-center"
     style="display: none;"
     x-cloak
 >

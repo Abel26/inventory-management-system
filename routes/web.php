@@ -112,6 +112,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // -------------------------------------------------------------------------
     Route::prefix('reports')->name('reports.')->group(function () {
         Route::get('/', [ReportController::class, 'index'])->name('index');
+        Route::get('/export', [ReportController::class, 'export'])->name('export');
+        Route::get('/export-pdf', [ReportController::class, 'exportPdf'])->name('export-pdf');
         Route::get('/create', [ReportController::class, 'create'])->name('create');
         Route::post('/', [ReportController::class, 'store'])->name('store');
         Route::get('/scan', [ReportController::class, 'scan'])->name('scan');

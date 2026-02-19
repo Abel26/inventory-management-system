@@ -30,7 +30,7 @@ class UpdateUserRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users,username,' . $userId,
-            'password' => 'nullable|string|confirmed|min:8',
+            'password' => 'nullable|string|confirmed|min:1',
             'phone_number' => 'nullable|string|max:20|regex:/^[+]?[0-9\s\-\(\)]+$/',
             'role' => 'required|string|exists:roles,name',
             'is_active' => 'required|boolean',
@@ -50,7 +50,7 @@ class UpdateUserRequest extends FormRequest
             'username.unique' => 'Username sudah digunakan',
             'username.alpha_dash' => 'Username hanya boleh mengandung huruf, angka, dash, dan underscore',
             'password.confirmed' => 'Konfirmasi password tidak cocok',
-            'password.min' => 'Password minimal 8 karakter',
+            'password.min' => 'Password minimal 1 karakter',
             'phone_number.regex' => 'Format nomor telepon tidak valid',
             'role.required' => 'Role wajib dipilih',
             'role.exists' => 'Role yang dipilih tidak valid',

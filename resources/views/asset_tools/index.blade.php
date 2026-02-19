@@ -91,7 +91,7 @@
                     <input type="text" id="searchInput" placeholder="{{ __('modules.asset_tools.search_placeholder') }}" class="pl-10 pr-4 py-2.5 bg-gray-50 border-transparent focus:bg-white focus:border-ebara-500 focus:ring-0 rounded-xl text-sm w-full md:w-72 transition-all">
                 </div>
             </div>
-            <table id="toolsTable" class="w-full">
+            <table id="toolsTable" class="w-full" width="100%">
                 <thead>
                     <tr class="bg-gray-50/80 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                         <th class="px-6 py-4 text-left font-semibold whitespace-nowrap">{{ __('modules.common.code') }}</th>
@@ -121,7 +121,7 @@
     </div>
  
     <!-- Add/Edit Modal -->
-    <div id="toolModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] hidden" style="display: none;">
+    <div id="toolModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden" style="display: none;">
         <div class="flex items-center justify-center min-h-screen w-full p-4">
             <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl transform transition-all duration-300 scale-95 opacity-0 modal-content flex flex-col max-h-[90vh]">
                 <!-- Modal Header with Gradient -->
@@ -259,11 +259,11 @@
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="flex flex-col sm:flex-row justify-end gap-3 pt-5 border-t border-gray-200">
-                        <button type="button" id="cancelBtn" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-all duration-200 text-sm">
+                    <div class="sticky bottom-0 -mx-6 -mb-6 px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-xl flex flex-col sm:flex-row justify-end gap-3 z-10">
+                        <button type="button" id="cancelBtn" class="px-5 py-2.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-xl transition-all duration-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-200">
                             {{ __('modules.common.cancel') }}
                         </button>
-                        <button type="button" id="submitToolBtn" class="px-5 py-2.5 bg-gradient-to-r from-ebara-600 to-ebara-700 hover:from-ebara-700 hover:to-ebara-800 text-white font-medium rounded-xl shadow-lg shadow-ebara-500/25 hover:shadow-ebara-500/40 transition-all duration-200 text-sm flex items-center justify-center gap-2">
+                        <button type="submit" id="submitToolBtn" class="px-5 py-2.5 bg-gradient-to-r from-ebara-600 to-ebara-700 hover:from-ebara-700 hover:to-ebara-800 text-white font-medium rounded-xl shadow-lg shadow-ebara-500/25 hover:shadow-ebara-500/40 transition-all duration-200 text-sm flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-ebara-500">
                             <i class="ph ph-floppy-disk text-lg"></i>
                             {{ __('modules.common.save') }}
                         </button>
@@ -298,6 +298,32 @@
     var updateUrlTemplate = "{{ route('assets.tools.update', ':id') }}";
     var destroyUrlTemplate = "{{ route('assets.tools.destroy', ':id') }}";
     var qrCodeUrlTemplate = "{{ route('assets.tools.qr-code', ':id') }}";
+
+    // Global helper function untuk format tanggal
+    window.formatDateForInput = function(dateString) {
+        if (!dateString) return '';
+        
+        // Jika sudah format Y-m-d, gunakan langsung
+        if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            return dateString;
+        }
+        
+        // Konversi dari format lain ke Y-m-d
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return '';
+            
+            // Konversi ke timezone lokal
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            
+            return `${year}-${month}-${day}`;
+        } catch (e) {
+            console.error('Error parsing date:', dateString, e);
+            return '';
+        }
+    };
  
     $(document).ready(function() {
         let table = $('#toolsTable').DataTable({
@@ -476,10 +502,11 @@
                     $('#category').val(data.category);
                     $('#brand').val(data.brand);
                     $('#type').val(data.type);
-                    $('#purchase_date').val(data.purchase_date);
+                    // Perbaikan untuk tanggal - menggunakan fungsi helper global
+                    $('#purchase_date').val(formatDateForInput(data.purchase_date));
                     $('#purchase_price').val(data.purchase_price);
                     $('#quantity').val(data.quantity);
-                    $('#location').val(data.location);
+                    $('#location').val(data.location).trigger('change');
                     $('#condition').val(data.condition);
                     $('#description').val(data.description);
                     openToolModal();
@@ -503,16 +530,23 @@
         });
     }
  
-    // Add click handler for submit button
-    $('#submitToolBtn').on('click', function(e) {
+    // Handle form submission (works for both click and Enter key)
+    $('#toolForm').on('submit', function(e) {
         e.preventDefault();
-        console.log('Submit button clicked');
+        console.log('Form submit triggered');
+        
+        // Basic HTML5 validation check
+        if (!this.checkValidity()) {
+            // If HTML5 validation fails, trigger browser validation UI and return
+            // The browser will automatically show the validation messages
+            return;
+        }
         
         let id = $('#toolId').val();
         let isEdit = id !== '';
         
-        // Always show confirmation dialog for both create and edit
-        let confirmTitle = isEdit ? '{{ __('modules.swal.confirm_title') }}' : '{{ __('modules.swal.confirm_title') }}';
+        // Confirm before saving
+        let confirmTitle = '{{ __('modules.swal.confirm_title') }}';
         let confirmText = isEdit ? '{{ __('modules.asset_tools.update_confirm') }}' : '{{ __('modules.asset_tools.create_confirm') }}';
         let successMessage = isEdit ? '{{ __('modules.swal.data_updated') }}' : '{{ __('modules.swal.data_saved') }}';
         

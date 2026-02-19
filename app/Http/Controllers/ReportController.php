@@ -8,6 +8,10 @@ use App\Services\ReportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ReportsExport;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class ReportController extends Controller
 {
@@ -218,7 +222,7 @@ class ReportController extends Controller
         ]);
 
         return redirect()
-            ->route('reports.show', ['id' => $id])
+            ->route('reports.index')
             ->with('success', 'Status laporan berhasil diperbarui');
     }
 
@@ -240,5 +244,53 @@ class ReportController extends Controller
             'success' => true,
             'data' => $reports,
         ]);
+    }
+
+    /**
+     * Export reports to Excel.
+     */
+    public function export(Request $request)
+    {
+        $status = $request->query('status');
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+
+        return Excel::download(new ReportsExport($status, $startDate, $endDate), 'laporan-masalah-' . date('Y-m-d') . '.xlsx');
+    }
+
+    /**
+     * Export reports to PDF.
+     */
+    public function exportPdf(Request $request)
+    {
+        $status = $request->query('status');
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+
+        $query = \App\Models\Report::with(['user', 'reportable'])->orderBy('created_at', 'desc');
+
+        if ($status && $status !== 'all') {
+            $query->where('status', $status);
+        }
+
+        if ($startDate) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+
+        if ($endDate) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        $reports = $query->get();
+        $date = Carbon::now()->locale('id')->isoFormat('D MMMM Y');
+        $title = 'Laporan Masalah';
+        $subtitle = 'Daftar Laporan Masalah dan Kerusakan Aset';
+        
+        $pdf = Pdf::loadView('reports.pdf', compact('reports', 'date', 'title', 'subtitle'))
+            ->setPaper('a4', 'landscape')
+            ->setOption('isHtml5ParserEnabled', true)
+            ->setOption('isRemoteEnabled', true);
+        
+        return $pdf->download("Laporan Masalah {$date}.pdf");
     }
 }
