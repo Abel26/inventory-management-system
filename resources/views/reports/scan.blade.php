@@ -442,7 +442,6 @@
 
             // Get clean data
             const scannedCode = decodedText.trim();
-            console.log("✅ QR CAPTURED:", scannedCode);
 
             // Play success sound
             playBeep();
@@ -453,8 +452,6 @@
             // Construct URL
             const baseUrl = "{{ route('reports.scan') }}";
             const targetUrl = `${baseUrl}?code=${encodeURIComponent(scannedCode)}`;
-
-            console.log("🚀 NAVIGATING TO:", targetUrl);
 
             // Stop scanner if running
             if (html5QrcodeScanner && isScanning) {
@@ -531,8 +528,6 @@
             
             scannerMode = isSecureContext ? 'https' : 'http';
             
-            console.log(`🔍 Initializing scanner in ${scannerMode.toUpperCase()} mode`);
-            
             // Update UI based on mode
             updateModeIndicator(scannerMode);
             
@@ -555,7 +550,6 @@
                 
                 try {
                     if (!isScanning) {
-                        console.log('📷 Starting live camera...');
                         
                         // Initialize scanner
                         html5QrcodeScanner = new Html5Qrcode("reader");
@@ -577,8 +571,6 @@
                         stopBtn.classList.remove('hidden');
                         isScanning = true;
                         isRedirecting = false;
-                        
-                        console.log('✅ Live camera started successfully');
                     }
                 } catch (err) {
                     console.error('❌ Camera error:', err);
@@ -598,7 +590,6 @@
                     showError(errorMsg);
                     
                     // Fallback to HTTP mode if camera fails
-                    console.log('🔄 Auto-falling back to HTTP mode...');
                     scannerMode = 'http';
                     updateModeIndicator('http');
                     setupHttpMode();
@@ -611,7 +602,6 @@
                 const scanningFrame = document.getElementById('scanningFrame');
                 
                 if (html5QrcodeScanner && isScanning) {
-                    console.log('🛑 Stopping camera...');
                     
                     await html5QrcodeScanner.stop();
                     
@@ -622,8 +612,6 @@
                     stopBtn.classList.add('hidden');
                     isScanning = false;
                     isRedirecting = false;
-                    
-                    console.log('✅ Camera stopped successfully');
                 }
             });
         }
@@ -634,15 +622,11 @@
             const fileInput = document.getElementById('qr-input-file');
             
             startBtn.addEventListener('click', function() {
-                console.log('📷 Triggering file capture...');
                 fileInput.click();
             });
             
             fileInput.addEventListener('change', function(event) {
-                const file = event.target.files[0];
                 if (!file) return;
-                
-                console.log('📸 File selected:', file.name);
                 
                 // Show loading state
                 const placeholder = document.getElementById('cameraPlaceholder');
@@ -660,7 +644,6 @@
                 // Process the image
                 html5QrCode.scanFileV2(file, true)
                     .then(decodedText => {
-                        console.log('✅ QR Code found in image:', decodedText);
                         onScanSuccess(decodedText, null);
                     })
                     .catch(err => {

@@ -161,7 +161,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Simulate checking user permissions
     const checkPermissions = () => {
         const userRole = '{{ auth()->check() ? auth()->user()->roles->first()->name ?? "User" : "Guest" }}';
-        console.log('Current user role:', userRole);
     };
     
     checkPermissions();

@@ -354,23 +354,19 @@
 
     // Global helper function untuk format tanggal
     window.formatDateForInput = function(dateString) {
-        console.log('FORMAT DATE: Input:', dateString, 'Type:', typeof dateString); // DEBUG
         
         if (!dateString) {
-            console.log('FORMAT DATE: Empty date, returning empty string'); // DEBUG
             return '';
         }
         
         // Jika sudah format Y-m-d, gunakan langsung
         if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
-            console.log('FORMAT DATE: Already in Y-m-d format:', dateString); // DEBUG
             return dateString;
         }
         
         // Handle format datetime dari Laravel (Y-m-d H:i:s)
         if (dateString.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)) {
             const dateOnly = dateString.split(' ')[0];
-            console.log('FORMAT DATE: Laravel datetime format, extracting date:', dateOnly); // DEBUG
             return dateOnly;
         }
         
@@ -378,7 +374,6 @@
         try {
             const date = new Date(dateString);
             if (isNaN(date.getTime())) {
-                console.log('FORMAT DATE: Invalid date, returning empty string'); // DEBUG
                 return '';
             }
             
@@ -388,7 +383,6 @@
             const day = String(date.getDate()).padStart(2, '0');
             
             const result = `${year}-${month}-${day}`;
-            console.log('FORMAT DATE: Converted to:', result); // DEBUG
             return result;
         } catch (e) {
             console.error('FORMAT DATE: Error parsing date:', dateString, e);
@@ -397,10 +391,6 @@
     };
 
     $(document).ready(function() {
-        console.log('DOCUMENT READY: Asset materials page loaded'); // DEBUG
-        console.log('DOCUMENT READY: jQuery version:', $.fn.jquery); // DEBUG
-        console.log('DOCUMENT READY: DataTable available:', typeof $.fn.DataTable !== 'undefined'); // DEBUG
-        console.log('DOCUMENT READY: Swal available:', typeof Swal !== 'undefined'); // DEBUG
         
         // Add jQuery AJAX error handler
         $(document).ajaxError(function(event, xhr, settings, error) {
@@ -587,28 +577,20 @@
     });
 
     function editMaterial(id) {
-        console.log('EDIT MATERIAL: Starting edit for ID:', id); // DEBUG
         
         // Check if submit button exists and has event handler
-        console.log('EDIT MATERIAL: Submit button exists:', $('#submitMaterialBtn').length > 0);
-        console.log('EDIT MATERIAL: Submit button events:', $._data($('#submitMaterialBtn')[0], 'events'));
         
         $.ajax({
             url: showUrlTemplate.replace(':id', id),
             method: 'GET',
             success: function(response) {
-                console.log('EDIT MATERIAL: Response from server:', response); // Debug log
+            success: function(response) {
                 if (response.success) {
                     const data = response.data;
-                    console.log('EDIT MATERIAL: Material data:', data); // Debug log
                     
                     // Debug tanggal dengan lebih detail
-                    console.log('EDIT MATERIAL: Entry date raw:', data.entry_date, 'Type:', typeof data.entry_date);
-                    console.log('EDIT MATERIAL: Expiry date raw:', data.expiry_date, 'Type:', typeof data.expiry_date);
                     
                     // Test fungsi formatDateForInput
-                    console.log('EDIT MATERIAL: formatDateForInput(entry_date):', formatDateForInput(data.entry_date));
-                    console.log('EDIT MATERIAL: formatDateForInput(expiry_date):', formatDateForInput(data.expiry_date));
                     
                     $('#modalTitle').text('{{ __('modules.asset_materials.edit_title') }}');
                     $('#modalSubtitle').text('{{ __('modules.asset_materials.edit_subtitle') }}');
@@ -627,8 +609,7 @@
                     const formattedEntryDate = formatDateForInput(data.entry_date);
                     const formattedExpiryDate = formatDateForInput(data.expiry_date);
                     
-                    console.log('EDIT MATERIAL: Setting entry_date to:', formattedEntryDate);
-                    console.log('EDIT MATERIAL: Setting expiry_date to:', formattedExpiryDate);
+                    const formattedExpiryDate = formatDateForInput(data.expiry_date);
                     
                     $('#entry_date').val(formattedEntryDate);
                     $('#expiry_date').val(formattedExpiryDate);
@@ -637,8 +618,7 @@
                     $('#description').val(data.description);
                     
                     // Debug final values
-                    console.log('EDIT MATERIAL: Final entry_date value:', $('#entry_date').val());
-                    console.log('EDIT MATERIAL: Final expiry_date value:', $('#expiry_date').val());
+                    // Debug final values
                     
                     openMaterialModal();
                     
@@ -759,11 +739,8 @@
     });
 
     function deleteMaterial(id) {
-        console.log('DELETE MATERIAL: Starting delete for ID:', id); // DEBUG
         
         // Check if delete buttons are working
-        console.log('DELETE MATERIAL: Swal available:', typeof Swal !== 'undefined');
-        console.log('DELETE MATERIAL: jQuery available:', typeof $ !== 'undefined');
         
         Swal.fire({
             title: '{{ __('modules.swal.confirm_title') }}',
@@ -775,9 +752,7 @@
             confirmButtonText: '{{ __('modules.swal.yes_delete') }}',
             cancelButtonText: '{{ __('modules.swal.cancel') }}'
         }).then((result) => {
-            console.log('DELETE MATERIAL: Swal result:', result); // DEBUG
             if (result.isConfirmed) {
-                console.log('DELETE MATERIAL: Confirmed, sending AJAX request'); // DEBUG
                 $.ajax({
                     url: destroyUrlTemplate.replace(':id', id),
                     method: 'DELETE',
@@ -785,7 +760,7 @@
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
                     success: function(response) {
-                        console.log('DELETE MATERIAL: Delete successful:', response); // DEBUG
+                    success: function(response) {
                         $('#materialsTable').DataTable().ajax.reload();
                         Swal.fire({
                             icon: 'success',

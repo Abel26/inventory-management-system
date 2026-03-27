@@ -255,11 +255,9 @@
  
     // Global functions - define outside document ready
     window.showModal = function() {
-        console.log('DEBUG GEDUNG: Opening modal'); // DEBUG
         var modal = document.getElementById('gedungModal');
         
         if (!modal) {
-            console.error('DEBUG GEDUNG: Modal element not found!'); // DEBUG
             return;
         }
         
@@ -288,11 +286,9 @@
                 modalContent.style.setProperty('opacity', '1', 'important');
                 modalContent.style.setProperty('transform', 'scale(1)', 'important');
                 modalContent.style.setProperty('visibility', 'visible', 'important');
-                console.log('DEBUG GEDUNG: Modal content inline styles set'); // DEBUG
+                modalContent.style.setProperty('visibility', 'visible', 'important');
             }
             
-            console.log('DEBUG GEDUNG: Modal inline styles set'); // DEBUG
-            console.log('DEBUG GEDUNG: Modal opened, checking buttons'); // DEBUG
             
             // Ensure buttons are enabled and visible
             setTimeout(function() {
@@ -300,14 +296,13 @@
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.style.display = 'flex';
-                    console.log('DEBUG GEDUNG: Submit button enabled and visible'); // DEBUG
+                    submitBtn.style.display = 'flex';
                 }
             }, 100);
         });
     }
  
     window.hideModal = function() {
-        console.log('DEBUG GEDUNG: Closing modal'); // DEBUG
         var modal = document.getElementById('gedungModal');
         
         if (!modal) {
@@ -332,7 +327,6 @@
     }
  
     window.handleCreateNewGedung = function() {
-        console.log('DEBUG GEDUNG: Create handler called'); // DEBUG
         try {
             const title = document.getElementById('modalTitle');
             const form = document.getElementById('gedungForm');
@@ -348,12 +342,10 @@
             
             showModal();
         } catch (error) {
-            console.error('Error in create handler:', error);
         }
     }
  
     $(document).ready(function() {
-        console.log('Document ready, initializing gedung handlers...');
         
         let table = $('#gedungsTable').DataTable({
             processing: true,
@@ -450,18 +442,15 @@
  
         // Create button handler
         $('#createNewGedung').on('click', function() {
-            console.log('DEBUG GEDUNG: Create button clicked'); // DEBUG
             handleCreateNewGedung();
         });
  
         // Close button handlers
         $('#closeModalBtn').on('click', function() {
-            console.log('Close button clicked');
             hideModal();
         });
  
         $('#cancelBtn').on('click', function() {
-            console.log('Cancel button clicked');
             hideModal();
         });
  
@@ -499,13 +488,11 @@
                 // Fix for production timing issues
                 didOpen: function() {
                     // Ensure proper focus management in SweetAlert
-                    console.log('GEDUNGS SWAL: SweetAlert opened, fixing focus management');
                     // Remove any aria-hidden conflicts
                     $('.flex.h-screen').removeAttr('aria-hidden');
                 },
                 didClose: function() {
                     // Restore focus after SweetAlert closes
-                    console.log('GEDUNGS SWAL: SweetAlert closed, restoring focus');
                     setTimeout(function() {
                         if (submitBtn && $(submitBtn).is(':visible')) {
                             submitBtn.focus();
@@ -538,7 +525,6 @@
                             'Accept': 'application/json'
                         },
                         success: function(data) {
-                            console.log('Response:', data);
                             hideModal();
                             $('#gedungsTable').DataTable().ajax.reload();
                             Swal.fire({
@@ -571,7 +557,6 @@
         // Close modal when clicking outside
         $('#gedungModal').on('click', function(e) {
             if (e.target === this) {
-                console.log('Clicked outside modal, closing...');
                 hideModal();
             }
         });
@@ -581,7 +566,6 @@
             if (e.key === 'Escape') {
                 const modal = $('#gedungModal');
                 if (!modal.hasClass('hidden')) {
-                    console.log('ESC key pressed, closing modal...');
                     hideModal();
                 }
             }

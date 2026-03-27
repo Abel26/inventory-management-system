@@ -348,23 +348,19 @@
 
     // Global helper function untuk format tanggal
     window.formatDateForInput = function(dateString) {
-        console.log('TOOLS FORMAT DATE: Input:', dateString, 'Type:', typeof dateString); // DEBUG
         
         if (!dateString) {
-            console.log('TOOLS FORMAT DATE: Empty date, returning empty string'); // DEBUG
             return '';
         }
         
         // Jika sudah format Y-m-d, gunakan langsung
         if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
-            console.log('TOOLS FORMAT DATE: Already in Y-m-d format:', dateString); // DEBUG
             return dateString;
         }
         
         // Handle format datetime dari Laravel (Y-m-d H:i:s)
         if (dateString.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)) {
             const dateOnly = dateString.split(' ')[0];
-            console.log('TOOLS FORMAT DATE: Laravel datetime format, extracting date:', dateOnly); // DEBUG
             return dateOnly;
         }
         
@@ -372,7 +368,6 @@
         try {
             const date = new Date(dateString);
             if (isNaN(date.getTime())) {
-                console.log('TOOLS FORMAT DATE: Invalid date, returning empty string'); // DEBUG
                 return '';
             }
             
@@ -382,7 +377,6 @@
             const day = String(date.getDate()).padStart(2, '0');
             
             const result = `${year}-${month}-${day}`;
-            console.log('TOOLS FORMAT DATE: Converted to:', result); // DEBUG
             return result;
         } catch (e) {
             console.error('TOOLS FORMAT DATE: Error parsing date:', dateString, e);
@@ -391,14 +385,9 @@
     };
  
     $(document).ready(function() {
-        console.log('TOOLS DOCUMENT READY: Asset tools page loaded'); // DEBUG
-        console.log('TOOLS DOCUMENT READY: jQuery version:', $.fn.jquery); // DEBUG
-        console.log('TOOLS DOCUMENT READY: DataTable available:', typeof $.fn.DataTable !== 'undefined'); // DEBUG
-        console.log('TOOLS DOCUMENT READY: Swal available:', typeof Swal !== 'undefined'); // DEBUG
         
         // Check if buttons exist on page load
-        console.log('TOOLS DOCUMENT READY: Submit button exists:', $('#submitToolBtn').length > 0);
-        console.log('TOOLS DOCUMENT READY: Submit button events on load:', $._data($('#submitToolBtn')[0], 'events'));
+        // Check if buttons exist on page load
         
         // Fix for production aria-hidden conflicts
         if (typeof Swal !== 'undefined') {
@@ -407,7 +396,6 @@
                 didOpen: function() {
                     // Remove aria-hidden from main container when SweetAlert opens
                     $('.flex.h-screen').removeAttr('aria-hidden');
-                    console.log('TOOLS PRODUCTION FIX: Removed aria-hidden from main container');
                 }
             });
         }
@@ -416,8 +404,6 @@
         setInterval(function() {
             if ($('#submitToolBtn').is(':visible') && $('.flex.h-screen').attr('aria-hidden') === 'true') {
                 $('.flex.h-screen').removeAttr('aria-hidden');
-                console.log('TOOLS PRODUCTION FIX: Auto-removed aria-hidden conflict');
-            }
         }, 1000);
         
         // Add global error handler
@@ -555,7 +541,7 @@
  
     // Global Modal helpers
     window.openToolModal = function() {
-        console.log('TOOLS MODAL: Opening modal'); // DEBUG
+    window.openToolModal = function() {
         var modal = document.getElementById('toolModal');
         modal.classList.remove('hidden');
         modal.style.display = 'flex';
@@ -568,7 +554,7 @@
             content.classList.remove('scale-95', 'opacity-0');
             content.classList.add('scale-100', 'opacity-100');
             
-            console.log('TOOLS MODAL: Modal opened, checking buttons'); // DEBUG
+            content.classList.add('scale-100', 'opacity-100');
             
             // Ensure buttons are enabled and visible
             setTimeout(function() {
@@ -576,14 +562,14 @@
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.style.display = 'flex';
-                    console.log('TOOLS MODAL: Submit button enabled and visible'); // DEBUG
+                    submitBtn.style.display = 'flex';
                 }
             }, 100);
         });
     }
     
     window.closeToolModal = function() {
-        console.log('TOOLS MODAL: Closing modal'); // DEBUG
+    window.closeToolModal = function() {
         var modal = document.getElementById('toolModal');
         var content = modal.querySelector('.modal-content');
         
@@ -619,26 +605,21 @@
     });
  
     function editTool(id) {
-        console.log('TOOLS EDIT: Starting edit for ID:', id); // DEBUG
+    function editTool(id) {
         
         // Check if submit button exists and has event handler
-        console.log('TOOLS EDIT: Submit button exists:', $('#submitToolBtn').length > 0);
-        console.log('TOOLS EDIT: Submit button events:', $._data($('#submitToolBtn')[0], 'events'));
+        // Check if submit button exists and has event handler
         
         $.ajax({
             url: showUrlTemplate.replace(':id', id),
             method: 'GET',
             success: function(response) {
-                console.log('TOOLS EDIT: Response from server:', response); // DEBUG
+            success: function(response) {
                 if (response.success) {
                     const data = response.data;
-                    console.log('TOOLS EDIT: Tool data:', data); // DEBUG
                     
                     // Debug tanggal dengan lebih detail
-                    console.log('TOOLS EDIT: Purchase date raw:', data.purchase_date, 'Type:', typeof data.purchase_date);
-                    
-                    // Test fungsi formatDateForInput
-                    console.log('TOOLS EDIT: formatDateForInput(purchase_date):', formatDateForInput(data.purchase_date));
+                    // Debug tanggal dengan lebih detail
                     
                     $('#modalTitle').text('{{ __('modules.asset_tools.edit_title') }}');
                     $('#modalSubtitle').text('{{ __('modules.asset_tools.edit_subtitle') }}');
@@ -651,7 +632,6 @@
                     
                     // Perbaikan untuk tanggal - menggunakan fungsi helper global
                     const formattedPurchaseDate = formatDateForInput(data.purchase_date);
-                    console.log('TOOLS EDIT: Setting purchase_date to:', formattedPurchaseDate);
                     
                     // Force set tanggal dengan multiple approaches
                     $('#purchase_date').val(formattedPurchaseDate);
@@ -659,7 +639,6 @@
                     // Additional force set untuk memastikan tanggal terisi
                     setTimeout(function() {
                         $('#purchase_date').val(formattedPurchaseDate).trigger('change');
-                        console.log('TOOLS EDIT: Forced purchase_date value after timeout:', $('#purchase_date').val());
                     }, 100);
                     
                     $('#purchase_price').val(data.purchase_price);
@@ -669,10 +648,10 @@
                     $('#description').val(data.description);
                     
                     // Debug final values
-                    console.log('TOOLS EDIT: Final purchase_date value:', $('#purchase_date').val());
+                    // Debug final values
                     
                     // Check modal visibility and button states
-                    console.log('TOOLS EDIT: About to open modal');
+                    // Check modal visibility and button states
                     openToolModal();
                     
 
@@ -703,7 +682,6 @@
     // Handle form submission (works for both click and Enter key)
     $('#toolForm').on('submit', function(e) {
         e.preventDefault();
-        console.log('Form submit triggered');
         
         // HTML5 validation — browser highlights the invalid field with a popover
         if (!this.reportValidity()) {
@@ -736,13 +714,11 @@
             // Fix for production timing issues
             didOpen: function() {
                 // Ensure proper focus management in SweetAlert
-                console.log('TOOLS SWAL: SweetAlert opened, fixing focus management');
                 // Remove any aria-hidden conflicts
                 $('.flex.h-screen').removeAttr('aria-hidden');
             },
             didClose: function() {
                 // Restore focus after SweetAlert closes
-                console.log('TOOLS SWAL: SweetAlert closed, restoring focus');
                 setTimeout(function() {
                     if (submitBtn && $(submitBtn).is(':visible')) {
                         submitBtn.focus();
@@ -766,8 +742,6 @@
 
 
     function submitToolForm(successMessage = '{{ __('modules.swal.data_saved') }}') {
-        console.log('TOOLS SUBMIT FORM: Starting form submission'); // DEBUG
-        console.log('TOOLS SUBMIT FORM: Function exists, typeof submitToolForm:', typeof submitToolForm); // DEBUG
         
         try {
             let formData = $('#toolForm').serialize();
@@ -783,15 +757,8 @@
                 successMessage = '{{ __('modules.swal.data_updated') }}';
             }
 
-            console.log('TOOLS SUBMIT FORM: Preparing AJAX request'); // DEBUG
-            console.log('TOOLS SUBMIT FORM: URL:', url); // DEBUG
-            console.log('TOOLS SUBMIT FORM: Method:', method); // DEBUG
-            console.log('TOOLS SUBMIT FORM: Form data:', formData); // DEBUG
-            console.log('TOOLS SUBMIT FORM: CSRF Token:', '{{ csrf_token() }}'); // DEBUG
-
             // Disable submit button to prevent double submission
             $('#submitToolBtn').prop('disabled', true).html('<i class="ph ph-spinner-gap animate-spin text-lg"></i> {{ __('modules.common.saving') }}');
-            console.log('TOOLS SUBMIT FORM: Button disabled, sending AJAX request'); // DEBUG
 
             $.ajax({
                 url: url,
@@ -803,17 +770,13 @@
                 },
                 timeout: 30000, // 30 seconds timeout
                 beforeSend: function(xhr) {
-                    console.log('TOOLS SUBMIT FORM: AJAX beforeSend triggered'); // DEBUG
                 },
             success: function(response) {
-                console.log('TOOLS SUBMIT FORM: AJAX success callback triggered'); // DEBUG
-                console.log('TOOLS SUBMIT FORM: Server response:', response); // DEBUG
                 closeToolModal();
                 
                 // Reload DataTable with a small delay to ensure server has processed update
                 setTimeout(function() {
                     $('#toolsTable').DataTable().ajax.reload(null, false); // false = keep current page
-                    console.log('TOOLS SUBMIT FORM: DataTable reloaded');
                 }, 500);
                 
                 Swal.fire({
@@ -830,7 +793,6 @@
                 $('#submitToolBtn').prop('disabled', false).html('<i class="ph ph-floppy-disk text-lg"></i> {{ __('modules.common.save') }}');
             },
             error: function(xhr) {
-                console.log('TOOLS SUBMIT FORM: AJAX error callback triggered'); // DEBUG
                 console.error('TOOLS SUBMIT FORM: AJAX error:', xhr); // DEBUG
                 console.error('TOOLS SUBMIT FORM: Status:', xhr.status); // DEBUG
                 console.error('TOOLS SUBMIT FORM: Status text:', xhr.statusText); // DEBUG
@@ -856,7 +818,6 @@
                 $('#submitToolBtn').prop('disabled', false).html('<i class="ph ph-floppy-disk text-lg"></i> {{ __('modules.common.save') }}');
             },
             complete: function(xhr) {
-                console.log('TOOLS SUBMIT FORM: AJAX complete callback triggered'); // DEBUG
             }
         });
         } catch (error) {
@@ -875,11 +836,8 @@
  
  
     function deleteTool(id) {
-        console.log('TOOLS DELETE: Starting delete for ID:', id); // DEBUG
         
         // Check if delete buttons are working
-        console.log('TOOLS DELETE: Swal available:', typeof Swal !== 'undefined');
-        console.log('TOOLS DELETE: jQuery available:', typeof $ !== 'undefined');
         
         Swal.fire({
             title: '{{ __('modules.swal.confirm_title') }}',
@@ -891,9 +849,7 @@
             confirmButtonText: '{{ __('modules.swal.yes_delete') }}',
             cancelButtonText: '{{ __('modules.swal.cancel') }}'
         }).then((result) => {
-            console.log('TOOLS DELETE: Swal result:', result); // DEBUG
             if (result.isConfirmed) {
-                console.log('TOOLS DELETE: Confirmed, sending AJAX request'); // DEBUG
                 $.ajax({
                     url: destroyUrlTemplate.replace(':id', id),
                     method: 'DELETE',
@@ -901,7 +857,6 @@
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
                     success: function(response) {
-                        console.log('TOOLS DELETE: Delete successful:', response); // DEBUG
                         $('#toolsTable').DataTable().ajax.reload();
                         Swal.fire({
                             icon: 'success',

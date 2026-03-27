@@ -101,7 +101,6 @@ window.handleAjaxForm = function(formId, tableId, modalId, confirmTitle = 'Konfi
         // Fix for production timing issues
         didOpen: function() {
             // Ensure proper focus management in SweetAlert
-            console.log('APP.JS: SweetAlert opened, fixing focus management');
             // Remove any aria-hidden conflicts
             const mainContainer = document.querySelector('.flex.h-screen');
             if (mainContainer) {
@@ -110,7 +109,6 @@ window.handleAjaxForm = function(formId, tableId, modalId, confirmTitle = 'Konfi
         },
         didClose: function() {
             // Restore focus after SweetAlert closes
-            console.log('APP.JS: SweetAlert closed, restoring focus');
             setTimeout(function() {
                 if (submitButton && submitButton.style.display !== 'none') {
                     submitButton.focus();

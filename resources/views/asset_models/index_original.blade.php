@@ -304,7 +304,6 @@
  
     // Global functions - define outside document ready
     window.showModal = function() {
-        console.log('Showing modal...');
         const modal = document.getElementById('modelModal');
         if (!modal) {
             console.error('Modal element not found!');
@@ -320,7 +319,6 @@
     }
  
     window.hideModal = function() {
-        console.log('Hiding modal...');
         const modal = document.getElementById('modelModal');
         if (!modal) {
             console.error('Modal element not found!');
@@ -334,7 +332,6 @@
     }
  
     window.handleCreateNewModel = function() {
-        console.log('Create handler called');
         try {
             const modal = document.getElementById('modelModal');
             const title = document.getElementById('modalTitle');
@@ -362,10 +359,7 @@
                 // Fallback: try jQuery
                 $(modal).show();
             }
-            
-            console.log('Modal should be visible now');
         } catch (error) {
-            console.error('Error in create handler:', error);
             // Ultimate fallback jQuery method
             $('#modalTitle').text('Tambah Model');
             $('#modelForm')[0].reset();
@@ -377,36 +371,11 @@
     }
 
 
-    // Debug: Check if global functions are available
-    console.log('Global functions available:', {
-        showModal: typeof window.showModal,
-        hideModal: typeof window.hideModal,
-        handleCreateNewModel: typeof window.handleCreateNewModel,
-        handleInlineSubmit: typeof window.handleInlineSubmit
-    });
+    // Global functions available
 
     $(document).ready(function() {
-        console.log('Document ready, initializing modal handlers...');
         
         // Test if elements exist
-        console.log('Create button exists:', !!document.getElementById('createNewModel'));
-        console.log('Close button exists:', !!document.getElementById('closeModalBtn'));
-        console.log('Cancel button exists:', !!document.getElementById('cancelBtn'));
-        console.log('Submit button exists:', !!document.getElementById('submitModelBtn'));
-        console.log('Modal exists:', !!document.getElementById('modelModal'));
-        
-        // Test button clickability
-        setTimeout(function() {
-            console.log('Testing button clickability...');
-            const buttons = ['createNewModel', 'closeModalBtn', 'cancelBtn', 'submitModelBtn'];
-            buttons.forEach(function(id) {
-                const btn = document.getElementById(id);
-                if (btn) {
-                    console.log(`${id} is clickable:`, !btn.disabled);
-                    console.log(`${id} has pointer events:`, window.getComputedStyle(btn).pointerEvents);
-                }
-            });
-        }, 1000);
         
         let table = $('#modelsTable').DataTable({
             processing: true,
@@ -530,12 +499,10 @@
 
         // Close button handlers
         $('#closeModalBtn').on('click', function() {
-            console.log('Close button clicked (jQuery)'); // Debug log
             hideModal();
         });
 
         $('#cancelBtn').on('click', function() {
-            console.log('Cancel button clicked (jQuery)'); // Debug log
             hideModal();
         });
  
@@ -572,11 +539,7 @@
             }
 
             // Log form data for debugging
-            console.log('Form data being submitted:');
-            for (let [key, value] of formData.entries()) {
-                console.log(key + ':', value);
-            }
-
+            
             $.ajax({
                 url: url,
                 type: 'POST', // Always use POST with _method override
@@ -588,7 +551,6 @@
                     'Accept': 'application/json'
                 },
                 success: function(data) {
-                    console.log('Response:', data);
                     hideModal();
                     $('#modelsTable').DataTable().ajax.reload();
                     Swal.fire({
@@ -620,7 +582,6 @@
         // Close modal when clicking outside
         document.getElementById('modelModal').addEventListener('click', function(e) {
             if (e.target === this) {
-                console.log('Clicked outside modal, closing...'); // Debug log
                 hideModal();
             }
         });
@@ -630,7 +591,6 @@
             if (e.key === 'Escape') {
                 const modal = document.getElementById('modelModal');
                 if (modal.classList.contains('show')) {
-                    console.log('ESC key pressed, closing modal...'); // Debug log
                     hideModal();
                 }
             }

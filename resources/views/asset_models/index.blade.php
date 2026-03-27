@@ -339,23 +339,20 @@
 
     // Global helper function untuk format tanggal
     window.formatDateForInput = function(dateString) {
-        console.log('MODELS FORMAT DATE: Input:', dateString, 'Type:', typeof dateString); // DEBUG
+        
         
         if (!dateString) {
-            console.log('MODELS FORMAT DATE: Empty date, returning empty string'); // DEBUG
             return '';
         }
         
         // Jika sudah format Y-m-d, gunakan langsung
         if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
-            console.log('MODELS FORMAT DATE: Already in Y-m-d format:', dateString); // DEBUG
             return dateString;
         }
         
         // Handle format datetime dari Laravel (Y-m-d H:i:s)
         if (dateString.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)) {
             const dateOnly = dateString.split(' ')[0];
-            console.log('MODELS FORMAT DATE: Laravel datetime format, extracting date:', dateOnly); // DEBUG
             return dateOnly;
         }
         
@@ -363,7 +360,6 @@
         try {
             const date = new Date(dateString);
             if (isNaN(date.getTime())) {
-                console.log('MODELS FORMAT DATE: Invalid date, returning empty string'); // DEBUG
                 return '';
             }
             
@@ -373,7 +369,6 @@
             const day = String(date.getDate()).padStart(2, '0');
             
             const result = `${year}-${month}-${day}`;
-            console.log('MODELS FORMAT DATE: Converted to:', result); // DEBUG
             return result;
         } catch (e) {
             console.error('MODELS FORMAT DATE: Error parsing date:', dateString, e);
@@ -383,11 +378,9 @@
 
     // Global Modal Helpers - Fixed for Tailwind transition sync
     window.openModelModal = function() {
-        console.log('DEBUG MODAL: Opening modal'); // DEBUG
         var modal = document.getElementById('modelModal');
         
         if (!modal) {
-            console.error('DEBUG MODAL: Modal element not found!'); // DEBUG
             return;
         }
         
@@ -412,11 +405,8 @@
                 modalContent.style.setProperty('opacity', '1', 'important');
                 modalContent.style.setProperty('transform', 'scale(1)', 'important');
                 modalContent.style.setProperty('visibility', 'visible', 'important');
-                console.log('DEBUG MODAL: Modal content inline styles set'); // DEBUG
             }
             
-            console.log('DEBUG MODAL: Modal inline styles set'); // DEBUG
-            console.log('DEBUG MODAL: Modal opened, checking buttons'); // DEBUG
             
             // Ensure buttons are enabled and visible
             setTimeout(function() {
@@ -424,14 +414,13 @@
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.style.display = 'flex';
-                    console.log('DEBUG MODAL: Submit button enabled and visible'); // DEBUG
+                    submitBtn.style.display = 'flex';
                 }
             }, 100);
         });
     }
     
     window.closeModelModal = function() {
-        console.log('DEBUG MODAL: Closing modal'); // DEBUG
         var modal = document.getElementById('modelModal');
         
         if (!modal) {
@@ -476,22 +465,17 @@
 
     // Global Action Functions
     window.editModel = function(id) {
-        console.log('MODELS EDIT: Starting edit for ID:', id); // DEBUG
         
         $.ajax({
             url: showUrlTemplate.replace(':id', id),
             method: 'GET',
             success: function(response) {
-                console.log('MODELS EDIT: Response from server:', response); // DEBUG
                 if (response.success) {
                     const data = response.data;
-                    console.log('MODELS EDIT: Model data:', data); // DEBUG
                     
                     // Debug tanggal dengan lebih detail
-                    console.log('MODELS EDIT: Manufacture date raw:', data.manufacture_date, 'Type:', typeof data.manufacture_date);
                     
                     // Test fungsi formatDateForInput
-                    console.log('MODELS EDIT: formatDateForInput(manufacture_date):', formatDateForInput(data.manufacture_date));
                     
                     $('#modalTitle').text('{{ __('modules.asset_models.edit_title') }}');
                     $('#modalSubtitle').text('{{ __('modules.asset_models.edit_subtitle') }}');
@@ -502,7 +486,6 @@
                     
                     // Perbaikan untuk tanggal - menggunakan fungsi helper global
                     const formattedManufactureDate = formatDateForInput(data.manufacture_date);
-                    console.log('MODELS EDIT: Setting manufacture_date to:', formattedManufactureDate);
                     
                     // Force set tanggal dengan multiple approaches
                     $('#manufacture_date').val(formattedManufactureDate);
@@ -510,7 +493,6 @@
                     // Additional force set untuk memastikan tanggal terisi
                     setTimeout(function() {
                         $('#manufacture_date').val(formattedManufactureDate).trigger('change');
-                        console.log('MODELS EDIT: Forced manufacture_date value after timeout:', $('#manufacture_date').val());
                     }, 100);
                     
                     $('#condition').val(data.condition);
@@ -518,13 +500,12 @@
                     $('#description').val(data.description);
                     
                     // Debug final values
-                    console.log('MODELS EDIT: Final manufacture_date value:', $('#manufacture_date').val());
+                    // Debug final values
                     
                     // Update form action for edit
                     $('#modelForm').attr('action', updateUrlTemplate.replace(':id', id));
                     $('#formMethod').val('PUT');
                     
-                    console.log('MODELS EDIT: About to open modal');
                     openModelModal();
                 } else {
                     console.error('MODELS EDIT: Server returned error:', response.message);

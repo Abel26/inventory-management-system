@@ -382,7 +382,6 @@
     }
     
     function deleteReport(id, reportCode) {
-        console.log('Deleting report with ID:', id, 'Code:', reportCode);
         
         Swal.fire({
             title: '{{ __('modules.swal.confirm_title') }}',

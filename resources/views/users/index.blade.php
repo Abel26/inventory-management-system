@@ -560,19 +560,12 @@
         // Submit button handler
         $('#submitUserBtn').on('click', function(e) {
             e.preventDefault();
-            console.log('USERS SUBMIT BUTTON: Click event fired!'); // DEBUG
-            console.log('USERS SUBMIT BUTTON: Button disabled:', $(this).prop('disabled')); // DEBUG
-            console.log('USERS SUBMIT BUTTON: Button visible:', $(this).is(':visible')); // DEBUG
-            console.log('USERS SUBMIT BUTTON: Form data before submission:', $('#userForm').serialize()); // DEBUG
             
             // Fix aria-hidden conflict by removing focus before SweetAlert
             $(this).blur();
             
             let id = $('#userId').val();
             let isEdit = id !== '';
-            
-            console.log('USERS SUBMIT BUTTON: Form ID:', id, 'Is Edit:', isEdit); // DEBUG
-            console.log('USERS SUBMIT BUTTON: CSRF Token:', $('meta[name="csrf-token"]').attr('content')); // DEBUG
             
             if (isEdit) {
                 // Show confirmation dialog for edit
@@ -594,13 +587,11 @@
                     // Fix for production timing issues
                     didOpen: function() {
                         // Ensure proper focus management in SweetAlert
-                        console.log('USERS SWAL: SweetAlert opened, fixing focus management');
                         // Remove any aria-hidden conflicts
                         $('.flex.h-screen').removeAttr('aria-hidden');
                     },
                     didClose: function() {
                         // Restore focus after SweetAlert closes
-                        console.log('USERS SWAL: SweetAlert closed, restoring focus');
                         setTimeout(function() {
                             if (submitBtn && $(submitBtn).is(':visible')) {
                                 submitBtn.focus();
@@ -608,18 +599,13 @@
                         }, 100);
                     }
                 }).then((result) => {
-                    console.log('USERS SUBMIT BUTTON: Swal result:', result); // DEBUG
                     if (result.isConfirmed) {
-                        console.log('USERS SUBMIT BUTTON: User confirmed, triggering form submission'); // DEBUG
                         // Trigger form submission manually instead of using submit()
                         $('#userForm').trigger('submit');
-                    } else {
-                        console.log('USERS SUBMIT BUTTON: User cancelled submission'); // DEBUG
                     }
                 });
             } else {
                 // Direct submit for new user
-                console.log('USERS SUBMIT BUTTON: New user, triggering form submission directly'); // DEBUG
                 $('#userForm').trigger('submit');
             }
         });
@@ -631,7 +617,8 @@
             // HTML5 validation — browser highlights empty required fields inline
             if (!this.reportValidity()) { return; }
 
-            let formData = $(this).serialize();
+            try {
+                let formData = $(this).serialize();
             let id = $('#userId').val();
             let url = storeUrl;
             let method = 'POST';
@@ -705,20 +692,18 @@
                     // Re-enable button on error
                     $('#submitUserBtn').prop('disabled', false).text('{{ __('modules.common.save') }}');
                 }
-            });
+                });
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Terjadi kesalahan sistem: ' + error.message,
+                    confirmButtonColor: '#dc2626'
+                });
+                // Re-enable button on error
+                $('#submitUserBtn').prop('disabled', false).html('<i class="ph ph-floppy-disk text-lg"></i> {{ __('modules.common.save') }}');
+            }
         });
-        } catch (error) {
-            console.error('USERS FORM SUBMIT: Exception caught:', error); // DEBUG
-            console.error('USERS FORM SUBMIT: Error stack:', error.stack); // DEBUG
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Terjadi kesalahan sistem: ' + error.message,
-                confirmButtonColor: '#dc2626'
-            });
-            // Re-enable button on error
-            $('#submitUserBtn').prop('disabled', false).html('<i class="ph ph-floppy-disk text-lg"></i> {{ __('modules.common.save') }}');
-        }
     });
 
     function editUser(id) {

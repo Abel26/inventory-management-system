@@ -299,7 +299,6 @@
 
     // Global functions - define outside document ready
     window.showModal = function() {
-        console.log('Showing modal...');
         const modal = document.getElementById('satuanModal');
         const modalContent = modal.querySelector('.modal-content');
         
@@ -332,7 +331,6 @@
     }
 
     window.hideModal = function() {
-        console.log('Hiding modal...');
         const modal = document.getElementById('satuanModal');
         const modalContent = modal.querySelector('.modal-content');
         
@@ -355,7 +353,6 @@
     }
 
     window.handleCreateNewSatuan = function() {
-        console.log('Create handler called');
         try {
             const modal = document.getElementById('satuanModal');
             const title = document.getElementById('modalTitle');
@@ -604,7 +601,6 @@
     });
 
     function editSatuan(id) {
-        console.log('Editing satuan with ID:', id);
         
         $.ajax({
             url: showUrlTemplate.replace(':id', id),
