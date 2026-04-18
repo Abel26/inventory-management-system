@@ -27,7 +27,7 @@ return new class extends Migration
             $table->softDeletes();
             
             // Indexes for performance
-            $table->index(['reportable_type', 'reportable_id']);
+            // reportable_type + reportable_id already indexed by morphs() above
             $table->index(['user_id']);
             $table->index(['status']);
             $table->index(['priority']);
