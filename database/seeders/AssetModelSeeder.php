@@ -54,7 +54,7 @@ class AssetModelSeeder extends Seeder
                 'name' => $name,
                 'type' => 'Casting', // Default type
                 'material_id' => null, // Kosongkan, nanti diisi manual
-                'manufactured_date' => null, // Kosongkan, nanti diisi manual
+                'manufacture_date' => null, // Kosongkan, nanti diisi manual
                 'condition' => 'Good', // Default condition
                 'location' => null, // Kosongkan, nanti diisi manual
                 'description' => null, // Kosongkan, nanti diisi manual
