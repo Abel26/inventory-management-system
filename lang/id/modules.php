@@ -62,6 +62,10 @@ return [
         'condition_damaged' => 'Rusak',
         'condition_disposed' => 'Dibuang',
 
+        // Status Messages
+        'success' => 'Berhasil',
+        'error_title' => 'Terjadi Kesalahan',
+
         // Other
         'other' => 'Lainnya',
         'no_data' => 'Tidak ada data',

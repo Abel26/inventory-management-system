@@ -389,25 +389,36 @@
         let isRedirecting = false;
         let scannerMode = 'unknown'; // 'https' or 'http'
 
-        // Audio context for beep sound
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        // Audio context for beep sound (lazy init for mobile compatibility)
+        let audioContext = null;
 
         function playBeep() {
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
+            try {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
 
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
 
-            oscillator.frequency.value = 880;
-            oscillator.type = 'sine';
-            gainNode.gain.value = 0.3;
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
 
-            oscillator.start();
+                oscillator.frequency.value = 880;
+                oscillator.type = 'sine';
+                gainNode.gain.value = 0.3;
 
-            setTimeout(() => {
-                oscillator.stop();
-            }, 150);
+                oscillator.start();
+
+                setTimeout(() => {
+                    oscillator.stop();
+                }, 150);
+            } catch (e) {
+                console.warn('Audio playback failed:', e);
+            }
         }
 
         // Show error toast
@@ -522,8 +533,22 @@
 
         // Initialize scanner based on protocol
         function initScanner() {
-            const isSecureContext = location.protocol === 'https:' || 
-                                   location.hostname === 'localhost' || 
+            // Safety check: ensure Html5Qrcode library is loaded
+            if (typeof Html5Qrcode === 'undefined') {
+                console.error('Html5Qrcode library not loaded');
+                document.getElementById('startScanBtn').addEventListener('click', function() {
+                    showError('{{ __('modules.reports.camera_error') }}');
+                });
+                document.getElementById('modeIndicator').innerHTML = `
+                    <i class="ph ph-warning text-2xl mr-2"></i>
+                    <span>{{ __('modules.reports.camera_error') }}</span>
+                `;
+                document.getElementById('modeIndicator').className = 'http-mode-indicator mb-6 rounded-xl p-4 text-center font-medium';
+                return;
+            }
+
+            const isSecureContext = location.protocol === 'https:' ||
+                                   location.hostname === 'localhost' ||
                                    location.hostname === '127.0.0.1';
             
             scannerMode = isSecureContext ? 'https' : 'http';
@@ -626,6 +651,7 @@
             });
             
             fileInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
                 if (!file) return;
                 
                 // Show loading state

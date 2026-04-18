@@ -62,6 +62,10 @@ return [
         'condition_damaged' => 'Damaged',
         'condition_disposed' => 'Disposed',
 
+        // Status Messages
+        'success' => 'Success',
+        'error_title' => 'Error',
+
         // Other
         'other' => 'Other',
         'no_data' => 'No data',
