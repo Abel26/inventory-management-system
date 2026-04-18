@@ -21,28 +21,42 @@
             -webkit-backdrop-filter: blur(20px);
         }
 
-        /* Camera container */
-        #reader {
-            width: 100%;
-            max-width: 500px;
-            aspect-ratio: 4/3;
-            border-radius: 1.5rem;
-            overflow: hidden;
+        /* Camera container wrapper */
+        #cameraContainer {
             position: relative;
-            background: #f8fafc;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        #reader video {
+        /* Scanner element - managed entirely by Html5Qrcode library */
+        #reader {
             width: 100%;
-            height: 100%;
+            border-radius: 1.5rem;
+            background: #000;
+            display: none;
+        }
+
+        /* Style video element created by the library */
+        #reader video {
+            width: 100% !important;
+            height: auto !important;
             object-fit: cover;
             border-radius: 1.5rem;
+        }
+
+        /* Hide library's built-in UI elements */
+        #reader img[alt="Info icon"],
+        #reader img[alt="Camera based scan"],
+        #reader > div > span,
+        #reader a {
+            display: none !important;
         }
 
         /* Inactive state placeholder */
         .camera-placeholder {
             width: 100%;
-            height: 100%;
+            aspect-ratio: 4/3;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -246,16 +260,19 @@
                     </div>
 
                     <!-- Camera Viewfinder -->
-                    <div id="reader" class="mb-6">
-                        <!-- Placeholder (Inactive State) -->
+                    <div id="cameraContainer" class="mb-6">
+                        <!-- Placeholder (Inactive State) - outside reader so library doesn't destroy it -->
                         <div id="cameraPlaceholder" class="camera-placeholder">
                             <i class="ph ph-camera text-6xl text-gray-400 mb-4"></i>
                             <p class="text-gray-500 font-medium">{{ __('modules.reports.preparing_scanner') }}</p>
                             <p class="text-gray-400 text-sm mt-2">{{ __('modules.reports.wait_moment') }}</p>
                         </div>
 
-                        <!-- Scanning Frame Overlay -->
-                        <div id="scanningFrame" class="scanning-frame">
+                        <!-- Scanner element - Html5Qrcode controls this entirely, NO children -->
+                        <div id="reader"></div>
+
+                        <!-- Scanning Frame Overlay - outside reader so it survives start() -->
+                        <div id="scanningFrame" class="scanning-frame hidden">
                             <div class="corner-accent tl"></div>
                             <div class="corner-accent tr"></div>
                             <div class="corner-accent bl"></div>
@@ -387,7 +404,7 @@
         let html5QrcodeScanner = null;
         let isScanning = false;
         let isRedirecting = false;
-        let scannerMode = 'unknown'; // 'https' or 'http'
+        let scannerMode = 'unknown';
 
         // Audio context for beep sound (lazy init for mobile compatibility)
         let audioContext = null;
@@ -400,22 +417,15 @@
                 if (audioContext.state === 'suspended') {
                     audioContext.resume();
                 }
-
                 const oscillator = audioContext.createOscillator();
                 const gainNode = audioContext.createGain();
-
                 oscillator.connect(gainNode);
                 gainNode.connect(audioContext.destination);
-
                 oscillator.frequency.value = 880;
                 oscillator.type = 'sine';
                 gainNode.gain.value = 0.3;
-
                 oscillator.start();
-
-                setTimeout(() => {
-                    oscillator.stop();
-                }, 150);
+                setTimeout(() => oscillator.stop(), 150);
             } catch (e) {
                 console.warn('Audio playback failed:', e);
             }
@@ -427,10 +437,7 @@
             const msgEl = document.getElementById('errorMessage');
             msgEl.textContent = message;
             toast.classList.remove('hidden');
-
-            setTimeout(() => {
-                toast.classList.add('hidden');
-            }, 5000);
+            setTimeout(() => toast.classList.add('hidden'), 5000);
         }
 
         // Show success toast
@@ -439,74 +446,63 @@
             const msgEl = document.getElementById('successMessage');
             msgEl.textContent = message;
             toast.classList.remove('hidden');
-
-            setTimeout(() => {
-                toast.classList.add('hidden');
-            }, 3000);
+            setTimeout(() => toast.classList.add('hidden'), 3000);
         }
 
-        // Unified success handler for both HTTP and HTTPS modes
+        // Calculate responsive qrbox based on actual container size
+        function getQrboxConfig() {
+            const container = document.getElementById('cameraContainer');
+            const containerWidth = container ? container.offsetWidth : 300;
+            // Use 70% of the smaller dimension for the scanning region
+            const qrboxSize = Math.floor(Math.min(containerWidth, containerWidth * 0.75) * 0.7);
+            return { width: Math.max(qrboxSize, 100), height: Math.max(qrboxSize, 100) };
+        }
+
+        // Scan success handler
         function onScanSuccess(decodedText, decodedResult) {
-            // Block multiple triggers
             if (isRedirecting) return;
             isRedirecting = true;
 
-            // Get clean data
             const scannedCode = decodedText.trim();
-
-            // Play success sound
             playBeep();
-
-            // Show success message
             showSuccess(`{{ __('modules.reports.qr_success') }} ${scannedCode}`);
 
-            // Construct URL
             const baseUrl = "{{ route('reports.scan') }}";
             const targetUrl = `${baseUrl}?code=${encodeURIComponent(scannedCode)}`;
 
-            // Stop scanner if running
             if (html5QrcodeScanner && isScanning) {
                 try {
-                    if (scannerMode === 'https') {
-                        html5QrcodeScanner.stop();
-                    }
+                    html5QrcodeScanner.stop();
                 } catch (e) {
                     console.warn("Failed to stop scanner", e);
                 }
             }
 
-            // Execute redirect after a short delay to show success message
             setTimeout(() => {
                 window.location.href = targetUrl;
             }, 1000);
         }
 
-        // On scan failure (called frequently, ignore silently)
-        function onScanFailure(error) {
-            // This is called when no QR code is detected
-            // We ignore this silently to avoid spamming the user
-            // console.debug('Scan failed:', error);
-        }
+        // Scan failure - called frequently when no QR detected, ignore silently
+        function onScanFailure(error) {}
 
-        // Update mode indicator
+        // Update mode indicator UI
         function updateModeIndicator(mode) {
             const indicator = document.getElementById('modeIndicator');
             const placeholder = document.getElementById('cameraPlaceholder');
             const startBtn = document.getElementById('startScanBtn');
-            
+
             if (mode === 'https') {
                 indicator.className = 'https-mode-indicator mb-6 rounded-xl p-4 text-center font-medium';
                 indicator.innerHTML = `
                     <i class="ph ph-shield-check text-2xl mr-2"></i>
                     <span>{{ __('modules.reports.camera_mode') }}</span>
                 `;
-                
                 placeholder.innerHTML = `
                     <i class="ph ph-camera text-6xl text-green-500 mb-4"></i>
                     <p class="text-green-600 font-medium">{{ __('modules.reports.camera_mode_desc') }}</p>
                     <p class="text-green-500 text-sm mt-2">{{ __('modules.reports.camera_mode_instruction') }}</p>
                 `;
-                
                 startBtn.innerHTML = `
                     <i class="ph ph-camera text-2xl"></i>
                     <span>{{ __('modules.reports.start_scan_live') }}</span>
@@ -517,13 +513,11 @@
                     <i class="ph ph-image text-2xl mr-2"></i>
                     <span>{{ __('modules.reports.standard_mode') }}</span>
                 `;
-                
                 placeholder.innerHTML = `
                     <i class="ph ph-image text-6xl text-amber-500 mb-4"></i>
                     <p class="text-amber-600 font-medium">{{ __('modules.reports.standard_mode_desc') }}</p>
                     <p class="text-amber-500 text-sm mt-2">{{ __('modules.reports.standard_mode_instruction') }}</p>
                 `;
-                
                 startBtn.innerHTML = `
                     <i class="ph ph-camera text-2xl"></i>
                     <span>{{ __('modules.reports.take_photo') }}</span>
@@ -531,9 +525,40 @@
             }
         }
 
+        // Show camera scanning state (hide placeholder, show reader + overlay)
+        function showScanningState() {
+            const placeholder = document.getElementById('cameraPlaceholder');
+            const reader = document.getElementById('reader');
+            const scanningFrame = document.getElementById('scanningFrame');
+            const startBtn = document.getElementById('startScanBtn');
+            const stopBtn = document.getElementById('stopScanBtn');
+
+            placeholder.style.display = 'none';
+            reader.style.display = 'block';
+            scanningFrame.classList.remove('hidden');
+            scanningFrame.classList.add('active');
+            startBtn.classList.add('hidden');
+            stopBtn.classList.remove('hidden');
+        }
+
+        // Show idle state (show placeholder, hide reader + overlay)
+        function showIdleState() {
+            const placeholder = document.getElementById('cameraPlaceholder');
+            const reader = document.getElementById('reader');
+            const scanningFrame = document.getElementById('scanningFrame');
+            const startBtn = document.getElementById('startScanBtn');
+            const stopBtn = document.getElementById('stopScanBtn');
+
+            placeholder.style.display = '';
+            reader.style.display = 'none';
+            scanningFrame.classList.add('hidden');
+            scanningFrame.classList.remove('active');
+            startBtn.classList.remove('hidden');
+            stopBtn.classList.add('hidden');
+        }
+
         // Initialize scanner based on protocol
         function initScanner() {
-            // Safety check: ensure Html5Qrcode library is loaded
             if (typeof Html5Qrcode === 'undefined') {
                 console.error('Html5Qrcode library not loaded');
                 document.getElementById('startScanBtn').addEventListener('click', function() {
@@ -550,13 +575,10 @@
             const isSecureContext = location.protocol === 'https:' ||
                                    location.hostname === 'localhost' ||
                                    location.hostname === '127.0.0.1';
-            
+
             scannerMode = isSecureContext ? 'https' : 'http';
-            
-            // Update UI based on mode
             updateModeIndicator(scannerMode);
-            
-            // Setup event listeners based on mode
+
             if (scannerMode === 'https') {
                 setupHttpsMode();
             } else {
@@ -568,75 +590,144 @@
         function setupHttpsMode() {
             const startBtn = document.getElementById('startScanBtn');
             const stopBtn = document.getElementById('stopScanBtn');
-            
+
             startBtn.addEventListener('click', async function() {
-                const placeholder = document.getElementById('cameraPlaceholder');
-                const scanningFrame = document.getElementById('scanningFrame');
-                
+                if (isScanning) return;
+
+                // Clean up previous scanner instance if any
+                if (html5QrcodeScanner) {
+                    try { await html5QrcodeScanner.stop(); } catch(e) {}
+                    try { html5QrcodeScanner.clear(); } catch(e) {}
+                    html5QrcodeScanner = null;
+                }
+
+                const reader = document.getElementById('reader');
+                reader.innerHTML = '';
+                reader.style.display = 'block';
+
                 try {
-                    if (!isScanning) {
-                        
-                        // Initialize scanner
-                        html5QrcodeScanner = new Html5Qrcode("reader");
-                        
-                        await html5QrcodeScanner.start(
-                            { facingMode: "environment" },
-                            {
-                                fps: 10,
-                                qrbox: { width: 250, height: 250 }
-                            },
-                            onScanSuccess,
-                            onScanFailure
-                        );
-                        
-                        // Show scanning state
-                        placeholder.classList.add('hidden');
-                        scanningFrame.classList.add('active');
-                        startBtn.classList.add('hidden');
-                        stopBtn.classList.remove('hidden');
-                        isScanning = true;
-                        isRedirecting = false;
+                    html5QrcodeScanner = new Html5Qrcode("reader");
+
+                    const qrbox = getQrboxConfig();
+                    const config = {
+                        fps: 10,
+                        qrbox: qrbox,
+                        aspectRatio: 1.333, // 4:3
+                    };
+
+                    // Try camera with constraint fallback chain
+                    let started = false;
+
+                    // Attempt 1: Back camera via facingMode
+                    if (!started) {
+                        try {
+                            await html5QrcodeScanner.start(
+                                { facingMode: "environment" },
+                                config,
+                                onScanSuccess,
+                                onScanFailure
+                            );
+                            started = true;
+                        } catch (e) {
+                            console.warn('Attempt 1 (facingMode: environment) failed:', e.message || e);
+                        }
                     }
+
+                    // Attempt 2: Back camera via exact facingMode
+                    if (!started) {
+                        try {
+                            await html5QrcodeScanner.start(
+                                { facingMode: { exact: "environment" } },
+                                config,
+                                onScanSuccess,
+                                onScanFailure
+                            );
+                            started = true;
+                        } catch (e) {
+                            console.warn('Attempt 2 (exact: environment) failed:', e.message || e);
+                        }
+                    }
+
+                    // Attempt 3: Front camera as fallback
+                    if (!started) {
+                        try {
+                            await html5QrcodeScanner.start(
+                                { facingMode: "user" },
+                                config,
+                                onScanSuccess,
+                                onScanFailure
+                            );
+                            started = true;
+                        } catch (e) {
+                            console.warn('Attempt 3 (facingMode: user) failed:', e.message || e);
+                        }
+                    }
+
+                    // Attempt 4: Any available camera (no constraints)
+                    if (!started) {
+                        try {
+                            await html5QrcodeScanner.start(
+                                true, // Use first available camera
+                                config,
+                                onScanSuccess,
+                                onScanFailure
+                            );
+                            started = true;
+                        } catch (e) {
+                            console.warn('Attempt 4 (any camera) failed:', e.message || e);
+                        }
+                    }
+
+                    if (!started) {
+                        throw { name: 'CameraUnavailable', message: 'All camera attempts failed' };
+                    }
+
+                    // Camera started successfully
+                    showScanningState();
+                    isScanning = true;
+                    isRedirecting = false;
+
                 } catch (err) {
-                    console.error('❌ Camera error:', err);
-                    
+                    console.error('Camera error:', err);
+
+                    reader.style.display = 'none';
+
                     let errorMsg = '{{ __('modules.reports.camera_error') }}';
-                    
-                    if (err.name === 'NotAllowedError') {
+
+                    if (err && (err.name === 'NotAllowedError' || String(err).includes('NotAllowedError'))) {
                         errorMsg = '{{ __('modules.reports.camera_permission_denied') }}';
-                    } else if (err.name === 'NotFoundError') {
+                    } else if (err && (err.name === 'NotFoundError' || String(err).includes('NotFoundError'))) {
                         errorMsg = '{{ __('modules.reports.camera_not_found') }}';
-                    } else if (err.name === 'NotReadableError') {
+                    } else if (err && (err.name === 'NotReadableError' || String(err).includes('NotReadableError'))) {
                         errorMsg = '{{ __('modules.reports.camera_in_use') }}';
-                    } else if (err.name === 'OverconstrainedError') {
-                        errorMsg = '{{ __('modules.reports.camera_constraint') }}';
                     }
-                    
+
                     showError(errorMsg);
-                    
-                    // Fallback to HTTP mode if camera fails
+
+                    // Fallback to HTTP mode (file upload)
                     scannerMode = 'http';
                     updateModeIndicator('http');
                     setupHttpMode();
                 }
             });
-            
+
             // Stop camera button
             stopBtn.addEventListener('click', async function() {
-                const placeholder = document.getElementById('cameraPlaceholder');
-                const scanningFrame = document.getElementById('scanningFrame');
-                
                 if (html5QrcodeScanner && isScanning) {
-                    
-                    await html5QrcodeScanner.stop();
-                    
-                    // Reset UI state
-                    placeholder.classList.remove('hidden');
-                    scanningFrame.classList.remove('active');
-                    startBtn.classList.remove('hidden');
-                    stopBtn.classList.add('hidden');
+                    try {
+                        await html5QrcodeScanner.stop();
+                    } catch (e) {
+                        console.warn("Stop scanner error:", e);
+                    }
+                    try {
+                        html5QrcodeScanner.clear();
+                    } catch (e) {}
+                    html5QrcodeScanner = null;
                     isScanning = false;
                     isRedirecting = false;
+                    showIdleState();
+                    // Re-show correct mode UI
+                    updateModeIndicator('https');
                 }
             });
         }
@@ -645,17 +736,22 @@
         function setupHttpMode() {
             const startBtn = document.getElementById('startScanBtn');
             const fileInput = document.getElementById('qr-input-file');
-            
-            startBtn.addEventListener('click', function() {
+
+            // Remove old click listeners by cloning the button
+            const newStartBtn = startBtn.cloneNode(true);
+            startBtn.parentNode.replaceChild(newStartBtn, startBtn);
+
+            newStartBtn.addEventListener('click', function() {
                 fileInput.click();
             });
-            
+
             fileInput.addEventListener('change', function(event) {
                 const file = event.target.files[0];
                 if (!file) return;
-                
+
                 // Show loading state
                 const placeholder = document.getElementById('cameraPlaceholder');
+                const reader = document.getElementById('reader');
                 placeholder.innerHTML = `
                     <div class="flex flex-col items-center">
                         <div class="spinner mb-4"></div>
@@ -663,39 +759,35 @@
                         <p class="text-gray-500 text-sm mt-2">{{ __('modules.reports.reading_qr') }}</p>
                     </div>
                 `;
-                
+                reader.style.display = 'block';
+
                 // Create scanner instance for file processing
                 const html5QrCode = new Html5Qrcode("reader");
-                
-                // Process the image
+
                 html5QrCode.scanFileV2(file, true)
                     .then(decodedText => {
                         onScanSuccess(decodedText, null);
                     })
                     .catch(err => {
-                        console.error('❌ Failed to scan QR code from image:', err);
-                        
+                        console.error('Failed to scan QR from image:', err);
                         let errorMsg = '{{ __('modules.reports.scan_image_error') }}';
-                        
-                        if (err.includes('No QR code found')) {
+                        if (String(err).includes('No QR code found')) {
                             errorMsg = '{{ __('modules.reports.no_qr_found') }}';
-                        } else if (err.includes('Unable to start decoding')) {
+                        } else if (String(err).includes('Unable to start decoding')) {
                             errorMsg = '{{ __('modules.reports.decode_error') }}';
                         }
-                        
                         showError(errorMsg);
-                        
-                        // Reset placeholder
                         updateModeIndicator('http');
+                        reader.style.display = 'none';
                     })
                     .finally(() => {
-                        // Clear file input
                         fileInput.value = '';
+                        try { html5QrCode.clear(); } catch(e) {}
                     });
             });
         }
 
-        // Initialize scanner on DOM ready
+        // Initialize on DOM ready
         document.addEventListener('DOMContentLoaded', function() {
             initScanner();
         });
