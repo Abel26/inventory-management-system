@@ -62,6 +62,7 @@ class LoginRequest extends FormRequest
         if (!Auth::attempt([
             'email' => $user->email,
             'password' => $password,
+            'is_active' => true,
         ], $remember)) {
             RateLimiterFacade::hit($this->throttleKey());
 

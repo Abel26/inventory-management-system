@@ -381,6 +381,11 @@
             createdRow: function(row, data, dataIndex) {
                 // Add group class and smooth hover effect to rows
                 $(row).addClass('group hover:bg-gray-50 transition-colors duration-200');
+                
+                // Highlight inactive users (Pending Approval)
+                if (!data.is_active) {
+                    $(row).addClass('bg-amber-50/30 hover:bg-amber-50/50 transition-colors duration-200');
+                }
             },
             columnDefs: [
                 {
@@ -430,7 +435,14 @@
                         if (row.is_active) {
                             return '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">{{ __('modules.users.active') }}</span>';
                         } else {
-                            return '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">{{ __('modules.users.inactive') }}</span>';
+                            return `
+                                <div class="flex flex-col gap-1">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800 border border-amber-200 tracking-wide">
+                                        Menunggu Persetujuan
+                                    </span>
+                                    <span class="text-[10px] text-amber-600 font-medium px-1 italic">Dibuat ${new Date(row.created_at).toLocaleDateString()}</span>
+                                </div>
+                            `;
                         }
                     }
                 },
@@ -459,6 +471,11 @@
                     render: function(data, type, row) {
                         return `
                             <div class="flex items-center justify-center gap-2">
+                                ${!row.is_active ? `
+                                    <button onclick="editUser(${row.id})" class="text-amber-500 hover:text-amber-600 hover:bg-amber-50 p-2 rounded-lg transition transform hover:scale-110" title="Klik untuk Approve">
+                                        <i class="ph ph-user-check text-xl font-bold"></i>
+                                    </button>
+                                ` : ''}
                                 <button onclick="editUser(${row.id})" class="text-gray-400 hover:text-ebara-600 hover:bg-ebara-50 p-2 rounded-lg transition" title="{{ __('modules.common.edit') }}">
                                     <i class="ph ph-pencil-simple text-xl"></i>
                                 </button>

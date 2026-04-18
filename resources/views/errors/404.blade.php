@@ -64,6 +64,7 @@
                 
                 <div class="suggestion-links">
                     @guest
+                    @if(Route::has('login'))
                     <a href="{{ route('login') }}" class="suggestion-link">
                         <i class="ph ph-sign-in text-2xl mb-2"></i>
                         <div class="font-medium" x-text="t('404.suggestions.login')">
@@ -71,7 +72,9 @@
                         </div>
                         <div class="text-sm text-gray-400">Akses dashboard inventaris</div>
                     </a>
+                    @endif
                     @else
+                    @if(Route::has('dashboard'))
                     <a href="{{ route('dashboard') }}" class="suggestion-link">
                         <i class="ph ph-layout text-2xl mb-2"></i>
                         <div class="font-medium" x-text="t('404.suggestions.dashboard')">
@@ -79,8 +82,10 @@
                         </div>
                         <div class="text-sm text-gray-400">Lihat overview sistem</div>
                     </a>
+                    @endif
                     @endguest
                     
+                    @if(Route::has('assets.materials.index'))
                     <a href="{{ route('assets.materials.index') }}" class="suggestion-link">
                         <i class="ph ph-package text-2xl mb-2"></i>
                         <div class="font-medium" x-text="t('404.suggestions.assets')">
@@ -88,7 +93,9 @@
                         </div>
                         <div class="text-sm text-gray-400">Jelajahi daftar aset</div>
                     </a>
+                    @endif
                     
+                    @if(Route::has('reports.index'))
                     <a href="{{ route('reports.index') }}" class="suggestion-link">
                         <i class="ph ph-chart-line text-2xl mb-2"></i>
                         <div class="font-medium" x-text="t('404.suggestions.reports')">
@@ -96,6 +103,7 @@
                         </div>
                         <div class="text-sm text-gray-400">Lihat laporan inventaris</div>
                     </a>
+                    @endif
                 </div>
             </div>
             

@@ -28,6 +28,13 @@ class User extends Authenticatable
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['full_name'];
+
+    /**
      * The attributes that should be hidden for serialization.
      *
      * @var list<string>

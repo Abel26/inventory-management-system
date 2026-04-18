@@ -1,0 +1,218 @@
+<?php
+
+return [
+    // Page Titles & Descriptions
+    'page' => [
+        'my_work_title' => 'My Work',
+        'my_work_description' => 'View and manage all your work logs.',
+        'create_title' => 'Create New Work Log',
+        'create_description' => 'Fill out the form below to log your work.',
+        'edit_title' => 'Edit Work Log :code',
+        'edit_description' => 'Edit existing work log information.',
+        'show_title' => 'Work Log Detail :code',
+        'all_work_logs' => 'All Work Logs',
+        'all_work_logs_description' => 'View and manage all employee work logs.',
+        'employee_comparison' => 'Employee Comparison',
+        'monthly_summary' => 'Monthly Summary',
+    ],
+
+    // Actions
+    'actions' => [
+        'create' => 'Create New',
+        'create_first' => 'Create First Work Log',
+        'back' => 'Back',
+        'back_to_my_work' => 'Back to My Work',
+        'saving' => 'Saving',
+        'edit' => 'Edit',
+        'delete' => 'Delete',
+        'view' => 'View',
+        'start_timer' => 'Start Timer',
+        'stop_timer' => 'Stop Timer',
+    ],
+
+    // Buttons
+    'buttons' => [
+        'export_excel' => 'Export Excel',
+        'export_pdf' => 'Export PDF',
+        'create' => 'Create New',
+        'view' => 'View',
+        'edit' => 'Edit',
+        'delete' => 'Delete',
+        'confirm_delete' => 'Are you sure you want to delete this work log?',
+        'save' => 'Save Work',
+        'cancel' => 'Cancel',
+        'update' => 'Update Work',
+        'export' => 'Export',
+    ],
+
+    // Statistics
+    'stats' => [
+        'today' => 'Today',
+        'completed' => 'Completed',
+        'total_hours' => 'Total Work Hours',
+        'active' => 'Active',
+        'completion_rate' => 'Completion Rate',
+        'daily_breakdown' => 'Daily Breakdown',
+        'total_logs' => 'Total Work Logs',
+        'ineffective_days' => 'Ineffective Days',
+        'average_hours_per_day' => 'Average Hours/Day',
+        'in_progress' => 'In Progress',
+        'pending' => 'Pending',
+        'overdue' => 'Overdue',
+        'total_work_logs' => 'Total Work Logs',
+        'team_member' => 'Team Member',
+        'efficiency' => 'Efficiency',
+        'fixed' => 'Fixed',
+    ],
+
+    // Form Fields
+    'fields' => [
+        'description' => 'Work Description',
+        'work_date' => 'Work Date',
+        'start_time' => 'Start Time',
+        'end_time' => 'End Time',
+        'break_duration' => 'Break Duration (minutes)',
+        'status' => 'Status',
+        'priority' => 'Priority',
+        'work_type' => 'Work Type',
+        'completion_percentage' => 'Completion Percentage',
+        'location' => 'Location',
+        'notes' => 'Notes',
+        'created_by' => 'Created By',
+        'created_at' => 'Created At',
+        'updated_at' => 'Updated At',
+        'date_range' => 'Date Range',
+        'user' => 'Employee',
+        'duration' => 'Duration',
+        'attachment' => 'Work Attachment',
+    ],
+
+    // Select Options
+    'select' => [
+        'all_status' => 'All Status',
+        'all_statuses' => 'All Statuses',
+        'all_work_types' => 'All Work Types',
+        'all_users' => 'All Employees',
+        'select_priority' => 'Select Priority',
+        'select_status' => 'Select Status',
+        'select_type' => 'Select Type',
+        'select_location' => 'Select Location',
+    ],
+
+    // Statuses
+    'status' => [
+        'pending' => 'Pending',
+        'in_progress' => 'In Progress',
+        'completed' => 'Completed',
+        'on_hold' => 'On Hold',
+        'cancelled' => 'Cancelled',
+        'locked' => 'Locked',
+    ],
+
+    // Messages
+    'messages' => [
+        'empty' => 'No work logs recorded yet',
+        'empty_description' => 'Start logging your work by clicking the button below.',
+        'created' => 'Work log created successfully.',
+        'create_failed' => 'Failed to create work log.',
+        'updated' => 'Work log updated successfully.',
+        'update_failed' => 'Failed to update work log.',
+        'deleted' => 'Work log deleted successfully.',
+        'delete_failed' => 'Failed to delete work log.',
+        'no_work_logs' => 'No work logs recorded yet.',
+        'delete_success' => 'Work log deleted successfully.',
+        'delete_error' => 'Failed to delete work log.',
+        'view_forbidden' => 'You do not have permission to view this work log.',
+        'edit_forbidden' => 'You do not have permission to edit this work log.',
+        'delete_forbidden' => 'You do not have permission to delete this work log.',
+        'locked_warning' => 'Work Log Locked',
+        'locked_description' => 'This work log has been locked and cannot be edited. Please contact administrator if you need to make changes.',
+        'can_edit' => 'You can edit this work log.',
+        'date_range_required' => 'Start date and end date are required.',
+        'comment_added' => 'Comment added successfully.',
+        'attachment_uploaded' => 'Attachment uploaded successfully.',
+        'attachment_deleted' => 'Attachment deleted successfully.',
+        'no_employees' => 'No employee comparison data available.',
+        'no_daily_breakdown' => 'No daily breakdown available for this period.',
+    ],
+
+    // Validation
+    'validation' => [
+        'description_required' => 'Work description is required.',
+        'description_max' => 'Work description must not exceed 1000 characters.',
+        'work_date_required' => 'Work date is required.',
+        'work_date_format' => 'Work date format is invalid. Use YYYY-MM-DD format.',
+        'start_time_required' => 'Start time is required.',
+        'start_time_format' => 'Start time format is invalid. Use HH:MM format.',
+        'end_time_required' => 'End time is required.',
+        'end_time_format' => 'End time format is invalid. Use HH:MM format.',
+        'end_time_after' => 'End time must be after start time.',
+        'break_duration_integer' => 'Break duration must be a number.',
+        'break_duration_min' => 'Break duration must be at least 0 minutes.',
+        'break_duration_max' => 'Break duration must not exceed 480 minutes (8 hours).',
+        'status_in' => 'Invalid work status.',
+        'priority_in' => 'Invalid priority.',
+        'work_type_in' => 'Invalid work type.',
+        'completion_percentage_integer' => 'Completion percentage must be a number.',
+        'completion_percentage_min' => 'Completion percentage must be at least 0%.',
+        'completion_percentage_max' => 'Completion percentage must not exceed 100%.',
+        'location_id_integer' => 'Location ID must be a number.',
+        'location_id_exists' => 'Selected location is not valid.',
+        'notes_max' => 'Notes must not exceed 2000 characters.',
+    ],
+
+    // Placeholders
+    'placeholders' => [
+        'description' => 'Describe what you worked on...',
+        'notes' => 'Any additional notes...',
+    ],
+
+    // Table
+    'table' => [
+        'work_code' => 'Code',
+        'user' => 'Employee',
+        'description' => 'Description',
+        'date' => 'Date',
+        'duration' => 'Duration',
+        'status' => 'Status',
+        'priority' => 'Priority',
+        'actions' => 'Actions',
+    ],
+
+    // Units
+    'units' => [
+        'minutes' => 'minutes',
+        'hours' => 'hours',
+        'minutes_short' => 'm',
+        'hours_short' => 'h',
+        'days' => 'days',
+        'timeline' => 'Timeline',
+        'total' => 'Total',
+    ],
+
+    // Employee Dashboard
+    'dashboard' => [
+        'welcome' => 'Welcome',
+        'greeting_suffix' => '!',
+        'today_summary' => "Today's Summary",
+        'weekly_progress' => 'Weekly Progress',
+        'weekly_chart_title' => 'Weekly Work Hours',
+        'weekly_chart_subtitle' => 'Total work hours per day this week',
+        'active_work' => 'Active Work',
+        'monthly_progress' => 'Monthly Progress',
+        'no_active_work' => 'No active work in progress.',
+        'no_active_work_desc' => 'Start a timer to log your work.',
+        'quick_actions' => 'Quick Actions',
+        'hours_today' => 'Hours Today',
+        'logs_today' => 'Work Logs Today',
+        'completion_rate' => 'Completion Rate',
+        'week_total' => 'Total This Week',
+        'view_all_work' => 'View All',
+        'monthly_total_hours' => 'Total Hours This Month',
+        'monthly_completed' => 'Completed This Month',
+        'monthly_completion_rate' => 'Completion Rate',
+        'hours_unit' => 'hours',
+        'recent_days' => 'Recent Days',
+        'active_count' => 'in progress',
+    ],
+];

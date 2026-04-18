@@ -584,7 +584,6 @@
             url: showUrlTemplate.replace(':id', id),
             method: 'GET',
             success: function(response) {
-            success: function(response) {
                 if (response.success) {
                     const data = response.data;
                     
@@ -608,8 +607,7 @@
                     // Perbaikan untuk tanggal - menggunakan fungsi helper global
                     const formattedEntryDate = formatDateForInput(data.entry_date);
                     const formattedExpiryDate = formatDateForInput(data.expiry_date);
-                    
-                    const formattedExpiryDate = formatDateForInput(data.expiry_date);
+
                     
                     $('#entry_date').val(formattedEntryDate);
                     $('#expiry_date').val(formattedExpiryDate);
@@ -759,7 +757,6 @@
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
-                    success: function(response) {
                     success: function(response) {
                         $('#materialsTable').DataTable().ajax.reload();
                         Swal.fire({

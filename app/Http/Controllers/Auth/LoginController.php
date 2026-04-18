@@ -27,6 +27,13 @@ class LoginController extends Controller
 
         Session::put('sidebar_open', true);
 
+        $user = Auth::user();
+
+        // Redirect berdasarkan role: pegawai ke halaman laporan kerja, admin ke dashboard
+        if ($user->isRegularUser()) {
+            return redirect()->intended(route('work-logs.my-work'));
+        }
+
         return redirect()->intended(route('dashboard'));
     }
 

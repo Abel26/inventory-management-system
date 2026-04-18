@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('report_code', 50)->unique();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->morphsTo('reportable', 'reportable_type')->index();
+            $table->morphs('reportable');
             $table->enum('issue_type', ['Damage', 'Maintenance', 'Lost', 'Stock Discrepancy']);
             $table->enum('priority', ['Low', 'Medium', 'High', 'Critical']);
             $table->text('description');

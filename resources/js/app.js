@@ -63,6 +63,16 @@ window.initDatePickers = function() {
         time_24hr: true,
         disableMobile: "true"
     });
+    // Time picker for 24-hour format
+    Flatpickr('input[type="time"], .time-picker', {
+        locale: Indonesian,
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: true,
+        allowInput: true,
+        disableMobile: "true"
+    });
 };
 
 // Expose initDatePickers to global scope so it can be called after AJAX

@@ -15,4 +15,7 @@ return [
     'reports' => 'Issue Reports',
     'report_list' => 'Report List',
     'scan_qr' => 'Scan QR Code',
+    'work_logs' => 'Work Progress',
+    'my_work' => 'My Work',
+    'all_work_logs' => 'All Work Logs',
 ];

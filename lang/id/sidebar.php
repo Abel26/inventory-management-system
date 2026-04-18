@@ -15,4 +15,7 @@ return [
     'reports' => 'Laporan Masalah',
     'report_list' => 'Daftar Laporan',
     'scan_qr' => 'Scan QR Code',
+    'work_logs' => 'Progres Pekerjaan',
+    'my_work' => 'Pekerjaan Saya',
+    'all_work_logs' => 'Semua Pekerjaan',
 ];

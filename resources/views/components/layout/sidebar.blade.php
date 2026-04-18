@@ -6,7 +6,7 @@
 <div class="flex flex-col h-full">
     <!-- Logo Section -->
     <div class="flex items-center justify-between h-16 px-4 border-b border-slate-700">
-        <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 overflow-hidden">
+        <a href="{{ Auth::user()->isRegularUser() ? route('work-logs.my-work') : route('dashboard') }}" class="flex items-center space-x-3 overflow-hidden">
             <!-- Ebara Logo -->
             <div class="flex-shrink-0">
                 <img src="{{ asset('assets/img/logo.png') }}" alt="Ebara Inventory Logo" class="h-8 w-auto">
@@ -43,6 +43,46 @@
             <span class="flex-1 text-left truncate">{{ __('sidebar.dashboard') }}</span>
         </a>
         @endcan
+
+        <!-- Work Logs Dropdown Group - All roles can access -->
+        @canany(['View own work logs', 'View all work logs'])
+        <div x-data="{ open: @json(request()->routeIs('work-logs.*')) }" class="space-y-1">
+            <!-- Section Header (Clickable) -->
+            <button @click="open = !open"
+                    class="w-full flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-all duration-200 group">
+                <i class="ph ph-clipboard-text text-lg flex-shrink-0 mr-3"></i>
+                <span class="flex-1 text-left truncate">{{ __('sidebar.work_logs') }}</span>
+                <i class="ph ph-caret-down transition-transform duration-200" :class="{ 'rotate-180': open }"></i>
+            </button>
+            
+            <!-- Children Menu (Collapsible) -->
+            <div x-show="open" x-collapse class="mt-1 space-y-1">
+                <!-- My Work -->
+                @can('View own work logs')
+                <a href="{{ route('work-logs.my-work') }}"
+                   class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 group
+                   {{ request()->routeIs('work-logs.my-work') ? 'bg-ebara-500/20 text-ebara-400' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
+                    <span class="w-6 h-6 flex items-center justify-center mr-3">
+                        <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('work-logs.my-work') ? 'bg-ebara-400' : 'bg-slate-600 group-hover:bg-slate-400' }}"></span>
+                    </span>
+                    <span class="truncate">{{ __('sidebar.my_work') }}</span>
+                </a>
+                @endcan
+                
+                <!-- All Work Logs - Admin only -->
+                @can('View all work logs')
+                <a href="{{ route('work-logs.index') }}"
+                   class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 group
+                   {{ request()->routeIs('work-logs.index') ? 'bg-ebara-500/20 text-ebara-400' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
+                    <span class="w-6 h-6 flex items-center justify-center mr-3">
+                        <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('work-logs.index') ? 'bg-ebara-400' : 'bg-slate-600 group-hover:bg-slate-400' }}"></span>
+                    </span>
+                    <span class="truncate">{{ __('sidebar.all_work_logs') }}</span>
+                </a>
+                @endcan
+            </div>
+        </div>
+        @endcanany
 
         <!-- Assets Dropdown Group - All roles can view -->
         @can('view assets')

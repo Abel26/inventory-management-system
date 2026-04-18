@@ -22,6 +22,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\ErrorController;
+use App\Http\Controllers\WorkLogController;
 
 /*
 |--------------------------------------------------------------------------
@@ -323,6 +324,60 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/stock-in', function() { return view('inventory.stock-in'); })->name('stock-in');
         Route::get('/stock-out', function() { return view('inventory.stock-out'); })->name('stock-out');
         Route::get('/history', function() { return view('inventory.history'); })->name('history');
+    });
+
+    // -------------------------------------------------------------------------
+    // WORK PROGRESS (WORK LOGS) ROUTES
+    // -------------------------------------------------------------------------
+    // IMPORTANT: Routes dengan static path HARUS didefinisikan SEBELUM routes dengan parameter dinamis
+    // Ini untuk mencegah Laravel matching /work-logs/my-work dengan /work-logs/{workLog}
+    
+    Route::group([], function () {
+        // STATIC ROUTES PERTAMA - My Work, Create, Export
+        // =====================================================
+        
+        // Employee Routes - View and manage own work logs
+        Route::middleware(['can:View own work logs'])->group(function () {
+            Route::get('/work-logs/my-work', [WorkLogController::class, 'myWork'])->name('work-logs.my-work');
+            Route::get('/work-logs/create', [WorkLogController::class, 'create'])->name('work-logs.create');
+            Route::post('/work-logs', [WorkLogController::class, 'store'])->name('work-logs.store');
+        });
+
+        // Individual Work Log View/Edit - Access is checked INSIDE the controller
+        // This allows both owners AND admins with 'View all' permission to access these routes
+        Route::get('/work-logs/{workLog}', [WorkLogController::class, 'show'])->name('work-logs.show');
+        Route::get('/work-logs/{workLog}/edit', [WorkLogController::class, 'edit'])->name('work-logs.edit');
+        Route::put('/work-logs/{workLog}', [WorkLogController::class, 'update'])->name('work-logs.update');
+        Route::delete('/work-logs/{workLog}', [WorkLogController::class, 'destroy'])->name('work-logs.destroy');
+
+        // Admin Only Routes
+        Route::middleware(['can:View all work logs'])->group(function () {
+            Route::get('/work-logs', [WorkLogController::class, 'index'])->name('work-logs.index');
+            Route::post('/work-logs/{workLog}/comment', [WorkLogController::class, 'addComment'])->name('work-logs.add-comment');
+        });
+
+        // Export Routes - Admin only
+        Route::middleware(['can:Export work logs'])->group(function () {
+            Route::get('/work-logs/export/excel', [WorkLogController::class, 'export'])->name('work-logs.export-excel');
+            Route::get('/work-logs/export/pdf', [WorkLogController::class, 'exportPdf'])->name('work-logs.export-pdf');
+        });
+
+        // Attachment Routes - Employee can upload/delete their own attachments
+        // Also checked inside controller for ownership
+        Route::post('/work-logs/{workLog}/upload-attachment', [WorkLogController::class, 'uploadAttachment'])->name('work-logs.upload-attachment');
+        Route::delete('/work-logs/{workLog}/attachment', [WorkLogController::class, 'deleteAttachment'])->name('work-logs.delete-attachment');
+
+        // API Endpoints
+        Route::prefix('api/work-logs')->group(function () {
+            Route::get('/data', [WorkLogController::class, 'getByDateRange'])->name('api.work-logs.data');
+            Route::get('/statistics', [WorkLogController::class, 'getStatistics'])->name('api.work-logs.statistics');
+            Route::get('/monthly-summary', [WorkLogController::class, 'getMonthlySummary'])->name('api.work-logs.monthly-summary');
+            Route::get('/employee-comparison', [WorkLogController::class, 'getEmployeeComparison'])->name('api.work-logs.employee-comparison');
+            
+            // Timer Routes
+            Route::post('/start-timer', [WorkLogController::class, 'startTimer'])->name('api.work-logs.start-timer');
+            Route::post('/stop-timer/{workLog}', [WorkLogController::class, 'stopTimer'])->name('api.work-logs.stop-timer');
+        });
     });
 });
 

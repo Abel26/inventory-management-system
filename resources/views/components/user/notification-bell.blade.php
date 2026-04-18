@@ -44,41 +44,41 @@
         <div class="max-h-80 overflow-y-auto">
             @if($notifications && $notifications->count() > 0)
                 @foreach($notifications as $notification)
-                    <a href="{{ route('reports.show', $notification->id) }}" class="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0">
-                        <!-- Avatar -->
+                    <a href="{{ $notification->url }}" class="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0">
+                        <!-- Avatar / Icon -->
                         <div class="flex-shrink-0">
-                            @if($notification->user && $notification->user->avatar)
-                                <img src="{{ $notification->user->avatar }}" alt="{{ $notification->user->name }}" class="w-10 h-10 rounded-full object-cover">
+                            @if($notification->user_avatar)
+                                <img src="{{ $notification->user_avatar }}" alt="{{ $notification->title }}" class="w-10 h-10 rounded-full object-cover">
                             @else
-                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-ebara-500 to-ebara-700 flex items-center justify-center text-white font-semibold">
-                                    {{ $notification->user ? substr($notification->user->name, 0, 1) : 'U' }}
+                                <div class="w-10 h-10 rounded-full {{ $notification->icon_color }} flex items-center justify-center text-white font-semibold shadow-sm">
+                                    @if(isset($notification->icon))
+                                        <i class="{{ $notification->icon }} text-lg"></i>
+                                    @else
+                                        {{ $notification->user_initial }}
+                                    @endif
                                 </div>
                             @endif
                         </div>
 
                         <!-- Content -->
                         <div class="flex-1 min-w-0">
-                            <!-- Asset Name & Issue Type -->
-                            <p class="text-sm font-medium text-gray-900 truncate">
-                                @if($notification->reportable)
-                                    {{ $notification->reportable->name ?? $notification->reportable->model_name ?? 'Aset' }}
-                                @else
-                                    Aset tidak diketahui
-                                @endif
-                                <span class="font-normal text-gray-600">mengalami</span>
-                                <span class="text-ebara-600">{{ $notification->issue_type }}</span>
+                            <!-- Title & Subtitle -->
+                            <p class="text-sm font-medium text-gray-900 leading-tight">
+                                {{ $notification->title }}
+                            </p>
+                            <p class="text-xs text-gray-600 mt-0.5">
+                                {{ $notification->subtitle }}
                             </p>
 
-                            <!-- Reporter & Time -->
-                            <p class="text-xs text-gray-500 mt-1">
-                                Dilaporkan oleh {{ $notification->user ? $notification->user->name : 'Unknown' }} • 
-                                {{ $notification->created_at ? $notification->created_at->diffForHumans() : '-' }}
+                            <!-- Meta -->
+                            <p class="text-[10px] text-gray-400 mt-1 uppercase tracking-wider font-semibold">
+                                {{ $notification->author }} • {{ $notification->time ? $notification->time->diffForHumans() : '-' }}
                             </p>
                         </div>
 
-                        <!-- Status Indicator -->
+                        <!-- Unread Dot -->
                         <div class="flex-shrink-0">
-                            <span class="w-2 h-2 rounded-full bg-ebara-600"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-ebara-500"></span>
                         </div>
                     </a>
                 @endforeach
@@ -95,12 +95,13 @@
         </div>
 
         <!-- Footer -->
-        @if($count > 0)
-            <div class="px-4 py-3 bg-gray-50 border-t border-gray-100">
-                <a href="{{ route('reports.index') }}" class="block text-center text-sm font-medium text-ebara-600 hover:text-ebara-700 transition-colors">
-                    Lihat Semua Laporan →
-                </a>
-            </div>
-        @endif
+        <div class="px-4 py-3 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+            <a href="{{ route('reports.index') }}" class="text-xs font-medium text-gray-500 hover:text-ebara-600 transition-colors">
+                Laporan
+            </a>
+            <a href="{{ route('users.index') }}" class="text-xs font-medium text-gray-500 hover:text-ebara-600 transition-colors">
+                User Management
+            </a>
+        </div>
     </div>
 </div>

@@ -404,6 +404,7 @@
         setInterval(function() {
             if ($('#submitToolBtn').is(':visible') && $('.flex.h-screen').attr('aria-hidden') === 'true') {
                 $('.flex.h-screen').removeAttr('aria-hidden');
+            }
         }, 1000);
         
         // Add global error handler
@@ -541,7 +542,6 @@
  
     // Global Modal helpers
     window.openToolModal = function() {
-    window.openToolModal = function() {
         var modal = document.getElementById('toolModal');
         modal.classList.remove('hidden');
         modal.style.display = 'flex';
@@ -568,7 +568,6 @@
         });
     }
     
-    window.closeToolModal = function() {
     window.closeToolModal = function() {
         var modal = document.getElementById('toolModal');
         var content = modal.querySelector('.modal-content');
@@ -605,7 +604,6 @@
     });
  
     function editTool(id) {
-    function editTool(id) {
         
         // Check if submit button exists and has event handler
         // Check if submit button exists and has event handler
@@ -613,7 +611,6 @@
         $.ajax({
             url: showUrlTemplate.replace(':id', id),
             method: 'GET',
-            success: function(response) {
             success: function(response) {
                 if (response.success) {
                     const data = response.data;
@@ -771,7 +768,7 @@
                 timeout: 30000, // 30 seconds timeout
                 beforeSend: function(xhr) {
                 },
-            success: function(response) {
+                success: function(response) {
                 closeToolModal();
                 
                 // Reload DataTable with a small delay to ensure server has processed update

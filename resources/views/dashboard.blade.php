@@ -621,6 +621,107 @@
             </a>
         </div>
 
+        <!-- ROW 1.5: WORK LOG WIDGETS -->
+        <div class="grid grid-cols-12 gap-6 mb-6 w-full">
+            <!-- Today's Work Stats -->
+            <div class="col-span-12 lg:col-span-6 w-full">
+                <div class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-ebara-100 rounded-lg">
+                                <i class="ph ph-calendar-check text-ebara-600 text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800">{{ __('dashboard.work_logs.today_title') }}</h3>
+                                <p class="text-xs text-gray-500 mt-0.5">{{ __('dashboard.work_logs.today_subtitle') }}</p>
+                            </div>
+                        </div>
+                        <a href="{{ route('work-logs.my-work') }}" class="text-sm font-medium text-ebara-600 hover:text-ebara-700 flex items-center gap-1">
+                            <span>{{ __('dashboard.work_logs.view_my_work') }}</span>
+                            <i class="ph ph-arrow-right"></i>
+                        </a>
+                    </div>
+                    
+                    <div class="p-6">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <!-- Total Today -->
+                            <div class="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
+                                <p class="text-3xl font-bold text-blue-700">{{ $workLogStats['today_total'] ?? 0 }}</p>
+                                <p class="text-xs text-blue-600 mt-1">{{ __('dashboard.work_logs.cards.today_total') }}</p>
+                            </div>
+                            <!-- Completed Today -->
+                            <div class="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
+                                <p class="text-3xl font-bold text-green-700">{{ $workLogStats['today_completed'] ?? 0 }}</p>
+                                <p class="text-xs text-green-600 mt-1">{{ __('dashboard.work_logs.cards.today_completed') }}</p>
+                            </div>
+                            <!-- In Progress -->
+                            <div class="text-center p-4 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl">
+                                <p class="text-3xl font-bold text-yellow-700">{{ $workLogStats['today_in_progress'] ?? 0 }}</p>
+                                <p class="text-xs text-yellow-600 mt-1">{{ __('dashboard.work_logs.cards.today_in_progress') }}</p>
+                            </div>
+                            <!-- Pending -->
+                            <div class="text-center p-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl">
+                                <p class="text-3xl font-bold text-gray-700">{{ $workLogStats['today_pending'] ?? 0 }}</p>
+                                <p class="text-xs text-gray-600 mt-1">{{ __('dashboard.work_logs.cards.today_pending') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weekly Work Summary -->
+            <div class="col-span-12 lg:col-span-6 w-full">
+                <div class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-ebara-100 rounded-lg">
+                                <i class="ph ph-chart-bar text-ebara-600 text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800">{{ __('dashboard.work_logs.weekly_title') }}</h3>
+                                <p class="text-xs text-gray-500 mt-0.5">{{ __('dashboard.work_logs.weekly_subtitle') }}</p>
+                            </div>
+                        </div>
+                        <a href="{{ route('work-logs.index') }}" class="text-sm font-medium text-ebara-600 hover:text-ebara-700 flex items-center gap-1">
+                            <span>{{ __('dashboard.work_logs.view_all') }}</span>
+                            <i class="ph ph-arrow-right"></i>
+                        </a>
+                    </div>
+                    
+                    <div class="p-6">
+                        <div class="grid grid-cols-3 gap-4">
+                            <!-- Total This Week -->
+                            <div class="text-center p-4 bg-gradient-to-br from-ebara-50 to-ebara-100 rounded-xl">
+                                <p class="text-3xl font-bold text-ebara-700">{{ $workLogStats['total_this_week'] ?? 0 }}</p>
+                                <p class="text-xs text-ebara-600 mt-1">{{ __('dashboard.work_logs.cards.total_this_week') }}</p>
+                            </div>
+                            <!-- In Progress -->
+                            <div class="text-center p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl">
+                                <p class="text-3xl font-bold text-orange-700">{{ $workLogStats['in_progress'] ?? 0 }}</p>
+                                <p class="text-xs text-orange-600 mt-1">{{ __('dashboard.work_logs.cards.in_progress') }}</p>
+                            </div>
+                            <!-- Pending -->
+                            <div class="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl">
+                                <p class="text-3xl font-bold text-purple-700">{{ $workLogStats['pending'] ?? 0 }}</p>
+                                <p class="text-xs text-purple-600 mt-1">{{ __('dashboard.work_logs.cards.pending') }}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Completed This Week -->
+                        <div class="mt-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">{{ __('dashboard.work_logs.cards.completed') }}</p>
+                                <p class="text-2xl font-bold text-green-700">{{ $workLogStats['completed'] ?? 0 }}</p>
+                            </div>
+                            <div class="p-3 bg-green-100 rounded-full">
+                                <i class="ph ph-check-circle text-green-600 text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- ROW 2: PRIMARY ANALYTICS -->
         <div class="grid grid-cols-12 gap-6 mb-6 w-full">
             <!-- Asset Health Trends (Gradient Line Chart) -->

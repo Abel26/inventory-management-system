@@ -8,8 +8,11 @@ use App\Models\AssetModel;
 use App\Models\Report;
 use App\Models\User;
 use App\Models\MoldModification;
+use App\Models\WorkLog;
+use App\Services\WorkLogService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
@@ -21,18 +24,29 @@ class DashboardController extends Controller
     /**
      * Display dashboard
      */
-    public function index(): View
+    public function __construct(
+        protected WorkLogService $workLogService
+    ) {}
+
+    public function index()
     {
+        // Redirect pegawai (role User) ke halaman laporan kerja mereka
+        $user = \Illuminate\Support\Facades\Auth::user();
+        if ($user && $user->isRegularUser()) {
+            return redirect()->route('work-logs.my-work');
+        }
+
         try {
             // Ensure user is authenticated
             if (!\Illuminate\Support\Facades\Auth::check()) {
                 Log::error('Dashboard accessed without authentication');
                 abort(401, 'Unauthorized access');
             }
-            
+
             Log::info('Dashboard accessed by user: ' . \Illuminate\Support\Facades\Auth::user()->id);
             
             $stats = $this->getStats();
+            $workLogStats = $this->getWorkLogStats();
             $chartData = [
                 'trend' => $this->getTrendData(),
                 'composition' => $this->getCompositionData(),
@@ -43,7 +57,7 @@ class DashboardController extends Controller
             $moldModifications = $this->getMoldModifications();
             $assetModels = AssetModel::select('id', 'name')->orderBy('name')->get() ?? collect();
 
-            return view('dashboard', compact('stats', 'chartData', 'activity', 'critical', 'greeting', 'moldModifications', 'assetModels'));
+            return view('dashboard', compact('stats', 'workLogStats', 'chartData', 'activity', 'critical', 'greeting', 'moldModifications', 'assetModels'));
         } catch (\Exception $e) {
             // Log error and provide fallback data
             Log::error('Dashboard error: ' . $e->getMessage(), [
@@ -158,6 +172,47 @@ class DashboardController extends Controller
                 'totalTools' => 0,
                 'totalModels' => 0,
                 'totalReports' => 0,
+            ];
+        }
+    }
+
+    /**
+     * Get work log statistics
+     */
+    private function getWorkLogStats(): array
+    {
+        try {
+            return Cache::remember('dashboard.work-log-stats', now()->timezone('Asia/Jakarta')->addMinutes(5), function () {
+                $today = now()->timezone('Asia/Jakarta')->startOfDay();
+                
+                return [
+                    'today_total' => WorkLog::whereDate('created_at', $today)->count(),
+                    'today_completed' => WorkLog::whereDate('created_at', $today)
+                        ->where('status', 'Completed')->count(),
+                    'today_in_progress' => WorkLog::whereDate('created_at', $today)
+                        ->where('status', 'In Progress')->count(),
+                    'today_pending' => WorkLog::whereDate('created_at', $today)
+                        ->where('status', 'Pending')->count(),
+                    'total_this_week' => WorkLog::whereBetween('created_at', [
+                        now()->timezone('Asia/Jakarta')->startOfWeek(),
+                        now()->timezone('Asia/Jakarta')->endOfWeek()
+                    ])->count(),
+                    'in_progress' => WorkLog::where('status', 'In Progress')->count(),
+                    'pending' => WorkLog::where('status', 'Pending')->count(),
+                    'completed' => WorkLog::where('status', 'Completed')->count(),
+                ];
+            });
+        } catch (\Exception $e) {
+            Log::error('Error getting work log stats: ' . $e->getMessage());
+            return [
+                'today_total' => 0,
+                'today_completed' => 0,
+                'today_in_progress' => 0,
+                'today_pending' => 0,
+                'total_this_week' => 0,
+                'in_progress' => 0,
+                'pending' => 0,
+                'completed' => 0,
             ];
         }
     }
