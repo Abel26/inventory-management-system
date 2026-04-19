@@ -66,7 +66,7 @@ return [
         'q1_question' => 'Bagaimana notifikasi H-7 bekerja?',
         'q1_answer' => 'Sistem secara otomatis memantau jadwal modifikasi cetakan dan mengirimkan peringatan 7 hari sebelum tanggal yang ditentukan, memberikan waktu cukup untuk persiapan.',
         'q2_question' => 'Bisakah melacak riwayat alat?',
-        'q2_answer' => 'Ya, sistem menyediakan pelacakan riwayat lengkap untuk semua aset termasuk material, peralatan, dan base plates dengan detail penggunaan dan pemeliharaan.',
+        'q2_answer' => 'Ya, sistem menyediakan pelacakan riwayat lengkap untuk semua aset termasuk material, peralatan, dan cetakan dengan detail penggunaan dan pemeliharaan.',
         'q3_question' => 'Apakah ramah seluler?',
         'q3_answer' => 'Tentu saja! Sistem dirancang dengan pendekatan mobile-first dan berfungsi dengan sempurna di semua perangkat termasuk smartphone, tablet, dan desktop.'
     ],

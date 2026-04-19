@@ -54,54 +54,57 @@ class LandingController extends Controller
         // Search Materials with proper field names
         $materials = AssetMaterial::where('name', 'LIKE', "%{$query}%")
             ->orWhere('material_code', 'LIKE', "%{$query}%")
-            ->select('name', 'material_code', 'qr_code_path')
+            ->select('id', 'name', 'material_code', 'qr_code_path')
             ->limit(3)
             ->get();
             
         foreach ($materials as $material) {
             $results[] = [
-                'type' => 'Material',
+                'id' => $material->id,
+                'type' => 'material',
                 'name' => $material->name,
                 'code' => $material->material_code,
-                'status' => 'Available', // Default status
+                'status' => 'available', // Lowercase for translation key
                 'image' => $material->qr_code_path ? asset('storage/' . $material->qr_code_path) : null,
-                'status_color' => $this->getStatusColor('Available')
+                'status_color' => $this->getStatusColor('available')
             ];
         }
         
         // Search Tools with proper field names
         $tools = AssetTool::where('name', 'LIKE', "%{$query}%")
             ->orWhere('tool_code', 'LIKE', "%{$query}%")
-            ->select('name', 'tool_code', 'condition', 'qr_code_path')
+            ->select('id', 'name', 'tool_code', 'condition', 'qr_code_path')
             ->limit(3)
             ->get();
             
         foreach ($tools as $tool) {
             $results[] = [
-                'type' => 'Tool',
+                'id' => $tool->id,
+                'type' => 'tool',
                 'name' => $tool->name,
                 'code' => $tool->tool_code,
-                'status' => $tool->condition, // Use condition field as status
+                'status' => strtolower($tool->condition ?? 'available'), // Lowercase for translation key
                 'image' => $tool->qr_code_path ? asset('storage/' . $tool->qr_code_path) : null,
-                'status_color' => $this->getStatusColor($tool->condition)
+                'status_color' => $this->getStatusColor($tool->condition ?? 'available')
             ];
         }
         
         // Search Models with proper field names
         $models = AssetModel::where('name', 'LIKE', "%{$query}%")
             ->orWhere('model_code', 'LIKE', "%{$query}%")
-            ->select('name', 'model_code', 'qr_code_path')
+            ->select('id', 'name', 'model_code', 'qr_code_path')
             ->limit(3)
             ->get();
             
         foreach ($models as $model) {
             $results[] = [
-                'type' => 'Model',
+                'id' => $model->id,
+                'type' => 'model',
                 'name' => $model->name,
                 'code' => $model->model_code,
-                'status' => 'Available', // Default status
+                'status' => 'available', // Lowercase for translation key
                 'image' => $model->qr_code_path ? asset('storage/' . $model->qr_code_path) : null,
-                'status_color' => $this->getStatusColor('Available')
+                'status_color' => $this->getStatusColor('available')
             ];
         }
         
@@ -109,6 +112,58 @@ class LandingController extends Controller
             'results' => $results,
             'total' => count($results)
         ]);
+    }
+
+    /**
+     * Get asset detail for public access.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getAssetDetail(Request $request)
+    {
+        $id = $request->get('id');
+        $type = $request->get('type');
+        
+        if (!$id || !$type) {
+            return response()->json(['message' => 'Missing parameters'], 400);
+        }
+        
+        $asset = null;
+        
+        switch (strtolower($type)) {
+            case 'material':
+                $asset = AssetMaterial::find($id);
+                break;
+            case 'tool':
+                $asset = AssetTool::find($id);
+                break;
+            case 'model':
+                $asset = AssetModel::find($id);
+                break;
+        }
+        
+        if (!$asset) {
+            return response()->json(['message' => 'Asset not found'], 404);
+        }
+        
+        // Prepare public detail data (omitting sensitive info if any)
+        $detail = [
+            'id' => $asset->id,
+            'type' => ucfirst($type),
+            'name' => $asset->name,
+            'code' => $asset->material_code ?? $asset->tool_code ?? $asset->model_code,
+            'description' => $asset->description ?? '-',
+            'location' => $asset->location ?? '-',
+            'status' => strtolower($asset->condition ?? 'available'),
+            'status_color' => $this->getStatusColor($asset->condition ?? 'available'),
+            'image' => $asset->qr_code_path ? asset('storage/' . $asset->qr_code_path) : null,
+            'category' => $asset->category ?? $asset->type ?? '-',
+            'quantity' => $asset->quantity ?? 0,
+            'unit' => $asset->unit ?? 'pcs',
+        ];
+        
+        return response()->json($detail);
     }
 
 

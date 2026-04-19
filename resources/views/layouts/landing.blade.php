@@ -145,6 +145,37 @@
                 searchLoading: false,
                 showSearchResults: false,
                 
+                // Asset Detail Modal State
+                selectedAsset: null,
+                showDetailModal: false,
+                detailLoading: false,
+                
+                openAssetDetail(item) {
+                    this.detailLoading = true;
+                    this.showDetailModal = true;
+                    this.showSearchResults = false;
+                    this.selectedAsset = null;
+
+                    fetch(`/api/public-asset-detail?id=${item.id}&type=${item.type}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            this.selectedAsset = data;
+                            this.detailLoading = false;
+                        })
+                        .catch(error => {
+                            console.error('Error fetching asset detail:', error);
+                            this.detailLoading = false;
+                            this.showDetailModal = false;
+                        });
+                },
+
+                closeDetailModal() {
+                    this.showDetailModal = false;
+                    setTimeout(() => {
+                        this.selectedAsset = null;
+                    }, 300);
+                },
+                
                 init() {
                     // Check for saved language preference
                     const savedLang = localStorage.getItem('preferred-language');

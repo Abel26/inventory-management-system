@@ -50,6 +50,7 @@ Route::get('/', [LandingController::class, 'index'])->name('landing');
 // Public API Routes
 Route::prefix('api')->name('api.')->group(function () {
     Route::get('/public-search', [LandingController::class, 'search'])->name('public.search');
+    Route::get('/public-asset-detail', [LandingController::class, 'getAssetDetail'])->name('public.asset-detail');
 });
 
 
