@@ -166,7 +166,7 @@
                             <p class="text-sm font-black text-slate-700 truncate">{{ $workLog->attachment_name }}</p>
                             <p class="text-[10px] font-bold text-slate-400">{{ round($workLog->attachment_size / 1024, 2) }} KB</p>
                         </div>
-                        <a href="{{ Storage::url($workLog->attachment_path) }}" target="_blank" class="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-xs font-black hover:bg-indigo-100 transition-colors">
+                        <a href="{{ asset('storage/' . $workLog->attachment_path) }}" target="_blank" class="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-xs font-black hover:bg-indigo-100 transition-colors">
                             {{ __('work_logs.actions.view') }}
                         </a>
                     </div>

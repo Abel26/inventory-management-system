@@ -373,7 +373,7 @@
                                 <span class="text-[10px] font-black text-indigo-100 uppercase tracking-widest">Lampiran Saat Ini</span>
                                 <span class="text-xs font-black text-white truncate max-w-[150px]">{{ $workLog->attachment_name }}</span>
                             </div>
-                            <a href="{{ Storage::url($workLog->attachment_path) }}" target="_blank" class="ml-2 w-8 h-8 bg-white/20 hover:bg-white/30 rounded-xl flex items-center justify-center text-white transition-all">
+                            <a href="{{ asset('storage/' . $workLog->attachment_path) }}" target="_blank" class="ml-2 w-8 h-8 bg-white/20 hover:bg-white/30 rounded-xl flex items-center justify-center text-white transition-all">
                                 <i class="ph ph-arrow-square-out text-lg"></i>
                             </a>
                         </div>

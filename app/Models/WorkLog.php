@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
 class WorkLog extends Model
@@ -387,8 +388,8 @@ class WorkLog extends Model
      */
     public function deleteAttachment(): void
     {
-        if ($this->attachment_path && file_exists(storage_path('app/public/' . $this->attachment_path))) {
-            unlink(storage_path('app/public/' . $this->attachment_path));
+        if ($this->attachment_path && Storage::disk('public')->exists($this->attachment_path)) {
+            Storage::disk('public')->delete($this->attachment_path);
         }
 
         $this->attachment_path = null;

@@ -380,8 +380,8 @@ class WorkLogService
         $filename = 'work-log-' . $workLog->work_code . '-' . time() . '.' . $file->getClientOriginalExtension();
         $path = 'work-logs/' . $filename;
 
-        // Store file
-        $file->storeAs($path, 'public');
+        // Store file on public disk so it's accessible via web
+        $file->storeAs('work-logs', $filename, 'public');
 
         // Update work log
         $workLog->attachment_path = $path;
