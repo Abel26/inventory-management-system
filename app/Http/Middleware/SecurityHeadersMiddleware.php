@@ -25,20 +25,34 @@ use Illuminate\Http\Request;
 class SecurityHeadersMiddleware
 {
     /**
-     * List of security headers to be added
+     * List of base security headers to be added to ALL responses.
      *
      * X-Frame-Options: Mencegah clickjacking dengan memblokir iframe
      * X-Content-Type-Options: Mencegah MIME sniffing yang bisa dieksploitasi
      * X-XSS-Protection: Filter XSS di browser lama
      * Referrer-Policy: Mencegah kebocoran data melalui referrer
-     * Permissions-Policy: Membatasi akses ke fitur browser
+     *
+     * Note: Permissions-Policy is NOT in this list because it is set dynamically
+     * per-route in buildPermissionsPolicy() to allow camera on scan pages.
      */
     private const SECURITY_HEADERS = [
         'X-Frame-Options' => 'DENY',
         'X-Content-Type-Options' => 'nosniff',
         'X-XSS-Protection' => '1; mode=block',
         'Referrer-Policy' => 'same-origin',
-        'Permissions-Policy' => 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()',
+    ];
+
+    /**
+     * Route names that require camera access via getUserMedia().
+     * On these routes, the Permissions-Policy header will allow camera=(self)
+     * instead of camera=() which would block it.
+     *
+     * Chrome strictly enforces Permissions-Policy headers, so camera=() will
+     * cause getUserMedia() to throw "NotAllowedError: Permission denied"
+     * even before the user is prompted. Firefox is more lenient.
+     */
+    private const CAMERA_ALLOWED_ROUTES = [
+        'reports.scan',
     ];
 
     /**
@@ -52,10 +66,13 @@ class SecurityHeadersMiddleware
     {
         $response = $next($request);
 
-        // Add security headers
+        // Add base security headers (non-dynamic)
         foreach (self::SECURITY_HEADERS as $header => $value) {
             $response->headers->set($header, $value);
         }
+
+        // Add Permissions-Policy header (route-aware)
+        $response->headers->set('Permissions-Policy', $this->buildPermissionsPolicy($request));
 
         // Prevent browser caching for authenticated pages
         // Firefox aggressively caches HTML without Cache-Control headers,
@@ -86,6 +103,47 @@ class SecurityHeadersMiddleware
         $this->addContentSecurityPolicy($response, $request);
 
         return $response;
+    }
+
+    /**
+     * Build the Permissions-Policy header value based on the current route.
+     *
+     * Why this is route-aware:
+     * Chrome strictly enforces the Permissions-Policy header. When camera=() is set,
+     * Chrome will block ALL camera access (getUserMedia) and throw:
+     *   "NotAllowedError: Permission denied"
+     *   "[Violation] Permissions policy violation: camera is not allowed"
+     *
+     * Firefox is more lenient and may still allow camera access despite the header.
+     * This caused a bug where QR scanning worked in Firefox but failed in Chrome.
+     *
+     * Solution: Allow camera=(self) only on pages that genuinely need it (QR scan),
+     * keeping camera=() on all other pages for security.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return string
+     */
+    private function buildPermissionsPolicy(Request $request): string
+    {
+        $route = $request->route();
+        $routeName = $route ? $route->getName() : null;
+
+        // Check if the current route needs camera access
+        $needsCamera = $routeName && in_array($routeName, self::CAMERA_ALLOWED_ROUTES, true);
+
+        // Build the policy: camera=(self) on scan pages, camera=() elsewhere
+        $cameraPolicy = $needsCamera ? 'camera=(self)' : 'camera=()';
+
+        return implode(', ', [
+            'geolocation=()',
+            'microphone=()',
+            $cameraPolicy,
+            'payment=()',
+            'usb=()',
+            'magnetometer=()',
+            'gyroscope=()',
+            'accelerometer=()',
+        ]);
     }
 
     /**
@@ -124,14 +182,16 @@ class SecurityHeadersMiddleware
         // Only allow specific domains needed for the application
         // Supports both HTTP (transitional) and HTTPS (production-ready)
         else {
+            // Note: Protocol-relative URLs (//fonts.googleapis.com) are NOT valid
+            // in CSP directives. Use full scheme-prefixed URLs instead.
             $cspPolicy = implode('; ', [
                 "default-src 'self' {$protocol}",
                 "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: {$protocol}",
-                "style-src 'self' 'unsafe-inline' {$protocol} //fonts.googleapis.com",
+                "style-src 'self' 'unsafe-inline' {$protocol} https://fonts.googleapis.com",
                 "img-src 'self' data: {$protocol} blob:",
-                "font-src 'self' {$protocol} //fonts.googleapis.com //fonts.gstatic.com data:",
+                "font-src 'self' {$protocol} https://fonts.googleapis.com https://fonts.gstatic.com data:",
                 "connect-src 'self' {$protocol}",
-                "frame-src 'self' {$protocol} //www.google.com",
+                "frame-src 'self' {$protocol} https://www.google.com",
                 "frame-ancestors 'none'",
                 "object-src 'none'",
                 "base-uri 'self'",

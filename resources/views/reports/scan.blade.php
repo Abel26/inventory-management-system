@@ -572,16 +572,42 @@
                 return;
             }
 
-            const isSecureContext = location.protocol === 'https:' ||
-                                   location.hostname === 'localhost' ||
-                                   location.hostname === '127.0.0.1';
+            // Use the browser's native isSecureContext API for reliable detection.
+            // This correctly handles HTTPS, localhost, 127.0.0.1, and other secure origins.
+            const isSecureContext = window.isSecureContext || false;
 
-            scannerMode = isSecureContext ? 'https' : 'http';
-            updateModeIndicator(scannerMode);
-
-            if (scannerMode === 'https') {
+            // Also check if the Permissions-Policy header allows camera access.
+            // Chrome blocks getUserMedia() if the Permissions-Policy header has camera=().
+            // navigator.permissions.query can detect this scenario before attempting camera start.
+            if (isSecureContext && navigator.permissions) {
+                navigator.permissions.query({ name: 'camera' }).then(function(result) {
+                    if (result.state === 'denied') {
+                        // Camera is blocked — likely by Permissions-Policy header or user setting
+                        console.warn('Camera permission denied (Permissions-Policy or user setting). Falling back to file mode.');
+                        scannerMode = 'http';
+                        updateModeIndicator('http');
+                        setupHttpMode();
+                    } else {
+                        // Camera may be available — attempt live scanning
+                        scannerMode = 'https';
+                        updateModeIndicator('https');
+                        setupHttpsMode();
+                    }
+                }).catch(function() {
+                    // permissions.query not supported for camera, proceed with live scan attempt
+                    scannerMode = 'https';
+                    updateModeIndicator('https');
+                    setupHttpsMode();
+                });
+            } else if (isSecureContext) {
+                // Secure context but no Permissions API — attempt live scanning
+                scannerMode = 'https';
+                updateModeIndicator('https');
                 setupHttpsMode();
             } else {
+                // Not a secure context — file upload only
+                scannerMode = 'http';
+                updateModeIndicator('http');
                 setupHttpMode();
             }
         }

@@ -128,7 +128,14 @@ return [
         'x_content_type_options' => 'nosniff',
         'x_xss_protection' => '1; mode=block',
         'referrer_policy' => 'same-origin',
-        'permissions_policy' => 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()',
+
+        // Note: Permissions-Policy is generated dynamically by SecurityHeadersMiddleware.
+        // Camera is allowed (self) on QR scan routes and blocked () on all other routes.
+        // This is required because Chrome strictly enforces this header and will block
+        // getUserMedia() calls if camera=() is set, even before prompting the user.
+        // See: SecurityHeadersMiddleware::CAMERA_ALLOWED_ROUTES
+        'permissions_policy' => 'geolocation=(), microphone=(), camera=(dynamic), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()',
+        
         'hsts' => [
             'enabled' => env('APP_ENV') === 'production',
             'max_age' => 31536000, // 1 year in seconds
