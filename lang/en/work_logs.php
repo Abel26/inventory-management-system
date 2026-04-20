@@ -159,6 +159,8 @@ return [
         'location_id_integer' => 'Location ID must be a number.',
         'location_id_exists' => 'Selected location is not valid.',
         'notes_max' => 'Notes must not exceed 2000 characters.',
+        'attachment_max' => 'Attachment size must not exceed 2MB.',
+        'attachment_mimes' => 'Attachment format must be JPEG, JPG, PNG, or PDF.',
     ],
 
     // Placeholders

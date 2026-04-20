@@ -57,6 +57,15 @@ class SecurityHeadersMiddleware
             $response->headers->set($header, $value);
         }
 
+        // Prevent browser caching for authenticated pages
+        // Firefox aggressively caches HTML without Cache-Control headers,
+        // causing stale notification data to be served from cache.
+        if ($request->hasCookie(config('session.cookie')) || $request->hasHeader('Authorization')) {
+            $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+            $response->headers->set('Pragma', 'no-cache');
+            $response->headers->set('Expires', 'Wed, 11 Jan 1984 05:00:00 GMT');
+        }
+
         // Add HSTS header only in production with HTTPS
         // Strict-Transport-Security (HSTS) memaksa browser menggunakan HTTPS
         if (config('app.env') === 'production' && $request->secure()) {

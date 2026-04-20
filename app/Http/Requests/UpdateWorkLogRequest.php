@@ -41,6 +41,7 @@ class UpdateWorkLogRequest extends FormRequest
             'location_id' => ['nullable', 'integer', 'exists:gedungs,id'],
             'user_id' => ['nullable', 'integer', 'exists:users,id'],
             'notes' => ['nullable', 'string', 'max:2000'],
+            'attachment' => ['nullable', 'file', 'max:2048', 'mimes:jpeg,jpg,png,pdf'],
         ];
     }
 
@@ -71,6 +72,8 @@ class UpdateWorkLogRequest extends FormRequest
             'location_id.integer' => __('work_logs.validation.location_id_integer'),
             'location_id.exists' => __('work_logs.validation.location_id_exists'),
             'notes.max' => __('work_logs.validation.notes_max'),
+            'attachment.max' => __('work_logs.validation.attachment_max'),
+            'attachment.mimes' => __('work_logs.validation.attachment_mimes'),
         ];
     }
 }

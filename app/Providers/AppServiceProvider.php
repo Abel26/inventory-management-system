@@ -39,7 +39,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         // View Composer: Share pending report count and latest notifications with navbar
-        View::composer(['layouts.navigation', 'layouts.app', 'components.layout.navbar'], function ($view) {
+        View::composer(['layouts.app', 'components.layout.navbar', 'components.layout.mobile-navbar'], function ($view) {
             // 1. Pending Reports
             $pendingReports = Report::where('status', 'Pending')
                 ->with(['user', 'reportable'])

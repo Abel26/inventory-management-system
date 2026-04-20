@@ -165,6 +165,8 @@ return [
         'location_id_integer' => 'ID lokasi harus berupa angka.',
         'location_id_exists' => 'Lokasi yang dipilih tidak valid.',
         'notes_max' => 'Catatan maksimal 2000 karakter.',
+        'attachment_max' => 'Ukuran lampiran tidak boleh lebih dari 2MB.',
+        'attachment_mimes' => 'Format lampiran harus berupa JPEG, JPG, PNG, atau PDF.',
     ],
 
     // Placeholders
