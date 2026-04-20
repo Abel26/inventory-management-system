@@ -104,32 +104,44 @@ class AssetModelController extends Controller
             }
             
             if (!$model) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Model tidak ditemukan'
-                ], 404);
+                if (request()->ajax() || request()->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Model tidak ditemukan'
+                    ], 404);
+                }
+                abort(404, 'Model tidak ditemukan');
             }
             
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'id' => $model->id,
-                    'model_code' => $model->model_code,
-                    'name' => $model->name,
-                    'type' => $model->type,
-                    'material_id' => $model->material_id,
-                    'manufacture_date' => $model->manufacture_date ? $model->manufacture_date->format('Y-m-d') : null,
-                    'condition' => $model->condition,
-                    'location' => $model->location,
-                    'gedung_id' => $model->gedung_id,
-                    'description' => $model->description,
-                ]
-            ]);
+            // If request is AJAX or expects JSON, return JSON response
+            if (request()->ajax() || request()->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => [
+                        'id' => $model->id,
+                        'model_code' => $model->model_code,
+                        'name' => $model->name,
+                        'type' => $model->type,
+                        'material_id' => $model->material_id,
+                        'manufacture_date' => $model->manufacture_date ? $model->manufacture_date->format('Y-m-d') : null,
+                        'condition' => $model->condition,
+                        'location' => $model->location,
+                        'gedung_id' => $model->gedung_id,
+                        'description' => $model->description,
+                    ]
+                ]);
+            }
+
+            // Otherwise return the view
+            return view('asset_models.show', compact('model'));
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mengambil data model: ' . $e->getMessage()
-            ], 500);
+            if (request()->ajax() || request()->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal mengambil data model: ' . $e->getMessage()
+                ], 500);
+            }
+            abort(500, 'Gagal mengambil data model');
         }
     }
 

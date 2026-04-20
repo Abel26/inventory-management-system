@@ -122,37 +122,53 @@ class AssetManagementController extends Controller
             }
             
             if (!$material) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Material tidak ditemukan'
-                ], 404);
+                if (request()->ajax() || request()->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Material tidak ditemukan'
+                    ], 404);
+                }
+                abort(404, 'Material tidak ditemukan');
             }
             
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'id' => $material->id,
-                    'material_code' => $material->material_code,
-                    'name' => $material->name,
-                    'type' => $material->type,
-                    'quantity' => $material->quantity,
-                    'unit_id' => $material->unit_id,
-                    'unit' => $material->satuan ? $material->satuan->nama : $material->unit, // Untuk backward compatibility
-                    'min_threshold' => $material->min_threshold,
-                    'unit_price' => $material->unit_price,
-                    'supplier' => $material->supplier,
-                    'entry_date' => $material->entry_date ? $material->entry_date->format('Y-m-d') : '',
-                    'expiry_date' => $material->expiry_date ? $material->expiry_date->format('Y-m-d') : '',
-                    'location' => $material->location,
-                    'gedung_id' => $material->gedung_id,
-                    'description' => $material->description,
-                ]
-            ]);
+            // If request is AJAX or expects JSON, return JSON response
+            if (request()->ajax() || request()->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => [
+                        'id' => $material->id,
+                        'material_code' => $material->material_code,
+                        'name' => $material->name,
+                        'type' => $material->type,
+                        'quantity' => $material->quantity,
+                        'unit_id' => $material->unit_id,
+                        'unit' => $material->satuan ? $material->satuan->nama : $material->unit,
+                        'min_threshold' => $material->min_threshold,
+                        'unit_price' => $material->unit_price,
+                        'supplier' => $material->supplier,
+                        'entry_date' => $material->entry_date ? $material->entry_date->format('Y-m-d') : '',
+                        'expiry_date' => $material->expiry_date ? $material->expiry_date->format('Y-m-d') : '',
+                        'location' => $material->location,
+                        'gedung_id' => $material->gedung_id,
+                        'description' => $material->description,
+                    ]
+                ]);
+            }
+
+            // Otherwise return the view
+            return view('asset_materials.show', compact('material'));
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mengambil data material: ' . $e->getMessage()
-            ], 500);
+            if (request()->ajax() || request()->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal mengambil data material: ' . $e->getMessage()
+                ], 500);
+            }
+            Log::error('MATERIAL SHOW: Error occurred', [
+                'error' => $e->getMessage(),
+                'id' => $id
+            ]);
+            abort(500, 'Gagal mengambil data material');
         }
     }
 

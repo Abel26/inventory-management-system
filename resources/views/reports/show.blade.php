@@ -57,6 +57,8 @@
                             @endphp
                             @if($routeName)
                                 <a href="{{ route($routeName, ['id' => $report->reportable->id]) }}"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
                                    class="text-ebara-600 hover:text-ebara-800 text-sm font-medium">
                                     {{ __('modules.reports.view_asset') }} <i class="ph ph-arrow-right"></i>
                                 </a>

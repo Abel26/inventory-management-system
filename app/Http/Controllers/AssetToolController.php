@@ -101,36 +101,48 @@ class AssetToolController extends Controller
             }
             
             if (!$tool) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Alat tidak ditemukan'
-                ], 404);
+                if (request()->ajax() || request()->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Alat tidak ditemukan'
+                    ], 404);
+                }
+                abort(404, 'Alat tidak ditemukan');
             }
             
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'id' => $tool->id,
-                    'tool_code' => $tool->tool_code,
-                    'name' => $tool->name,
-                    'category' => $tool->category,
-                    'brand' => $tool->brand,
-                    'type' => $tool->type,
-                    'purchase_date' => $tool->purchase_date ? $tool->purchase_date->format('Y-m-d') : '',
-                    'purchase_price' => $tool->purchase_price,
-                    'purchase_year' => $tool->purchase_date ? $tool->purchase_date->format('Y') : ($tool->purchase_year ?? ''),
-                    'quantity' => $tool->quantity,
-                    'location' => $tool->location,
-                    'gedung_id' => $tool->gedung_id,
-                    'condition' => $tool->condition,
-                    'description' => $tool->description,
-                ]
-            ]);
+            // If request is AJAX or expects JSON, return JSON response
+            if (request()->ajax() || request()->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => [
+                        'id' => $tool->id,
+                        'tool_code' => $tool->tool_code,
+                        'name' => $tool->name,
+                        'category' => $tool->category,
+                        'brand' => $tool->brand,
+                        'type' => $tool->type,
+                        'purchase_date' => $tool->purchase_date ? $tool->purchase_date->format('Y-m-d') : '',
+                        'purchase_price' => $tool->purchase_price,
+                        'purchase_year' => $tool->purchase_date ? $tool->purchase_date->format('Y') : ($tool->purchase_year ?? ''),
+                        'quantity' => $tool->quantity,
+                        'location' => $tool->location,
+                        'gedung_id' => $tool->gedung_id,
+                        'condition' => $tool->condition,
+                        'description' => $tool->description,
+                    ]
+                ]);
+            }
+
+            // Otherwise return the view
+            return view('asset_tools.show', compact('tool'));
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mengambil data alat: ' . $e->getMessage()
-            ], 500);
+            if (request()->ajax() || request()->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal mengambil data alat: ' . $e->getMessage()
+                ], 500);
+            }
+            abort(500, 'Gagal mengambil data alat');
         }
     }
 
