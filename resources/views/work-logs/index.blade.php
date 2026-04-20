@@ -182,130 +182,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('start_date').value = formatDate(firstDayOfMonth);
     document.getElementById('end_date').value = formatDate(today);
 
-    // Load work logs data
-    function loadWorkLogs() {
-        const startDate = document.getElementById('start_date').value;
-        const endDate = document.getElementById('end_date').value;
-        const status = document.getElementById('status_filter').value;
-        const user = document.getElementById('user_filter').value;
-        
-        const params = new URLSearchParams();
-        if (startDate) params.append('start_date', startDate);
-        if (endDate) params.append('end_date', endDate);
-        if (status) params.append('status', status);
-        if (user) params.append('user_id', user);
-        
-        fetch(`{{ route('api.work-logs.data') }}?${params.toString()}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    renderWorkLogs(data.data);
-                    updateStats(data.stats);
-                }
-            });
-    }
-    
-    // Render work logs table
-    function renderWorkLogs(workLogs) {
-        const tbody = document.getElementById('work_logs_table_body');
-        const countDisplay = document.getElementById('table_count_display');
-        
-        if (countDisplay) {
-            countDisplay.textContent = `${workLogs.length} Records`;
-        }
-        
-        if (workLogs.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="8" class="px-6 py-12 text-center text-slate-400 italic">
-                        <i class="ph ph-folder-not-found text-4xl mb-2 block mx-auto text-slate-200"></i>
-                        {{ __('work_logs.messages.no_work_logs') }}
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-        
-        tbody.innerHTML = workLogs.map(log => `
-            <tr class="hover:bg-slate-50 transition-colors group">
-                <td class="px-6 py-4 text-sm font-bold text-indigo-600 font-mono">${log.work_code}</td>
-                <td class="px-6 py-4">
-                    <div class="text-sm font-bold text-slate-700">${log.user.full_name}</div>
-                    <div class="text-xs text-slate-400 italic">${log.user.email || ''}</div>
-                </td>
-                <td class="px-6 py-4 text-sm text-slate-600 max-w-xs truncate" title="${log.description}">${log.description}</td>
-                <td class="px-6 py-4 text-sm text-slate-600 font-medium">${log.work_date}</td>
-                <td class="px-6 py-4 text-sm text-slate-600 font-bold">${log.work_duration}</td>
-                <td class="px-6 py-4 text-sm">${log.status_badge}</td>
-                <td class="px-6 py-4 text-sm">${log.priority_badge}</td>
-                <td class="px-6 py-4 text-right">
-                    <div class="flex items-center justify-center gap-1">
-                        <a href="${log.show_url}" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="{{ __('work_logs.buttons.view') }}">
-                            <i class="ph ph-eye text-lg"></i>
-                        </a>
-                        ${log.can_edit ? `
-                        <a href="${log.edit_url}" class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="{{ __('work_logs.buttons.edit') }}">
-                            <i class="ph ph-pencil-simple text-lg"></i>
-                        </a>
-                        ` : ''}
-                        ${log.can_delete ? `
-                        <button onclick="deleteWorkLog(${log.id})" class="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" title="{{ __('work_logs.buttons.delete') }}">
-                            <i class="ph ph-trash text-lg"></i>
-                        </button>
-                        ` : ''}
-                    </div>
-                </td>
-            </tr>
-        `).join('');
-    }
-    
-    // Update stats
-    function updateStats(stats) {
-        const totalLogs = document.querySelector('.work-log-stats-total-logs');
-        if (totalLogs) totalLogs.textContent = stats.total_logs || 0;
-        
-        const totalHours = document.querySelector('.work-log-stats-total-hours');
-        if (totalHours) totalHours.textContent = (stats.total_hours || 0).toFixed(1);
-        
-        const completed = document.querySelector('.work-log-stats-completed');
-        if (completed) completed.textContent = stats.completed || 0;
-        
-        const inProgress = document.querySelector('.work-log-stats-in-progress');
-        if (inProgress) inProgress.textContent = stats.in_progress || 0;
-    }
-    
-    // Delete work log
-    function deleteWorkLog(id) {
-        if (!confirm('{{ __('work_logs.buttons.confirm_delete') }}')) {
-            return;
-        }
-        
-        fetch(`{{ route('work-logs.destroy', ':id') }}`.replace(':id', id), {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: '{{ __('work_logs.messages.delete_success') }}',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-                loadWorkLogs();
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: '{{ __('work_logs.messages.delete_error') }}',
-                    text: data.message
-                });
-            }
-        });
-    }
-    
     // Event listeners
     document.getElementById('start_date').addEventListener('change', loadWorkLogs);
     document.getElementById('end_date').addEventListener('change', loadWorkLogs);
@@ -315,6 +191,152 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initial load
     loadWorkLogs();
 });
+
+// Load work logs data
+function loadWorkLogs() {
+    const startDate = document.getElementById('start_date').value;
+    const endDate = document.getElementById('end_date').value;
+    const status = document.getElementById('status_filter').value;
+    const user = document.getElementById('user_filter').value;
+    
+    const params = new URLSearchParams();
+    if (startDate) params.append('start_date', startDate);
+    if (endDate) params.append('end_date', endDate);
+    if (status) params.append('status', status);
+    if (user) params.append('user_id', user);
+    
+    fetch(`{{ route('api.work-logs.data') }}?${params.toString()}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                renderWorkLogs(data.data);
+                updateStats(data.stats);
+            }
+        });
+}
+
+// Render work logs table
+function renderWorkLogs(workLogs) {
+    const tbody = document.getElementById('work_logs_table_body');
+    const countDisplay = document.getElementById('table_count_display');
+    
+    if (countDisplay) {
+        countDisplay.textContent = `${workLogs.length} Records`;
+    }
+    
+    if (workLogs.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="px-6 py-12 text-center text-slate-400 italic">
+                    <i class="ph ph-folder-not-found text-4xl mb-2 block mx-auto text-slate-200"></i>
+                    {{ __('work_logs.messages.no_work_logs') }}
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = workLogs.map(log => `
+        <tr class="hover:bg-slate-50 transition-colors group">
+            <td class="px-6 py-4 text-sm font-bold text-indigo-600 font-mono">${log.work_code}</td>
+            <td class="px-6 py-4">
+                <div class="text-sm font-bold text-slate-700">${log.user.full_name}</div>
+                <div class="text-xs text-slate-400 italic">${log.user.email || ''}</div>
+            </td>
+            <td class="px-6 py-4 text-sm text-slate-600 max-w-xs truncate" title="${log.description}">${log.description}</td>
+            <td class="px-6 py-4 text-sm text-slate-600 font-medium">${log.work_date}</td>
+            <td class="px-6 py-4 text-sm text-slate-600 font-bold">${log.work_duration}</td>
+            <td class="px-6 py-4 text-sm">${log.status_badge}</td>
+            <td class="px-6 py-4 text-sm">${log.priority_badge}</td>
+            <td class="px-6 py-4 text-right">
+                <div class="flex items-center justify-center gap-1">
+                    <a href="${log.show_url}" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="{{ __('work_logs.buttons.view') }}">
+                        <i class="ph ph-eye text-lg"></i>
+                    </a>
+                    ${log.can_edit ? `
+                    <a href="${log.edit_url}" class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="{{ __('work_logs.buttons.edit') }}">
+                        <i class="ph ph-pencil-simple text-lg"></i>
+                    </a>
+                    ` : ''}
+                    ${log.can_delete ? `
+                    <button onclick="deleteWorkLog(${log.id})" class="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" title="{{ __('work_logs.buttons.delete') }}">
+                        <i class="ph ph-trash text-lg"></i>
+                    </button>
+                    ` : ''}
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Update stats
+function updateStats(stats) {
+    const totalLogs = document.querySelector('.work-log-stats-total-logs');
+    if (totalLogs) totalLogs.textContent = stats.total_logs || 0;
+    
+    const totalHours = document.querySelector('.work-log-stats-total-hours');
+    if (totalHours) totalHours.textContent = (stats.total_hours || 0).toFixed(1);
+    
+    const completed = document.querySelector('.work-log-stats-completed');
+    if (completed) completed.textContent = stats.completed || 0;
+    
+    const inProgress = document.querySelector('.work-log-stats-in-progress');
+    if (inProgress) inProgress.textContent = stats.in_progress || 0;
+}
+
+// Delete work log
+function deleteWorkLog(id) {
+    Swal.fire({
+        title: '{{ __('modules.swal.confirm_title') }}',
+        text: '{{ __('modules.swal.delete_warning') }}',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e11d48', // rose-600
+        cancelButtonColor: '#64748b', // slate-500
+        confirmButtonText: '{{ __('modules.swal.yes_delete') }}',
+        cancelButtonText: '{{ __('modules.swal.cancel') }}',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`{{ route('work-logs.destroy', ':id') }}`.replace(':id', id), {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '{{ __('modules.swal.success') }}',
+                        text: '{{ __('modules.swal.data_deleted') }}',
+                        confirmButtonColor: '#009B77',
+                        timer: 2000,
+                        timerProgressBar: true,
+                        showConfirmButton: false
+                    });
+                    loadWorkLogs();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '{{ __('work_logs.messages.delete_error') }}',
+                        text: data.message
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: '{{ __('work_logs.messages.delete_error') }}',
+                    text: 'Terjadi kesalahan sistem.'
+                });
+            });
+        }
+    });
+}
 </script>
 @endpush
 </x-app-layout>
